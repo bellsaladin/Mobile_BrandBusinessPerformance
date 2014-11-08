@@ -72,19 +72,23 @@ public class MainActivity extends ActionBarActivity {
                 
                 /** Creating fragment1 Tab */
                 Tab tab = mActionbar.newTab()
-                                   .setText("Localisation")                                   
+                                   .setText("Localisation")  
+                                   .setIcon(R.drawable.ic_launcher)
                                    .setTabListener(tabListener);
 
                 mActionbar.addTab(tab);
 
                 /** Creating fragment2 Tab */
                 tab = mActionbar.newTab()
-                               .setText("Rapport")                               
+                               .setText("Rapport")          
+                               .setIcon(R.drawable.ic_launcher)
                                .setTabListener(tabListener);
+
                 mActionbar.addTab(tab);
                 
                 tab = mActionbar.newTab()
-                        .setText("Deconnexion")                               
+                        .setText("Deconnexion")   
+                        .setIcon(R.drawable.ic_launcher)
                         .setTabListener(tabListener);
 
                 mActionbar.addTab(tab);        
