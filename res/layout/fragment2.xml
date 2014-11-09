@@ -93,6 +93,11 @@
         	</TableRow>
             
         </TableLayout>
+        <CheckBox
+	    android:id="@+id/cb_tombola"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:text="Tombola" />
     </LinearLayout>
 	
 	<LinearLayout
@@ -119,13 +124,14 @@
                 android:ems="10"
                 android:inputType="number" />
         	<EditText
-		        android:id="@+id/editText2"
+		        android:id="@+id/txt_commentaire"
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
 		        android:layout_weight="0.57"
 		        android:ems="10"
 		        android:inputType="textMultiLine" />        		
     </LinearLayout>
+	
     
     <Button
         android:id="@+id/btn_rapport_save"

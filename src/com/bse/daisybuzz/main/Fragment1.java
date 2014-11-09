@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bse.daisybuzz.helper.DatabaseHelper;
+import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daizybuzz.model.PDV;
 import com.bse.daizybuzz.model.Superviseur;
 import com.google.android.gms.maps.CameraUpdate;
@@ -102,7 +103,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		spinner_pdv = (Spinner) view.findViewById(R.id.spinner_pdv);
 		spinner_superviseur = (Spinner) view.findViewById(R.id.spinner_superviseur);		
 		btn_save = (Button) view.findViewById(R.id.btn_save);
-		btn_takePhoto = (Button) view.findViewById(R.id.btn_takePhoto);
+		//btn_takePhoto = (Button) view.findViewById(R.id.btn_takePhoto);
 		txt_licenceProgramme = (EditText) view.findViewById(R.id.txt_licenceProgrammee);
 		txt_licenceProgramme.setEnabled(false);
 		txt_licenceRemplacee = (EditText) view.findViewById(R.id.txt_licenceRemplacee);
@@ -110,7 +111,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		
 		// listeners *****************
 		
-		btn_takePhoto.setOnClickListener(new OnClickListener() {
+		imageView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				takephoto(v);
@@ -262,10 +263,16 @@ public class Fragment1 extends Fragment implements LocationListener {
 		startActivityForResult(cameraIntent, CAMERA_REQUEST);
 	}
 	
-	public void save(View v){
+	public void save(View v){		
+		// valdiation
+		if(pdvsList.size() == 0 || superviseursList.size() == 0)
+			return;		
+					
+		// ********* saving
+		
+		// set parameters
 		String licenceRemplacee = txt_licenceRemplacee.getText().toString();
 		String motif = txt_motif.getText().toString();
-		// set parameters
 		Superviseur superviseur = superviseursList.get(spinner_superviseur.getSelectedItemPosition());
 		PDV pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());
 		params.put("superviseur", String.valueOf(superviseur.getId()));
@@ -277,7 +284,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		
 		params.put("licenceRemplacee", licenceRemplacee);
 		params.put("motif", motif);
-		
+		// start upload of localisation data
 		uploadLocalisationData(v);
 	}
 
@@ -345,13 +352,16 @@ public class Fragment1 extends Fragment implements LocationListener {
 	// http://192.168.2.4:9999/ImageUploadWebApp/uploadimg.jsp
 	// Make Http call to upload Image to Php server
 	public void makeHTTPCall() {
+		
+		Preferences preferences = new Preferences(this.getActivity());
+	    String webserviceRootUrl = preferences.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
+		
 		prgDialog.setMessage("Invoking Php");
 		AsyncHttpClient client = new AsyncHttpClient();
 		client.setTimeout(3000000); // 30 seconds
 		// Don't forget to change the IP address to your LAN address. Port no as
 		// well.
-		client.post(
-				"http://192.168.1.29/_testZone/webservice/upload_image.php",
+		client.post(webserviceRootUrl + "/upload_image.php",
 				params, new AsyncHttpResponseHandler() {
 					// When the response returned by REST has Http
 					// response code '200'

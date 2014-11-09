@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
+import android.view.Window;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -19,15 +20,17 @@ public class MainActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		//requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_main);
 
 		/** Getting a reference to action bar of this activity */
 		mActionbar = getSupportActionBar();
 
 		/** Set tab navigation mode */
-		mActionbar.setDisplayShowTitleEnabled(false);
-
 		mActionbar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		mActionbar.setDisplayShowTitleEnabled(false);
+		mActionbar.setDisplayShowHomeEnabled(false);
+		// mActionbar.setDisplayShowTitleEnabled(false);
 
 		/** Getting a reference to ViewPager from the layout */
 		mPager = (ViewPager) findViewById(R.id.pager);

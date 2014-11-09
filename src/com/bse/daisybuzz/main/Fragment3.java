@@ -1,5 +1,6 @@
 package com.bse.daisybuzz.main;
 
+import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.DatabaseHelper;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Marque;
@@ -98,13 +99,17 @@ public class Fragment3 extends Fragment {
 	 * *********************************************************************************** */
 	
 	public void synchronizeAll() {
+		
+		Preferences preferences = new Preferences(this.getActivity());
+	    String webserviceRootUrl = preferences.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
+	    
 		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
 		nameValuePairs.add(new BasicNameValuePair("id", "1"));
-
+		
 		try {
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost("http://192.168.1.29/_testZone/webservice/get_data.php");
+			HttpPost httppost = new HttpPost(webserviceRootUrl + "/get_data.php");
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			HttpResponse response = httpclient.execute(httppost);
 			HttpEntity entity = response.getEntity();
@@ -132,7 +137,9 @@ public class Fragment3 extends Fragment {
 		
 		// preprate sqlLite database
 		DatabaseHelper db = new DatabaseHelper(this.getActivity().getApplicationContext());
-		db.onUpgrade(db.getWritableDatabase(), 0, 1);
+		db.onUpgrade(db.getWritableDatabase(), 0, 1); // force tables to delete		
+		
+		// start JSON parsing
 		try {
 			JSONObject json_data = new JSONObject(result);
 			
@@ -195,15 +202,29 @@ public class Fragment3 extends Fragment {
 			    Log.e("Synchronization", "Superviseur : " + rows.length() + " records added to sqllite database");
 			    Log.e("Synchronization", "Superviseur : " + db.getRecordsCount("superviseur") + " records existing at sqllite database");
 			    
+			    rows= json_data.getJSONArray("parameters");			    
+			    for(int i=0; i< rows.length(); i++){
+			        JSONObject jsonas = rows.getJSONObject(i);
+			        String key = jsonas.getString("key");
+			        String value = jsonas.getString("value");;
+			        preferences.saveValue(key, value);
+			    }			    
+
+			    // Save user authentification values
+			    
+			    preferences.saveValue("USER_PASSWORD","admin");
+			    preferences.saveValue("USER_NAME","123");			    			    
+			    
+			    
+			    // Info popup
+				Toast.makeText(this.getActivity().getBaseContext(),
+						"database synched corretly : " + preferences.getIntValue("TOMBOLA_ENABLED"), Toast.LENGTH_SHORT).show();
+
+				
 			} catch (JSONException e) {
 			    // TODO Auto-generated catch block
 			    e.printStackTrace();
-			}
-			
-			// name = (json_data.getString("libelle"));
-			Toast.makeText(this.getActivity().getBaseContext(),
-					"database synched corretly : " + name, Toast.LENGTH_SHORT).show();
-
+			}			
 			
 		} catch (Exception e) {
 			Log.e("Fail 3", e.toString());
