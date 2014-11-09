@@ -125,7 +125,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 			}
 		});	
 		
-		spinner_superviseur.setOnItemSelectedListener(new OnItemSelectedListener() {
+		spinner_pdv.setOnItemSelectedListener(new OnItemSelectedListener() {
 		    @Override
 		    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
 		    	
@@ -198,7 +198,9 @@ public class Fragment1 extends Fragment implements LocationListener {
         provider = locationManager.getBestProvider(criteria, false);
  
         if(provider!=null && !provider.equals("")){
- 
+        	
+        	
+        	
             // Get the location from the given provider
             Location location = locationManager.getLastKnownLocation(provider);
  
@@ -348,9 +350,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		makeHTTPCall();
 	}
 
-	// http://192.168.2.4:9000/imgupload/upload_image.php
-	// http://192.168.2.4:9999/ImageUploadWebApp/uploadimg.jsp
-	// Make Http call to upload Image to Php server
+	// Make Http call to upload image/ data to Php server
 	public void makeHTTPCall() {
 		
 		Preferences preferences = new Preferences(this.getActivity());
@@ -388,7 +388,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 							Toast.makeText(
 									Fragment1.this.getActivity()
 											.getApplicationContext(),
-									"Requested resource not found",
+									"Le webservice demandé n'est pas disponible !",
 									Toast.LENGTH_LONG).show();
 						}
 						// When Http response code is '500'
@@ -396,7 +396,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 							Toast.makeText(
 									Fragment1.this.getActivity()
 											.getApplicationContext(),
-									"Something went wrong at server end",
+									"IL y a eu un problème au niveau du script !",
 									Toast.LENGTH_LONG).show();
 						}
 						// When Http response code other than 404, 500
@@ -420,14 +420,15 @@ public class Fragment1 extends Fragment implements LocationListener {
  
         // Getting reference to TextView tv_latitude
         // TextView tvLatitude = (TextView)findViewById(R.id.tv_latitude);
- 
-        // Setting Current Longitude
-		Toast.makeText(this.getActivity().getBaseContext(), location.getLongitude() + "," + location.getLatitude() , Toast.LENGTH_SHORT).show();
-		
-		CameraUpdate center=CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
-        mMap.moveCamera(center);
-        mMap.animateCamera(zoom);
+		if(location != null){
+	        // Setting Current Longitude
+			Toast.makeText(this.getActivity().getBaseContext(), location.getLongitude() + "," + location.getLatitude() , Toast.LENGTH_SHORT).show();
+			
+			CameraUpdate center=CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
+	        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+	        mMap.moveCamera(center);
+	        mMap.animateCamera(zoom);
+		}
 	}
 
 	@Override
@@ -447,4 +448,6 @@ public class Fragment1 extends Fragment implements LocationListener {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	
 }

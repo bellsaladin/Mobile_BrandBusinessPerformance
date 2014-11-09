@@ -37,7 +37,7 @@ public class Preferences {
 	public String getStringValue( String key) {		
 	    Context mContext = gameActivity.getApplicationContext();
 	    sharedPreferences = mContext.getSharedPreferences(PREFERENCES_ID, Context.MODE_PRIVATE);
-	    return sharedPreferences.getString(key, "NONE");
+	    return sharedPreferences.getString(key, "");
 	}
 	
 	public int getIntValue(String key) {		
