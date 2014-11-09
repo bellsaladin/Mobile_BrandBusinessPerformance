@@ -104,6 +104,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		btn_save = (Button) view.findViewById(R.id.btn_save);
 		btn_takePhoto = (Button) view.findViewById(R.id.btn_takePhoto);
 		txt_licenceProgramme = (EditText) view.findViewById(R.id.txt_licenceProgrammee);
+		txt_licenceProgramme.setEnabled(false);
 		txt_licenceRemplacee = (EditText) view.findViewById(R.id.txt_licenceRemplacee);
 		txt_motif = (EditText) view.findViewById(R.id.txt_motif);
 		
