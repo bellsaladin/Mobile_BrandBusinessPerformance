@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 public class MyFragmentPagerAdapter extends FragmentPagerAdapter{
 	
-	final int PAGE_COUNT = 2;
+	final int PAGE_COUNT = 3;
 	
 	/** Constructor of the class */
 	public MyFragmentPagerAdapter(FragmentManager fm) {
@@ -29,7 +29,11 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter{
 			/** tab2 is selected */
 			case 1:
 				Fragment2 fragment2 = new Fragment2();
-				return fragment2;	
+				return fragment2;
+			/** tab3 is selected */
+			case 2:
+				Fragment3 fragment3 = new Fragment3();
+				return fragment3;
 		}
 		
 		return null;

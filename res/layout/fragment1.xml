@@ -1,80 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-     Copyright (C) 2012 The Android Open Source Project
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-
-          http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
--->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical">
-  <fragment
-    android:id="@+id/map"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
-    class="com.google.android.gms.maps.SupportMapFragment"/>
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:focusableInTouchMode="true">
 
-  <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:orientation="vertical" >
-   
-      <Button
-        android:id="@+id/btn_takePhoto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onTakePhoto"
-        android:text="Prendre photo"/>
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
 
-      <Spinner
-          android:id="@+id/spinner1"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
 
-      <Spinner
-          android:id="@+id/spinner2"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content" />
+            <fragment
+                android:id="@+id/map"
+                android:layout_width="match_parent"
+                android:layout_height="167dp"
+                class="com.google.android.gms.maps.SupportMapFragment" />
 
-      <EditText
-          android:id="@+id/editText1"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:ems="10"
-          android:inputType="numberSigned" >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical" >
 
-          <requestFocus />
-      </EditText>
+                <Button
+                    android:id="@+id/btn_takePhoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Prendre photo" />
 
-      <EditText
-          android:id="@+id/editText2"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:ems="10"
-          android:inputType="numberSigned" />
+                <ImageView
+                    android:id="@+id/iv_photo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_launcher" >
+                </ImageView>
 
-      <EditText
-          android:id="@+id/editText3"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:ems="10"
-          android:inputType="textMultiLine" />
-    
-      <Button
-        android:id="@+id/valider"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onSend"
-        android:text="Valider"/>
-  </LinearLayout>  
+                <Spinner
+                    android:id="@+id/spinner_superviseur"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp" />
+
+                <Spinner
+                    android:id="@+id/spinner_pdv"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp" />
+
+                <EditText
+                    android:id="@+id/txt_licenceProgrammee"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="numberSigned" >
+                    
+                </EditText>
+
+                <EditText
+                    android:id="@+id/txt_licenceRemplacee"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="numberDecimal" />
+
+                <EditText
+                    android:id="@+id/txt_motif"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="textMultiLine" />
+
+                <Button
+                    android:id="@+id/btn_save"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:onClick="uploadImage"
+                    android:text="Upload" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
 </LinearLayout>

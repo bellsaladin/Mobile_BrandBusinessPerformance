@@ -38,7 +38,7 @@ public class CameraActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_camera);
-		imageView = (ImageView) findViewById(R.id.imageView1);
+		imageView = (ImageView) findViewById(R.id.iv_photo);
 		
 		prgDialog = new ProgressDialog(this);
 		// Set Cancelable as False
@@ -78,10 +78,8 @@ public class CameraActivity extends Activity {
 				fileName = fileNameSegments[fileNameSegments.length - 1];
 				// Put file name in Async Http Post Param which will used in Php web app
 				params.put("filename", fileName);
-
 			} else {
-				Toast.makeText(this, "You haven't picked Image",
-						Toast.LENGTH_LONG).show();
+				Toast.makeText(this, "You haven't picked Image", Toast.LENGTH_LONG).show();
 			}
 			
 

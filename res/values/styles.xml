@@ -11,6 +11,11 @@
             backward-compatibility can go here.
         -->
     </style>
+    
+    <style name="Theme.AppCompat.Light.ActionBar.FullScreen" parent="@style/Theme.AppCompat.Light">
+	    <item name="android:windowNoTitle">true</item>
+	    
+	</style>
 
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">

@@ -1,17 +1,420 @@
 package com.bse.daisybuzz.main;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.bse.daisybuzz.helper.DatabaseHelper;
+import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.Superviseur;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.util.Base64;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.Toast;
+import android.widget.AdapterView.OnItemSelectedListener;
 
-public class Fragment1 extends Fragment {
+public class Fragment1 extends Fragment implements LocationListener {
+	DatabaseHelper db;
+	
+	private static final int CAMERA_REQUEST = 1888;	
+	LocationManager locationManager;
+	String provider;
+	
+	GoogleMap mMap;
+	
+	private ImageView imageView;
+	private Button btn_takePhoto,btn_save;
+	private EditText txt_licenceProgramme, txt_licenceRemplacee, txt_motif ;
+	private Spinner spinner_pdv, spinner_superviseur;
+	
+	ProgressDialog prgDialog;
+	String encodedString;
+	RequestParams params = new RequestParams();
+	String imgPath = null, fileName = null;
+	Bitmap bitmap;
+	private static int RESULT_LOAD_IMG = 1;
+	View view;
+	
+	List<Superviseur> superviseursList;
+	List<PDV> pdvsList;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment1, null);
+
+		prgDialog = new ProgressDialog(this.getActivity());
+		// Set Cancelable as False
+		prgDialog.setCancelable(false);
+		if (view != null) {
+		    ViewGroup parent = (ViewGroup) view.getParent();
+		    if (parent != null)
+		        parent.removeView(view);
+		}
+		try {
+		    view = inflater.inflate(R.layout.fragment1, container, false);
+		} catch (InflateException e) {
+		    /* map is already there, just return view as it is */
+		}
+		
+		/* ****************************************************************************************************************
+		 * Finding views and implemeting listeners
+		 * ****************************************************************************************************************/
+
+		imageView = (ImageView) view.findViewById(R.id.iv_photo);
+		spinner_pdv = (Spinner) view.findViewById(R.id.spinner_pdv);
+		spinner_superviseur = (Spinner) view.findViewById(R.id.spinner_superviseur);		
+		btn_save = (Button) view.findViewById(R.id.btn_save);
+		btn_takePhoto = (Button) view.findViewById(R.id.btn_takePhoto);
+		txt_licenceProgramme = (EditText) view.findViewById(R.id.txt_licenceProgrammee);
+		txt_licenceRemplacee = (EditText) view.findViewById(R.id.txt_licenceRemplacee);
+		txt_motif = (EditText) view.findViewById(R.id.txt_motif);
+		
+		// listeners *****************
+		
+		btn_takePhoto.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				takephoto(v);
+			}
+		});
+		
+		btn_save.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				uploadImage(v);
+			}
+		});	
+		
+		spinner_superviseur.setOnItemSelectedListener(new OnItemSelectedListener() {
+		    @Override
+		    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+		    	
+		    	/*if(spinner_superviseur.getChildCount() > 0){
+		    		PDV pdv = pdvsList.get(position);
+			    	txt_licenceProgramme.setText(pdv.getLicence());
+		    	}
+		    	PDV pdv = pdvsList.get(position);
+		    	txt_licenceProgramme.setText(pdv.getLicence());*/
+		    }
+
+		    @Override
+		    public void onNothingSelected(AdapterView<?> parentView) {
+		        // your code here
+		    }
+
+		});
+		
+		/* ****************************************************************************************************************
+		 * Load data from sqlite
+		 * ****************************************************************************************************************/
+
+		db = new DatabaseHelper(this.getActivity().getApplicationContext());
+		superviseursList = db.getAllSuperviseurs();
+		pdvsList = db.getAllPDV();
+		
+		/* ****************************************************************************************************************
+		 * Form controls populating
+		 * ****************************************************************************************************************/
+		
+		// ##### superviseurs
+		List<String> superviseursArray =  new ArrayList<String>();
+		
+		for(Superviseur superviseur : superviseursList){
+			superviseursArray.add(superviseur.getPrenom() + " " + superviseur.getNom());
+		}
+
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+		    this.getActivity(), android.R.layout.simple_spinner_item, superviseursArray);
+
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		
+		spinner_superviseur.setAdapter(adapter);
+		
+		// ##### points de ventes
+		List<String> pdvsArray =  new ArrayList<String>();
+		for(PDV pdv : pdvsList){
+			pdvsArray.add(String.valueOf(pdv.getNom()));
+		}
+
+		adapter = new ArrayAdapter<String>(
+		    this.getActivity(), android.R.layout.simple_spinner_item, pdvsArray);
+
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		
+		spinner_pdv.setAdapter(adapter);
+		/* if(pdvsList.size() > 0)
+			txt_licenceProgramme.setText(pdvsList.get(0).getLicence());*/
+		
+		/* ****************************************************************************************************************
+		 * LOCALISATION
+		 * ****************************************************************************************************************/
+		
+		// Getting LocationManager object
+        locationManager = (LocationManager)this.getActivity().getSystemService(Context.LOCATION_SERVICE);
+ 
+        // Creating an empty criteria object
+        Criteria criteria = new Criteria();
+ 
+        // Getting the name of the provider that meets the criteria
+        provider = locationManager.getBestProvider(criteria, false);
+ 
+        if(provider!=null && !provider.equals("")){
+ 
+            // Get the location from the given provider
+            Location location = locationManager.getLastKnownLocation(provider);
+ 
+            locationManager.requestLocationUpdates(provider, 20000, 1, this);
+            
+            mMap = ((SupportMapFragment) this.getActivity().getSupportFragmentManager().findFragmentById(R.id.map))
+                    .getMap();
+            mMap.setMyLocationEnabled(true);
+            
+            if(location!=null)
+                onLocationChanged(location);
+            else
+                Toast.makeText(this.getActivity().getBaseContext(), "Location can't be retrieved", Toast.LENGTH_SHORT).show();
+ 
+        }else{
+            Toast.makeText(this.getActivity().getBaseContext(), "No Provider Found", Toast.LENGTH_SHORT).show();
+        }       
+		
+		return view;
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == CAMERA_REQUEST) {
+
+			if (null != data) {
+				// Get the Image from data
+
+				Uri selectedImage = data.getData();
+				String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+				// Get the cursor
+				Cursor cursor = this.getActivity().getContentResolver()
+						.query(selectedImage, filePathColumn, null, null, null);
+				// Move to first row
+				cursor.moveToFirst();
+
+				int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+				imgPath = cursor.getString(columnIndex);
+				cursor.close();
+
+				// Set the Image in ImageView
+				Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+				imageView.setImageBitmap(bitmap);
+				// Get the Image's file name
+				String fileNameSegments[] = imgPath.split("/");
+				fileName = fileNameSegments[fileNameSegments.length - 1];
+				// Put file name in Async Http Post Param which will used in Php
+				// web app
+				params.put("filename", fileName);
+			} else {
+				Toast.makeText(this.getActivity(), "You haven't picked Image",
+						Toast.LENGTH_LONG).show();
+			}
+
+		}
+	}
+
+	public void takephoto(View v) {
+		Intent cameraIntent = new Intent(
+				android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+		startActivityForResult(cameraIntent, CAMERA_REQUEST);
+	}
+
+	// When Upload button is clicked
+	public void uploadImage(View v) {
+		// When Image is selected from Gallery
+		if (imgPath != null && !imgPath.isEmpty()) {
+			prgDialog.setMessage("Converting Image to Binary Data");
+			prgDialog.show();
+			// Convert image to String using Base64
+			encodeImagetoString();
+			// When Image is not selected from Gallery
+		} else {
+			Toast.makeText(
+					Fragment1.this.getActivity().getApplicationContext(),
+					"You must select image from gallery before you try to upload",
+					Toast.LENGTH_LONG).show();
+		}
+	}
+
+	// AsyncTask - To convert Image to String
+	public void encodeImagetoString() {
+		new AsyncTask<Void, Void, String>() {
+
+			protected void onPreExecute() {
+
+			};
+
+			@Override
+			protected String doInBackground(Void... params) {
+				BitmapFactory.Options options = null;
+				options = new BitmapFactory.Options();
+				options.inSampleSize = 3;
+				bitmap = BitmapFactory.decodeFile(imgPath, options);
+				ByteArrayOutputStream stream = new ByteArrayOutputStream();
+				// Must compress the Image to reduce image size to make upload
+				// easy
+				bitmap.compress(Bitmap.CompressFormat.JPEG, 5, stream);
+				byte[] byte_arr = stream.toByteArray();
+				// Encode Image to String
+				encodedString = Base64.encodeToString(byte_arr, 0);
+
+				bitmap.recycle();
+				bitmap = null;
+				return "";
+			}
+
+			@Override
+			protected void onPostExecute(String msg) {
+				prgDialog.setMessage("Calling Upload");
+				// Put converted Image string into Async Http Post param
+				params.put("image", encodedString);
+				// Trigger Image upload
+				triggerImageUpload();
+			}
+		}.execute(null, null, null);
+	}
+
+	public void triggerImageUpload() {
+		makeHTTPCall();
+	}
+
+	// http://192.168.2.4:9000/imgupload/upload_image.php
+	// http://192.168.2.4:9999/ImageUploadWebApp/uploadimg.jsp
+	// Make Http call to upload Image to Php server
+	public void makeHTTPCall() {
+		prgDialog.setMessage("Invoking Php");
+		AsyncHttpClient client = new AsyncHttpClient();
+		client.setTimeout(3000000); // 30 seconds
+		// Don't forget to change the IP address to your LAN address. Port no as
+		// well.
+		client.post(
+				"http://192.168.1.29/_testZone/webservice/upload_image.php",
+				params, new AsyncHttpResponseHandler() {
+					// When the response returned by REST has Http
+					// response code '200'
+					@Override
+					public void onSuccess(String response) {
+						// Hide Progress Dialog
+						prgDialog.hide();
+						Toast.makeText(
+								Fragment1.this.getActivity()
+										.getApplicationContext(), response,
+								Toast.LENGTH_LONG).show();
+					}
+
+					// When the response returned by REST has Http
+					// response code other than '200' such as '404',
+					// '500' or '403' etc
+					@Override
+					public void onFailure(int statusCode, Throwable error,
+							String content) {
+						// Hide Progress Dialog
+						prgDialog.hide();
+						// When Http response code is '404'
+						if (statusCode == 404) {
+							Toast.makeText(
+									Fragment1.this.getActivity()
+											.getApplicationContext(),
+									"Requested resource not found",
+									Toast.LENGTH_LONG).show();
+						}
+						// When Http response code is '500'
+						else if (statusCode == 500) {
+							Toast.makeText(
+									Fragment1.this.getActivity()
+											.getApplicationContext(),
+									"Something went wrong at server end",
+									Toast.LENGTH_LONG).show();
+						}
+						// When Http response code other than 404, 500
+						else {
+							Toast.makeText(
+									Fragment1.this.getActivity()
+											.getApplicationContext(),
+									"Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
+											+ statusCode, Toast.LENGTH_LONG)
+									.show();
+						}
+
+					}
+				});
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		// Getting reference to TextView tv_longitude
+        //TextView tvLongitude = (TextView)findViewById(R.id.tv_longitude);
+ 
+        // Getting reference to TextView tv_latitude
+        // TextView tvLatitude = (TextView)findViewById(R.id.tv_latitude);
+ 
+        // Setting Current Longitude
+		Toast.makeText(this.getActivity().getBaseContext(), location.getLongitude() + "," + location.getLatitude() , Toast.LENGTH_SHORT).show();
+		
+		CameraUpdate center=CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+        mMap.moveCamera(center);
+        mMap.animateCamera(zoom);
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+		
 	}
 }

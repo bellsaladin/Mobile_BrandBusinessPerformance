@@ -1,114 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="fragment2" />
-
-    <Spinner
-        android:id="@+id/Spinner02"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
-
-    <Spinner
-        android:id="@+id/Spinner03"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
-
-    <Spinner
-        android:id="@+id/Spinner04"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
-
-    <Spinner
-        android:id="@+id/Spinner05"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
-
-    <Spinner
-        android:id="@+id/Spinner01"
-        android:layout_width="wrap_content"
-        android:layout_height="60dp"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/Spinner02" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
 
     <Spinner
         android:id="@+id/spinner1"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/textView1"
-        android:layout_alignParentRight="true" />
+        android:entries="@array/str_array_achete" />
 
     <Spinner
-        android:id="@+id/spinner2"
-        android:layout_width="wrap_content"
+        android:id="@+id/spinner_ageClient"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/textView1" />
-
-    <CheckBox
-        android:id="@+id/CheckBox01"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="CheckBox" />
-
-    <CheckBox
-        android:id="@+id/checkBox1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/spinner2"
-        android:layout_toLeftOf="@+id/textView1"
-        android:text="M" />
-
-    <CheckBox
-        android:id="@+id/checkBox2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/checkBox1"
-        android:layout_alignBottom="@+id/checkBox1"
-        android:layout_marginLeft="22dp"
-        android:layout_toRightOf="@+id/textView1"
-        android:text="F" />
+        android:entries="@array/str_array_age" />
 
     <Spinner
-        android:id="@+id/spinner3"
-        android:layout_width="wrap_content"
+        android:id="@+id/spinner_sexe"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/checkBox2"
-        android:layout_below="@+id/checkBox1" />
+        android:entries="@array/str_array_sexe" />
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
+   
+
+    <LinearLayout
+        android:id="@+id/layout_1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/spinner3"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/spinner3"
-        android:layout_toRightOf="@+id/spinner3"
-        android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:orientation="vertical" >
+		<Spinner
+	        android:id="@+id/spinner_raisonAchat"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:entries="@array/str_array_raisonAchat" />
+		 
+        <Spinner
+            android:id="@+id/spinner_fidelite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/str_array_fidelite" />
 
-    <Spinner
-        android:id="@+id/spinner4"
-        android:layout_width="wrap_content"
+        
+       <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TableRow
+                android:id="@+id/tableRow1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+	                <Spinner
+	                android:id="@+id/spinner_marqueHabituelle"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_column="1" />
+	
+	            <EditText
+	                android:id="@+id/txt_marquehabituelleQte"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:ems="10"
+	                android:inputType="number"
+	                android:layout_column="2" />
+            </TableRow>
+
+            
+        </TableLayout>
+            
+       <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TableRow  
+                android:id="@+id/tableRow2"              
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+            <Spinner
+                android:id="@+id/spinner_marqueAchetee"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_column="1" />
+
+            <EditText
+                android:id="@+id/txt_marqueAcheteeQte"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                android:layout_column="2" />
+        	</TableRow>
+            
+        </TableLayout>
+    </LinearLayout>
+	
+	<LinearLayout
+        android:id="@+id/layout_2"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/spinner3" />
+        android:orientation="vertical" >
+		<Spinner
+	        android:id="@+id/spinner_raisonRefu"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:entries="@array/str_array_raisonRefu" />
+		
+        <Spinner
+                android:id="@+id/spinner_marqueHabituelle2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
-</RelativeLayout>
+
+            <EditText
+                android:id="@+id/txt_marquehabituelleQte2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number" />
+        	<EditText
+		        android:id="@+id/editText2"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="0.57"
+		        android:ems="10"
+		        android:inputType="textMultiLine" />        		
+    </LinearLayout>
+    
+    <Button
+        android:id="@+id/btn_rapport_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Valider" />
+
+</LinearLayout>
