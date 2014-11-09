@@ -119,7 +119,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		btn_save.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				uploadImage(v);
+				save(v);				
 			}
 		});	
 		
@@ -127,12 +127,10 @@ public class Fragment1 extends Fragment implements LocationListener {
 		    @Override
 		    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
 		    	
-		    	/*if(spinner_superviseur.getChildCount() > 0){
-		    		PDV pdv = pdvsList.get(position);
-			    	txt_licenceProgramme.setText(pdv.getLicence());
+		    	if(pdvsList.size() > 0){
+		    		txt_licenceProgramme.setText(String.valueOf(pdvsList.get(position).getLicence()));
 		    	}
-		    	PDV pdv = pdvsList.get(position);
-		    	txt_licenceProgramme.setText(pdv.getLicence());*/
+		    
 		    }
 
 		    @Override
@@ -180,8 +178,9 @@ public class Fragment1 extends Fragment implements LocationListener {
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		
 		spinner_pdv.setAdapter(adapter);
-		/* if(pdvsList.size() > 0)
-			txt_licenceProgramme.setText(pdvsList.get(0).getLicence());*/
+		
+		if(pdvsList.size() > 0)
+			txt_licenceProgramme.setText(String.valueOf(pdvsList.get(0).getLicence()));		
 		
 		/* ****************************************************************************************************************
 		 * LOCALISATION
@@ -261,9 +260,28 @@ public class Fragment1 extends Fragment implements LocationListener {
 				android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 		startActivityForResult(cameraIntent, CAMERA_REQUEST);
 	}
+	
+	public void save(View v){
+		String licenceRemplacee = txt_licenceRemplacee.getText().toString();
+		String motif = txt_motif.getText().toString();
+		// set parameters
+		Superviseur superviseur = superviseursList.get(spinner_superviseur.getSelectedItemPosition());
+		PDV pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());
+		params.put("superviseur", String.valueOf(superviseur.getId()));
+		params.put("pdv", String.valueOf(pdv.getId()));
+		Location location = locationManager.getLastKnownLocation(provider);
+		params.put("longitude", String.valueOf(location.getLongitude()));
+		params.put("latitude", String.valueOf(location.getLatitude()));
+		
+		
+		params.put("licenceRemplacee", licenceRemplacee);
+		params.put("motif", motif);
+		
+		uploadLocalisationData(v);
+	}
 
 	// When Upload button is clicked
-	public void uploadImage(View v) {
+	public void uploadLocalisationData(View v) {
 		// When Image is selected from Gallery
 		if (imgPath != null && !imgPath.isEmpty()) {
 			prgDialog.setMessage("Converting Image to Binary Data");
@@ -311,6 +329,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 				prgDialog.setMessage("Calling Upload");
 				// Put converted Image string into Async Http Post param
 				params.put("image", encodedString);
+				
 				// Trigger Image upload
 				triggerImageUpload();
 			}
