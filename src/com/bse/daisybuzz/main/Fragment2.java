@@ -252,7 +252,10 @@ public class Fragment2 extends Fragment {
 		}
 
 		if (spinner_achete.getSelectedItemPosition() == 1) {
-			String age = spinner_ageClient.getSelectedItem().toString();
+			String trancheAgeId = String
+					.valueOf(tranchesAgeList.get(
+							spinner_ageClient.getSelectedItemPosition())
+							.getId());
 			String sexe = spinner_sexe.getSelectedItem().toString();
 			String raisonRefu = "";
 			String marqueHabituelle = String
@@ -266,7 +269,7 @@ public class Fragment2 extends Fragment {
 
 			// setting parameters
 			params.put("achete", "0");
-			params.put("age", age);
+			params.put("trancheAgeId", trancheAgeId);
 			params.put("sexe", sexe);
 			params.put("raisonRefu", raisonRefu);
 			params.put("marqueHabituelle", marqueHabituelle);
