@@ -6,6 +6,7 @@ import java.util.List;
 import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.DatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
+import com.bse.daisybuzz.helper.Statics;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
 import com.bse.daizybuzz.model.RaisonAchat;
@@ -281,6 +282,9 @@ public class Fragment2 extends Fragment {
 			params.put("commentaire", commentaire);
 			params.put("marqueAcheteeQte", marqueAcheteeQte);
 		}
+		
+		params.put("localisationId", String.valueOf(Statics.lastLocalisationId));
+		params.put("animateurId", String.valueOf(Statics.animateurId));
 
 		// ********* saving
 

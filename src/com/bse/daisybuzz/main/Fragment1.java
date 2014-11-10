@@ -385,8 +385,9 @@ public class Fragment1 extends Fragment implements LocationListener {
 						prgDialog.hide();
 						Toast.makeText(
 								Fragment1.this.getActivity()
-										.getApplicationContext(), response,
+										.getApplicationContext(), "Les informations de localisation on été enregistrées !",
 								Toast.LENGTH_LONG).show();
+						Statics.lastLocalisationId = Integer.valueOf(response);
 					}
 
 					// When the response returned by REST has Http
