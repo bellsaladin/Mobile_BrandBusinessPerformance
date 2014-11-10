@@ -36,8 +36,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TABLE_PDV = "pdv";
 	private static final String TABLE_LOCALISATION = "localisation";
 	private static final String TABLE_CADEAU = "cadeau";
-	private static final String TABLE_SUPERVISEUR = "superviseur";
-	private static final String TABLE_TODO_TAG = "todo_tags";
+	private static final String TABLE_SUPERVISEUR = "superviseur";	
 
 	// Common column names
 	private static final String KEY_ID = "id";

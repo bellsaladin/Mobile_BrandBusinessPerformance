@@ -17,6 +17,7 @@ import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 public class MainActivity extends ActionBarActivity {
@@ -29,6 +30,7 @@ public class MainActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_main);
 
 		/** Getting a reference to action bar of this activity */
@@ -85,21 +87,26 @@ public class MainActivity extends ActionBarActivity {
 		};
 
 		/** Creating fragment1 Tab */
-		Tab tab = mActionbar.newTab().setText("Localisation")
+		Tab tab = mActionbar.newTab()//.setText("Localisation")
 		// .setIcon(R.drawable.ic_launcher)
+				.setIcon(R.drawable.icon_localisation)
+				//.setCustomView(R.layout.tab_custom_view)
 				.setTabListener(tabListener);
 
 		mActionbar.addTab(tab);
-
+				
+		
 		/** Creating fragment2 Tab */
-		tab = mActionbar.newTab().setText("Rapport")
-		// .setIcon(R.drawable.ic_launcher)
+		tab = mActionbar.newTab()//.setText("Rapport")
+				//.setCustomView(R.layout.tab_custom_view)
+		.setIcon(R.drawable.icon_rapport)
 				.setTabListener(tabListener);
 
 		mActionbar.addTab(tab);
 
-		tab = mActionbar.newTab().setText("Options")
-		// .setIcon(R.drawable.ic_launcher)
+		tab = mActionbar.newTab()//.setText("Options")
+				//.setCustomView(R.layout.tab_custom_view)
+				.setIcon(R.drawable.icon_options)
 				.setTabListener(tabListener);
 
 		mActionbar.addTab(tab);		

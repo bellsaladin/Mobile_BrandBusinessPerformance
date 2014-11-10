@@ -2,52 +2,76 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:paddingTop="50dp"
     android:orientation="vertical" >
 
     <Spinner
         android:id="@+id/spinner_achete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:entries="@array/str_array_achete" />
 
     <Spinner
         android:id="@+id/spinner_ageClient"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:entries="@array/str_array_age" />
 
     <Spinner
         android:id="@+id/spinner_sexe"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:entries="@array/str_array_sexe" />
 
     <LinearLayout
         android:id="@+id/layout_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:orientation="vertical" >
 
         <Spinner
             android:id="@+id/spinner_raisonAchat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+        	android:layout_marginBottom="10dp"
             android:entries="@array/str_array_raisonAchat" />
 
         <Spinner
             android:id="@+id/spinner_fidelite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+        	android:layout_marginBottom="10dp"
             android:entries="@array/str_array_fidelite" />
 
         <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+        	android:layout_marginBottom="10dp">
 
             <TableRow
                 android:id="@+id/tableRow1"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content" 
+                >
 
                 <Spinner
                     android:id="@+id/spinner_marqueHabituelle"
@@ -96,25 +120,36 @@
             android:id="@+id/cb_tombola"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tombola" />
+            android:text="Tombola" 
+            android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"/>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/layout_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:orientation="vertical" 
+        >
 
         <Spinner
             android:id="@+id/spinner_raisonRefu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+        	android:layout_marginBottom="10dp"
+        	android:layout_marginLeft="20dp"
+        	android:layout_marginRight="20dp" 
             android:entries="@array/str_array_raisonRefu" />
 
         <Spinner
             android:id="@+id/spinner_marqueHabituelle2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+        	android:layout_marginBottom="10dp"
+        	android:layout_marginLeft="20dp"
+        	android:layout_marginRight="20dp"  />
 
         <EditText
             android:id="@+id/txt_marqueHabituelleQte2"
@@ -122,6 +157,10 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Qte marque habituelle"
+            android:layout_marginTop="10dp"
+        	android:layout_marginBottom="10dp"
+        	android:layout_marginLeft="20dp"
+        	android:layout_marginRight="20dp" 
             android:inputType="number" />
 
         <EditText
@@ -131,7 +170,11 @@
             android:layout_weight="0.57"
             android:ems="10"
             android:hint="commentaire"
-            android:inputType="textMultiLine" />
+            android:layout_marginTop="10dp"
+        	android:layout_marginBottom="10dp"
+        	android:layout_marginLeft="20dp"
+        	android:layout_marginRight="20dp" 
+            android:inputType="textMultiLine" />        
     </LinearLayout>
 
     <Button

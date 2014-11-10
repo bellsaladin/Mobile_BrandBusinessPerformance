@@ -36,6 +36,12 @@ public class LoginActivity extends ActionBarActivity {
 		
 		editText_username = (EditText) findViewById(R.id.editText1);
 		editText_password = (EditText) findViewById(R.id.editText2);
+		
+		// for debug 
+		editText_username.setText("admin");
+		editText_password.setText("123");
+		
+		
 		/*
 		 * attempts = (TextView)findViewById(R.id.textView5);
 		 * attempts.setText(Integer.toString(counter));
@@ -57,6 +63,7 @@ public class LoginActivity extends ActionBarActivity {
 			//login.setEnabled(false); }
 			 
 		}*/
+		
 		
 		String username = editText_username.getText().toString();
 		String password = editText_password.getText().toString();
