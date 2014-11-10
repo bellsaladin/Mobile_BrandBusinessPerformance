@@ -187,12 +187,12 @@ public class Fragment2 extends Fragment {
 			String raisonAchat = spinner_raisonAchat.getSelectedItem()
 					.toString();
 			String fidelite = spinner_fidelite.getSelectedItem().toString();
-			String marqueHabituelle = spinner_marqueHabituelle
-					.getSelectedItem().toString();
+			String marqueHabituelle = String.valueOf(marquesList.get(spinner_marqueHabituelle
+					.getSelectedItemPosition()).getId());
 			String marqueHabituelleQte = txt_marqueHabituelleQte.getText()
 					.toString();
-			String marqueAchetee = spinner_marqueAchetee.getSelectedItem()
-					.toString();
+			String marqueAchetee = String.valueOf(marquesList.get(spinner_marqueAchetee
+					.getSelectedItemPosition()).getId());
 			String marqueAcheteeQte = txt_marqueAcheteeQte.getText().toString();
 			String tombola = (cb_tombola.isChecked())?"1":"0";
 
@@ -210,9 +210,25 @@ public class Fragment2 extends Fragment {
 		}
 
 		if (spinner_achete.getSelectedItemPosition() == 1) {
-			
-			
+			String age = spinner_ageClient.getSelectedItem().toString();
+			String sexe = spinner_sexe.getSelectedItem().toString();
+			String raisonRefu = "";
+			String marqueHabituelle = String.valueOf(marquesList.get(spinner_marqueHabituelle
+					.getSelectedItemPosition()).getId());
+			String marqueHabituelleQte = txt_marqueHabituelleQte.getText()
+					.toString();			
+			String marqueAcheteeQte = txt_marqueAcheteeQte.getText().toString();
+			String commentaire = txt_commentaire.getText().toString();
+
+			// setting parameters
 			params.put("achete", "0");
+			params.put("age", age);
+			params.put("sexe", sexe);
+			params.put("raisonRefu", raisonRefu);			
+			params.put("marqueHabituelle", marqueHabituelle);
+			params.put("marqueHabituelleQte", marqueHabituelleQte);
+			params.put("commentaire", commentaire);
+			params.put("marqueAcheteeQte", marqueAcheteeQte);
 		}
 
 		// ********* saving

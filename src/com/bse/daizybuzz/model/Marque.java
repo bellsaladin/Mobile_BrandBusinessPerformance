@@ -9,8 +9,8 @@ public class Marque {
 		super();		
 	}
 	
-	public Marque(String libelle) {
-		super();		
+	public Marque(int id, String libelle) {		
+		this.id = id;
 		this.libelle = libelle;		
 	}
 	

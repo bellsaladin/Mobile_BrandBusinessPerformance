@@ -1,16 +1,16 @@
 package com.bse.daizybuzz.model;
 
-public class Cadeau {
+public class RaisonRefu {
 	
 	int id;
 	String libelle;	
 	
 	
-	public Cadeau(){
+	public RaisonRefu(){
 		
 	}
 	
-	public Cadeau(int id, String libelle) {
+	public RaisonRefu(int id, String libelle) {
 		super();		
 		this.id = id;
 		this.libelle = libelle;		

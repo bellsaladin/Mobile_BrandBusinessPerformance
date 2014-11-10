@@ -95,11 +95,12 @@ public class Common {
 			    Log.d("Rows",rows.toString());
 			    for(int i=0; i< rows.length(); i++){
 			        JSONObject jsonas = rows.getJSONObject(i);
+			        int id = jsonas.getInt("id");
 			        String libelle = jsonas.getString("libelle");			        
 			        // Creating marque
-					Marque marque1 = new Marque(libelle);
+					Marque marque = new Marque(id, libelle);
 					// Inserting marque in db
-					long marque_id = db.createMarque(marque1);										
+					long marque_id = db.createMarque(marque);										
 			    }
 			    Log.e("Synchronization", "Marque : " + rows.length() + " records added to sqllite database");
 			    Log.e("Synchronization", "Marque : " + db.getRecordsCount("marque") + " records existing at sqllite database");			    
@@ -108,11 +109,12 @@ public class Common {
 			    Log.d("Rows",rows.toString());
 			    for(int i=0; i< rows.length(); i++){
 			        JSONObject jsonas = rows.getJSONObject(i);
+			        int id = jsonas.getInt("id");
 			        String nom = jsonas.getString("nom");
 			        int licence = jsonas.getInt("licence");
-			        // Creating marque
-					PDV pdv = new PDV(nom,licence);
-					// Inserting marque in db
+			        // Creating pdv
+					PDV pdv = new PDV(id, nom,licence);
+					// Inserting pdv in db
 					long pdv_id = db.createPDV(pdv);										
 			    }
 			    Log.e("Synchronization", "PDV : " + rows.length() + " records added to sqllite database");
@@ -123,9 +125,10 @@ public class Common {
 			    Log.d("Rows",rows.toString());
 			    for(int i=0; i< rows.length(); i++){
 			        JSONObject jsonas = rows.getJSONObject(i);
+			        int id = jsonas.getInt("id");
 			        String libelle = jsonas.getString("libelle");			        
 			        // Creating cadeau
-					Cadeau cadeau = new Cadeau(libelle);
+					Cadeau cadeau = new Cadeau(id,libelle);
 					// Inserting marque in db
 					long cadeau_id = db.createCadeau(cadeau);										
 			    }
@@ -137,6 +140,7 @@ public class Common {
 			    Log.d("Rows",rows.toString());
 			    for(int i=0; i< rows.length(); i++){
 			        JSONObject jsonas = rows.getJSONObject(i);
+			        int id = jsonas.getInt("id");
 			        String nom = jsonas.getString("nom");
 			        String prenom = jsonas.getString("prenom");;
 			        // Creating marque

@@ -5,8 +5,9 @@ public class PDV {
 	private String nom;
 	private int licence;
 	
-	public PDV(String nom, int licence) {
+	public PDV(int id, String nom, int licence) {
 		super();		
+		this.id = id;
 		this.nom = nom;
 		this.licence = licence;
 	}

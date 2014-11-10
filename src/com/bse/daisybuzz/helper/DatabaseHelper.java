@@ -4,8 +4,6 @@ import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
 import com.bse.daizybuzz.model.Superviseur;
-import com.bse.daizybuzz.model.Tag;
-import com.bse.daizybuzz.model.Todo;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,22 +55,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// Table Create Statements
 	// Marque table create statement
 	private static final String CREATE_TABLE_MARQUE = "CREATE TABLE "
-			+ TABLE_MARQUE + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
+			+ TABLE_MARQUE + "(" + KEY_ID + " INTEGER,"
 			+ KEY_LIBELLE + " TEXT )";
 
 	// Marque table create statement
 	private static final String CREATE_TABLE_CADEAU = "CREATE TABLE "
-			+ TABLE_CADEAU + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
+			+ TABLE_CADEAU + "(" + KEY_ID + " INTEGER ,"
 			+ KEY_LIBELLE + " TEXT )";
 
 	// PDV table create statement
 	private static final String CREATE_TABLE_PDV = "CREATE TABLE " + TABLE_PDV
-			+ "(" + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NOM + " TEXT,"
+			+ "(" + KEY_ID + " INTEGER," + KEY_NOM + " TEXT,"
 			+ KEY_LICENCE + " INTEGER" + ")";
 	
 	// SUPERVISEUR table create statement
 		private static final String CREATE_TABLE_SUPERVISEUR = "CREATE TABLE " + TABLE_SUPERVISEUR
-				+ "(" + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NOM + " TEXT," + KEY_PRENOM + " TEXT,"
+				+ "(" + KEY_ID + " INTEGER," + KEY_NOM + " TEXT," + KEY_PRENOM + " TEXT,"
 				+ KEY_LICENCE + " INTEGER" + ")";
 
 	public DatabaseHelper(Context context) {
@@ -109,6 +107,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
+		values.put(KEY_ID, cadeau.getId());
 		values.put(KEY_LIBELLE, cadeau.getLibelle());
 
 		// insert row
@@ -167,6 +166,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
+		values.put(KEY_ID, marque.getId());
 		values.put(KEY_LIBELLE, marque.getLibelle());
 
 		// insert row
@@ -225,6 +225,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
+		values.put(KEY_ID, pdv.getId());
 		values.put(KEY_NOM, pdv.getNom());
 		values.put(KEY_LICENCE, pdv.getLicence());
 
@@ -286,6 +287,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			SQLiteDatabase db = this.getWritableDatabase();
 
 			ContentValues values = new ContentValues();
+			values.put(KEY_ID, Superviseur.getId());
 			values.put(KEY_NOM, Superviseur.getNom());
 			values.put(KEY_PRENOM, Superviseur.getPrenom());
 

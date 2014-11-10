@@ -7,6 +7,7 @@ public class Superviseur {
 	
 	public Superviseur(String nom, String prenom) {
 		super();
+		this.id = id;
 		this.nom = nom;
 		this.prenom = prenom;
 	}
