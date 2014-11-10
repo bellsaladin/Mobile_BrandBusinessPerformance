@@ -80,7 +80,16 @@ public class Fragment3 extends Fragment {
 	}
 
 	public void synchronize(View v) {
-		Common.synchronizeAll(this.getActivity());
+		if(Common.isNetworkAvailable(this.getActivity())){
+			// passer http -> webservice
+			Common.synchronizeAll(this.getActivity());
+		}else{
+			Toast.makeText(
+					this.getActivity()
+							.getApplicationContext(), "La connexion internet n'est pas disponible (vérifier que votre téléphone est bien configuré) !",
+					Toast.LENGTH_SHORT).show();
+		}
+		
 	}
 
 	public void disconnecte(View v) {

@@ -7,6 +7,7 @@ import java.util.List;
 import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.DatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
+import com.bse.daisybuzz.helper.Statics;
 import com.bse.daizybuzz.model.PDV;
 import com.bse.daizybuzz.model.Superviseur;
 import com.google.android.gms.maps.CameraUpdate;
@@ -18,8 +19,10 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -351,7 +354,12 @@ public class Fragment1 extends Fragment implements LocationListener {
 	}
 
 	public void triggerImageUpload() {
-		makeHTTPCall();
+		if(Common.isNetworkAvailable(this.getActivity())){
+			// passer http -> webservice
+			makeHTTPCall();
+		}else{
+			askUserIfWantToSaveToLocalStorage();
+		}
 	}
 
 	// Make Http call to upload image/ data to Php server
@@ -371,6 +379,8 @@ public class Fragment1 extends Fragment implements LocationListener {
 					// response code '200'
 					@Override
 					public void onSuccess(String response) {
+						// change static localisation flag to done
+						Statics.localisationDone = true;
 						// Hide Progress Dialog
 						prgDialog.hide();
 						Toast.makeText(
@@ -409,13 +419,35 @@ public class Fragment1 extends Fragment implements LocationListener {
 									Fragment1.this.getActivity()
 											.getApplicationContext(),
 											"Erreur : Un problème de connexion ou peut être que le serveur distant n'est pas fonctionnel"
-									//"Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
-											+ statusCode, Toast.LENGTH_LONG)
+									/*"Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
+											+ statusCode*/, Toast.LENGTH_LONG)
 									.show();
+							askUserIfWantToSaveToLocalStorage();
 						}
 
 					}
 				});
+	}
+	
+	public void askUserIfWantToSaveToLocalStorage(){
+		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+		    @Override
+		    public void onClick(DialogInterface dialog, int which) {
+		        switch (which){
+		        case DialogInterface.BUTTON_POSITIVE:
+		            //Yes button clicked
+		            break;
+
+		        case DialogInterface.BUTTON_NEGATIVE:
+		            //No button clicked
+		            break;
+		        }
+		    }
+		};
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+		builder.setMessage("Impossible de communiquer avec le serveur distant, la connexion est peut être très lente. Voulez vous enregistrer ces informations en local ?").setPositiveButton("Oui", dialogClickListener)
+		    .setNegativeButton("Non", dialogClickListener).show();
 	}
 
 	@Override
@@ -427,7 +459,7 @@ public class Fragment1 extends Fragment implements LocationListener {
         // TextView tvLatitude = (TextView)findViewById(R.id.tv_latitude);
 		if(location != null){
 	        // Setting Current Longitude
-			Toast.makeText(this.getActivity().getBaseContext(), location.getLongitude() + "," + location.getLatitude() , Toast.LENGTH_SHORT).show();
+			// Toast.makeText(this.getActivity().getBaseContext(), location.getLongitude() + "," + location.getLatitude() , Toast.LENGTH_SHORT).show();
 			
 			CameraUpdate center=CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
 	        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);

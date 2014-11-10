@@ -22,6 +22,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -66,7 +68,7 @@ public class Common {
 		} catch (Exception e) {
 			Log.e("Fail 1", e.toString());
 			Toast.makeText(activity.getApplicationContext(),
-					"L'url du webservice n'est pas accessible !", Toast.LENGTH_LONG).show();
+					"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...", Toast.LENGTH_LONG).show();
 		}
 
 		try {
@@ -235,5 +237,12 @@ public class Common {
                 if (l != null) break;
         }        
         return l;
+	}
+	
+	public static boolean isNetworkAvailable(Activity activity) {
+	    ConnectivityManager connectivityManager 
+	          = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
 }

@@ -2,6 +2,7 @@ package com.bse.daisybuzz.main;
 
 import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.Preferences;
+import com.bse.daisybuzz.helper.Statics;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -19,12 +20,14 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 
 	private ViewPager mPager;
 
 	ActionBar mActionbar;
+	Tab tab1,tab2,tab3;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,9 +79,20 @@ public class MainActivity extends ActionBarActivity {
 			}
 
 			@Override
-			public void onTabSelected(Tab tab, FragmentTransaction ft) {
+			public void onTabSelected(Tab tab, FragmentTransaction ft) {				
+				if(mActionbar != null){
+					if(tab.getPosition() == 1 && !Statics.localisationDone){						
+						//mActionbar.selectTab(tab1);
+						tab1.select();
+						//mPager.setCurrentItem(0);
+						Toast.makeText(
+								MainActivity.this.getApplicationContext(),
+								"Vous devez vous localiser avant de pouvoir enregistrer des rapports !",
+								Toast.LENGTH_SHORT).show();
+						return;
+					}
+				}
 				mPager.setCurrentItem(tab.getPosition());
-
 			}
 
 			@Override
@@ -87,29 +101,29 @@ public class MainActivity extends ActionBarActivity {
 		};
 
 		/** Creating fragment1 Tab */
-		Tab tab = mActionbar.newTab()//.setText("Localisation")
+		tab1 = mActionbar.newTab()//.setText("Localisation")
 		// .setIcon(R.drawable.ic_launcher)
 				.setIcon(R.drawable.icon_localisation)
 				//.setCustomView(R.layout.tab_custom_view)
 				.setTabListener(tabListener);
 
-		mActionbar.addTab(tab);
+		mActionbar.addTab(tab1);
 				
 		
 		/** Creating fragment2 Tab */
-		tab = mActionbar.newTab()//.setText("Rapport")
+		tab2 = mActionbar.newTab()//.setText("Rapport")
 				//.setCustomView(R.layout.tab_custom_view)
 		.setIcon(R.drawable.icon_rapport)
 				.setTabListener(tabListener);
 
-		mActionbar.addTab(tab);
+		mActionbar.addTab(tab2);
 
-		tab = mActionbar.newTab()//.setText("Options")
+		tab3 = mActionbar.newTab()//.setText("Options")
 				//.setCustomView(R.layout.tab_custom_view)
 				.setIcon(R.drawable.icon_options)
 				.setTabListener(tabListener);
 
-		mActionbar.addTab(tab);		
+		mActionbar.addTab(tab3);		
 
 	}
 

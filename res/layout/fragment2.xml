@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:paddingTop="50dp"
+    android:paddingTop="10dp"
     android:orientation="vertical" >
 
     <Spinner
@@ -14,25 +14,46 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:entries="@array/str_array_achete" />
-
+	
+      <TextView
+          android:id="@+id/textView0"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_gravity="center_horizontal"
+          android:layout_marginBottom="10dp"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:layout_marginTop="10dp"
+          android:text="AGE"
+          android:textColor="#ccc" />
+      
     <Spinner
         android:id="@+id/spinner_ageClient"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_height="wrap_content"        
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:entries="@array/str_array_age" />
-
+	
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:text="SEXE"
+            android:textColor="#ccc" />
+    
     <Spinner
         android:id="@+id/spinner_sexe"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+         android:layout_marginLeft="20dp"
+        	android:layout_marginRight="20dp"
+       
         android:entries="@array/str_array_sexe" />
 
     <LinearLayout
@@ -45,20 +66,41 @@
         android:layout_marginRight="20dp"
         android:orientation="vertical" >
 
+		  <TextView
+		      android:id="@+id/textView2"
+		      android:layout_width="wrap_content"
+		      android:layout_height="wrap_content"
+		      android:layout_gravity="center_horizontal"
+		      android:layout_marginBottom="10dp"
+		      android:layout_marginLeft="10dp"
+		      android:layout_marginRight="10dp"
+		      android:layout_marginTop="10dp"
+		      android:text="RAISON D&apos;ACHAT"
+		      android:textColor="#ccc" />
+
         <Spinner
             android:id="@+id/spinner_raisonAchat"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-        	android:layout_marginBottom="10dp"
+            
             android:entries="@array/str_array_raisonAchat" />
+
+		  <TextView
+		      android:id="@+id/textView3"
+		      android:layout_width="wrap_content"
+		      android:layout_height="wrap_content"
+		      android:layout_gravity="center_horizontal"
+		      android:layout_marginBottom="5dp"
+		      android:layout_marginLeft="20dp"
+		      android:layout_marginRight="20dp"
+		      android:layout_marginTop="5dp"
+		      android:textColor="#ccc"
+		      android:text="Fidélité" />
 
         <Spinner
             android:id="@+id/spinner_fidelite"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-        	android:layout_marginBottom="10dp"
+            android:layout_height="wrap_content"            
             android:entries="@array/str_array_fidelite" />
 
         <TableLayout
@@ -93,7 +135,9 @@
 
         <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+        	android:layout_marginBottom="10dp" >
 
             <TableRow
                 android:id="@+id/tableRow2"
