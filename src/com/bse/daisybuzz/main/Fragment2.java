@@ -7,7 +7,10 @@ import com.bse.daisybuzz.helper.DatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.RaisonAchat;
+import com.bse.daizybuzz.model.RaisonRefus;
 import com.bse.daizybuzz.model.Superviseur;
+import com.bse.daizybuzz.model.TrancheAge;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -36,7 +39,7 @@ import android.widget.Toast;
 
 public class Fragment2 extends Fragment {
 	DatabaseHelper db;
-	
+
 	RequestParams params = new RequestParams();
 
 	Spinner spinner_achete, spinner_raisonAchat, spinner_ageClient,
@@ -50,10 +53,11 @@ public class Fragment2 extends Fragment {
 	private Button btn_takePhoto, btn_save;
 	ProgressDialog prgDialog;
 
-	
 	List<Marque> marquesList;
-	
-	
+	List<RaisonAchat> raisonsAchatList;
+	List<RaisonRefus> raisonsRefusList;
+	List<TrancheAge> tranchesAgeList;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -127,39 +131,76 @@ public class Fragment2 extends Fragment {
 			}
 
 		});
-		
+
 		/* ****************************************************************************************************************
 		 * Load data from sqlite
-		 * ****************************************************************************************************************/
+		 * ************************************************
+		 * ***************************************************************
+		 */
 
 		db = new DatabaseHelper(this.getActivity().getApplicationContext());
 		marquesList = db.getAllMarques();
-		
+		raisonsAchatList = db.getAllRaisonsAchat();
+		raisonsRefusList = db.getAllRaisonsRefus();
+		tranchesAgeList = db.getAllTranchesAge();
+
 		/* ****************************************************************************************************************
 		 * Form controls populating
-		 * ****************************************************************************************************************/
-		
-		// ##### superviseurs
-		List<String> marquesArray =  new ArrayList<String>();
-		
-		for(Marque marque : marquesList){
+		 * *********************************************
+		 * ******************************************************************
+		 */
+
+		// ##### marques
+		List<String> marquesArray = new ArrayList<String>();
+
+		for (Marque marque : marquesList) {
 			marquesArray.add(marque.getLibelle());
 		}
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-		    this.getActivity(), android.R.layout.simple_spinner_item, marquesArray);
+				this.getActivity(), android.R.layout.simple_spinner_item,
+				marquesArray);
 
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		
+
 		spinner_marqueAchetee.setAdapter(adapter);
 		spinner_marqueHabituelle.setAdapter(adapter);
 		spinner_marqueHabituelle2.setAdapter(adapter);
-		
-		
+
+		// ##### raisonsAchat
+		List<String> raisonsAchatArray = new ArrayList<String>();
+
+		for (RaisonAchat raisonAchat : raisonsAchatList) {
+			raisonsAchatArray.add(raisonAchat.getLibelle());
+		}
+
+		adapter = new ArrayAdapter<String>(this.getActivity(),
+				android.R.layout.simple_spinner_item, raisonsAchatArray);
+
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+		spinner_raisonAchat.setAdapter(adapter);
+
+		// ##### raisonsAchat
+		List<String> tranchesAgeArray = new ArrayList<String>();
+
+		for (TrancheAge trancheAge : tranchesAgeList) {
+			tranchesAgeArray.add(trancheAge.getLibelle());
+		}
+
+		adapter = new ArrayAdapter<String>(this.getActivity(),
+				android.R.layout.simple_spinner_item, tranchesAgeArray);
+
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+		spinner_ageClient.setAdapter(adapter);
+
 		/* ****************************************************************************************************************
 		 * Checking preferences for global parameters like tombola
-		 * ****************************************************************************************************************/
-
+		 * **************
+		 * ********************************************************
+		 * *****************************************
+		 */
 
 		Preferences preferences = new Preferences(this.getActivity());
 		if (!preferences.getStringValue("PARAM_TOMBOLA_ENABLED").isEmpty()) {
@@ -174,37 +215,38 @@ public class Fragment2 extends Fragment {
 	}
 
 	public void save(View v) {
-		// valdiation
-		if (1 == 2)
-			return;
-		
-		
-		
 		if (spinner_achete.getSelectedItemPosition() == 0) {
 			// getting values
-			String age = spinner_ageClient.getSelectedItem().toString();
 			String sexe = spinner_sexe.getSelectedItem().toString();
-			String raisonAchat = spinner_raisonAchat.getSelectedItem()
-					.toString();
+			String trancheAgeId = String
+					.valueOf(tranchesAgeList.get(
+							spinner_ageClient.getSelectedItemPosition())
+							.getId());
+			String raisonAchatId = String
+					.valueOf(raisonsAchatList.get(
+							spinner_raisonAchat.getSelectedItemPosition())
+							.getId());
 			String fidelite = spinner_fidelite.getSelectedItem().toString();
-			String marqueHabituelle = String.valueOf(marquesList.get(spinner_marqueHabituelle
-					.getSelectedItemPosition()).getId());
+			String marqueHabituelleId = String
+					.valueOf(marquesList.get(
+							spinner_marqueHabituelle.getSelectedItemPosition())
+							.getId());
 			String marqueHabituelleQte = txt_marqueHabituelleQte.getText()
 					.toString();
-			String marqueAchetee = String.valueOf(marquesList.get(spinner_marqueAchetee
-					.getSelectedItemPosition()).getId());
+			String marqueAcheteeId = String.valueOf(marquesList.get(
+					spinner_marqueAchetee.getSelectedItemPosition()).getId());
 			String marqueAcheteeQte = txt_marqueAcheteeQte.getText().toString();
-			String tombola = (cb_tombola.isChecked())?"1":"0";
+			String tombola = (cb_tombola.isChecked()) ? "1" : "0";
 
 			// setting parameters
 			params.put("achete", "1");
-			params.put("age", age);
+			params.put("trancheAgeId", trancheAgeId);
 			params.put("sexe", sexe);
-			params.put("raisonAchat", raisonAchat);
+			params.put("raisonAchatId", raisonAchatId);
 			params.put("fidelete", fidelite);
-			params.put("marqueHabituelle", marqueHabituelle);
+			params.put("marqueHabituelleId", marqueHabituelleId);
 			params.put("marqueHabituelleQte", marqueHabituelleQte);
-			params.put("marqueAchetee", marqueAchetee);
+			params.put("marqueAcheteeId", marqueAcheteeId);
 			params.put("marqueAcheteeQte", marqueAcheteeQte);
 			params.put("tombola", tombola);
 		}
@@ -213,10 +255,12 @@ public class Fragment2 extends Fragment {
 			String age = spinner_ageClient.getSelectedItem().toString();
 			String sexe = spinner_sexe.getSelectedItem().toString();
 			String raisonRefu = "";
-			String marqueHabituelle = String.valueOf(marquesList.get(spinner_marqueHabituelle
-					.getSelectedItemPosition()).getId());
+			String marqueHabituelle = String
+					.valueOf(marquesList.get(
+							spinner_marqueHabituelle.getSelectedItemPosition())
+							.getId());
 			String marqueHabituelleQte = txt_marqueHabituelleQte.getText()
-					.toString();			
+					.toString();
 			String marqueAcheteeQte = txt_marqueAcheteeQte.getText().toString();
 			String commentaire = txt_commentaire.getText().toString();
 
@@ -224,7 +268,7 @@ public class Fragment2 extends Fragment {
 			params.put("achete", "0");
 			params.put("age", age);
 			params.put("sexe", sexe);
-			params.put("raisonRefu", raisonRefu);			
+			params.put("raisonRefu", raisonRefu);
 			params.put("marqueHabituelle", marqueHabituelle);
 			params.put("marqueHabituelleQte", marqueHabituelleQte);
 			params.put("commentaire", commentaire);
@@ -232,7 +276,6 @@ public class Fragment2 extends Fragment {
 		}
 
 		// ********* saving
-		
 
 		// start upload of localisation data
 		makeHTTPCall();

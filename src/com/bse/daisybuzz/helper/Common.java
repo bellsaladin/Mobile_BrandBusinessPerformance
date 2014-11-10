@@ -28,7 +28,10 @@ import android.widget.Toast;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.RaisonAchat;
+import com.bse.daizybuzz.model.RaisonRefus;
 import com.bse.daizybuzz.model.Superviseur;
+import com.bse.daizybuzz.model.TrancheAge;
 
 public class Common {
 
@@ -148,8 +151,45 @@ public class Common {
 					// Inserting marque in db
 					long superviseur_id = db.createSuperviseur(superviseur);										
 			    }
-			    Log.e("Synchronization", "Superviseur : " + rows.length() + " records added to sqllite database");
-			    Log.e("Synchronization", "Superviseur : " + db.getRecordsCount("superviseur") + " records existing at sqllite database");
+			    
+			    // INSERTING RAISONSACHAT ###################################################
+			    rows= json_data.getJSONArray("raisonsAchat");
+			    Log.d("Rows",rows.toString());
+			    for(int i=0; i< rows.length(); i++){
+			        JSONObject jsonas = rows.getJSONObject(i);
+			        int id = jsonas.getInt("id");
+			        String libelle = jsonas.getString("libelle");
+					RaisonAchat raisonAchat = new RaisonAchat(id, libelle);
+					db.createRaisonAchat(raisonAchat);										
+			    }
+			    Log.e("Synchronization", "RaisonsAchat : " + rows.length() + " records added to sqllite database");
+			    Log.e("Synchronization", "RaisonsAchat : " + db.getRecordsCount("raisonachat") + " records existing at sqllite database");
+			    
+			 // INSERTING RAISONSREFU ###################################################
+			    rows= json_data.getJSONArray("raisonsRefus");
+			    Log.d("Rows",rows.toString());
+			    for(int i=0; i< rows.length(); i++){
+			        JSONObject jsonas = rows.getJSONObject(i);
+			        int id = jsonas.getInt("id");
+			        String libelle = jsonas.getString("libelle");			        
+			        RaisonRefus raisonRefus = new RaisonRefus(id, libelle);
+					db.createRaisonRefus(raisonRefus);										
+			    }
+			    Log.e("Synchronization", "RaisonsRefu : " + rows.length() + " records added to sqllite database");
+			    Log.e("Synchronization", "RaisonsRefu : " + db.getRecordsCount("raisonrefus") + " records existing at sqllite database");
+			    
+			 // INSERTING tranchesAge ###################################################
+			    rows= json_data.getJSONArray("tranchesAge");
+			    Log.d("Rows",rows.toString());
+			    for(int i=0; i< rows.length(); i++){
+			        JSONObject jsonas = rows.getJSONObject(i);
+			        int id = jsonas.getInt("id");
+			        String libelle = jsonas.getString("libelle");			        
+					TrancheAge trancheAge = new TrancheAge(id, libelle);
+					db.createTrancheAge(trancheAge);										
+			    }
+			    Log.e("Synchronization", "RaisonsAchat : " + rows.length() + " records added to sqllite database");
+			    Log.e("Synchronization", "RaisonsAchat : " + db.getRecordsCount("raisonachat") + " records existing at sqllite database");
 			    
 			    rows= json_data.getJSONArray("parameters");			    
 			    for(int i=0; i< rows.length(); i++){

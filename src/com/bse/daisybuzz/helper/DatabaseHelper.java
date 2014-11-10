@@ -3,7 +3,10 @@ package com.bse.daisybuzz.helper;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.RaisonAchat;
+import com.bse.daizybuzz.model.RaisonRefus;
 import com.bse.daizybuzz.model.Superviseur;
+import com.bse.daizybuzz.model.TrancheAge;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,7 +37,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String TABLE_PDV = "pdv";
 	private static final String TABLE_LOCALISATION = "localisation";
 	private static final String TABLE_CADEAU = "cadeau";
-	private static final String TABLE_SUPERVISEUR = "superviseur";	
+	private static final String TABLE_SUPERVISEUR = "superviseur";
+	private static final String TABLE_RAISONACHAT = "raisonachat";
+	private static final String TABLE_RAISONREFUS = "raisonrefus";
+	private static final String TABLE_TRANCHEAGE = "trancheage";
 
 	// Common column names
 	private static final String KEY_ID = "id";
@@ -55,23 +61,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	// Table Create Statements
 	// Marque table create statement
 	private static final String CREATE_TABLE_MARQUE = "CREATE TABLE "
-			+ TABLE_MARQUE + "(" + KEY_ID + " INTEGER,"
-			+ KEY_LIBELLE + " TEXT )";
+			+ TABLE_MARQUE + "(" + KEY_ID + " INTEGER," + KEY_LIBELLE
+			+ " TEXT )";
 
 	// Marque table create statement
 	private static final String CREATE_TABLE_CADEAU = "CREATE TABLE "
-			+ TABLE_CADEAU + "(" + KEY_ID + " INTEGER ,"
-			+ KEY_LIBELLE + " TEXT )";
+			+ TABLE_CADEAU + "(" + KEY_ID + " INTEGER ," + KEY_LIBELLE
+			+ " TEXT )";
 
 	// PDV table create statement
 	private static final String CREATE_TABLE_PDV = "CREATE TABLE " + TABLE_PDV
-			+ "(" + KEY_ID + " INTEGER," + KEY_NOM + " TEXT,"
-			+ KEY_LICENCE + " INTEGER" + ")";
-	
+			+ "(" + KEY_ID + " INTEGER," + KEY_NOM + " TEXT," + KEY_LICENCE
+			+ " INTEGER" + ")";
+
 	// SUPERVISEUR table create statement
-		private static final String CREATE_TABLE_SUPERVISEUR = "CREATE TABLE " + TABLE_SUPERVISEUR
-				+ "(" + KEY_ID + " INTEGER," + KEY_NOM + " TEXT," + KEY_PRENOM + " TEXT,"
-				+ KEY_LICENCE + " INTEGER" + ")";
+	private static final String CREATE_TABLE_SUPERVISEUR = "CREATE TABLE "
+			+ TABLE_SUPERVISEUR + "(" + KEY_ID + " INTEGER," + KEY_NOM
+			+ " TEXT," + KEY_PRENOM + " TEXT," + KEY_LICENCE + " INTEGER" + ")";
+	// Marque table create statement
+	private static final String CREATE_TABLE_RAISONACHAT = "CREATE TABLE "
+			+ TABLE_RAISONACHAT + "(" + KEY_ID + " INTEGER," + KEY_LIBELLE
+			+ " TEXT )";
+	// Marque table create statement
+	private static final String CREATE_TABLE_RAISONREFU = "CREATE TABLE "
+			+ TABLE_RAISONREFUS + "(" + KEY_ID + " INTEGER," + KEY_LIBELLE
+			+ " TEXT )";
+	// Marque table create statement
+	private static final String CREATE_TABLE_TRANCHEAGE = "CREATE TABLE "
+			+ TABLE_TRANCHEAGE + "(" + KEY_ID + " INTEGER," + KEY_LIBELLE
+			+ " TEXT )";
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -85,6 +103,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_TABLE_PDV);
 		db.execSQL(CREATE_TABLE_CADEAU);
 		db.execSQL(CREATE_TABLE_SUPERVISEUR);
+		db.execSQL(CREATE_TABLE_RAISONREFU);
+		db.execSQL(CREATE_TABLE_RAISONACHAT);
+		db.execSQL(CREATE_TABLE_TRANCHEAGE);
 		// db.execSQL(CREATE_TABLE_TODO_TAG);
 	}
 
@@ -95,6 +116,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PDV);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_CADEAU);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_SUPERVISEUR);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RAISONACHAT);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RAISONREFUS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANCHEAGE);
 		// db.execSQL("DROP TABLE IF EXISTS " + TABLE_TODO_TAG);
 
 		// create new tables
@@ -280,47 +304,168 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		return pdvs;
 	}
-	
+
 	// ------------------------ "superviseur" table methods ----------------//
 
-		public long createSuperviseur(Superviseur Superviseur) {
+	public long createSuperviseur(Superviseur Superviseur) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_ID, Superviseur.getId());
+		values.put(KEY_NOM, Superviseur.getNom());
+		values.put(KEY_PRENOM, Superviseur.getPrenom());
+
+		// insert row
+		long Superviseur_id = db.insert(TABLE_SUPERVISEUR, null, values);
+
+		return Superviseur_id;
+	}
+
+	public Superviseur getSuperviseur(long Superviseur_id) {
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		String selectQuery = "SELECT  * FROM " + TABLE_SUPERVISEUR + " WHERE "
+				+ KEY_ID + " = " + Superviseur_id;
+
+		Log.e(LOG, selectQuery);
+
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		if (c != null)
+			c.moveToFirst();
+
+		Superviseur Superviseur = new Superviseur();
+		Superviseur.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+		Superviseur.setNom((c.getString(c.getColumnIndex(KEY_NOM))));
+		Superviseur.setNom((c.getString(c.getColumnIndex(KEY_PRENOM))));
+
+		return Superviseur;
+	}
+
+	public List<Superviseur> getAllSuperviseurs() {
+		List<Superviseur> Superviseurs = new ArrayList<Superviseur>();
+		String selectQuery = "SELECT  * FROM " + TABLE_SUPERVISEUR;
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				Superviseur Superviseur = new Superviseur();
+				Superviseur.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				Superviseur.setNom((c.getString(c.getColumnIndex(KEY_NOM))));
+				Superviseur
+						.setPrenom((c.getString(c.getColumnIndex(KEY_PRENOM))));
+
+				// add to list
+				Superviseurs.add(Superviseur);
+			} while (c.moveToNext());
+		}
+
+		return Superviseurs;
+	}
+
+	// ------------------------ "raisonAchat" table methods ----------------//
+
+	public long createRaisonAchat(RaisonAchat raisonAchat) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_ID, raisonAchat.getId());
+		values.put(KEY_LIBELLE, raisonAchat.getLibelle());
+
+		// insert row
+		long id = db.insert(TABLE_RAISONACHAT, null, values);
+
+		return id;
+	}
+
+	public List<RaisonAchat> getAllRaisonsAchat() {
+		List<RaisonAchat> raisonsAchat = new ArrayList<RaisonAchat>();
+		String selectQuery = "SELECT  * FROM " + TABLE_RAISONACHAT;
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				RaisonAchat raisonAchat = new RaisonAchat();
+				raisonAchat.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				raisonAchat.setLibelle((c.getString(c
+						.getColumnIndex(KEY_LIBELLE))));
+
+				// adding to todo list
+				raisonsAchat.add(raisonAchat);
+			} while (c.moveToNext());
+		}
+
+		return raisonsAchat;
+	}
+
+	// ------------------------ "raisonRefu" table methods ----------------//
+
+	public long createRaisonRefus(RaisonRefus raisonRefu) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_ID, raisonRefu.getId());
+		values.put(KEY_LIBELLE, raisonRefu.getLibelle());
+
+		// insert row
+		long id = db.insert(TABLE_RAISONREFUS, null, values);
+
+		return id;
+	}
+
+	public List<RaisonRefus> getAllRaisonsRefus() {
+		List<RaisonRefus> raisonsRefu = new ArrayList<RaisonRefus>();
+		String selectQuery = "SELECT  * FROM " + TABLE_RAISONREFUS;
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				RaisonRefus raisonRefu = new RaisonRefus();
+				raisonRefu.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				raisonRefu.setLibelle((c.getString(c
+						.getColumnIndex(KEY_LIBELLE))));
+
+				// adding to todo list
+				raisonsRefu.add(raisonRefu);
+			} while (c.moveToNext());
+		}
+
+		return raisonsRefu;
+	}
+	
+	// ------------------------ "trancheAge" table methods ----------------//
+
+		public long createTrancheAge(TrancheAge trancheAge) {
 			SQLiteDatabase db = this.getWritableDatabase();
 
 			ContentValues values = new ContentValues();
-			values.put(KEY_ID, Superviseur.getId());
-			values.put(KEY_NOM, Superviseur.getNom());
-			values.put(KEY_PRENOM, Superviseur.getPrenom());
+			values.put(KEY_ID, trancheAge.getId());
+			values.put(KEY_LIBELLE, trancheAge.getLibelle());
 
 			// insert row
-			long Superviseur_id = db.insert(TABLE_SUPERVISEUR, null, values);
+			long id = db.insert(TABLE_TRANCHEAGE, null, values);
 
-			return Superviseur_id;
+			return id;
 		}
 
-		public Superviseur getSuperviseur(long Superviseur_id) {
-			SQLiteDatabase db = this.getReadableDatabase();
-
-			String selectQuery = "SELECT  * FROM " + TABLE_SUPERVISEUR + " WHERE " + KEY_ID
-					+ " = " + Superviseur_id;
-
-			Log.e(LOG, selectQuery);
-
-			Cursor c = db.rawQuery(selectQuery, null);
-
-			if (c != null)
-				c.moveToFirst();
-
-			Superviseur Superviseur = new Superviseur();
-			Superviseur.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-			Superviseur.setNom((c.getString(c.getColumnIndex(KEY_NOM))));	
-			Superviseur.setNom((c.getString(c.getColumnIndex(KEY_PRENOM))));	
-
-			return Superviseur;
-		}
-
-		public List<Superviseur> getAllSuperviseurs() {
-			List<Superviseur> Superviseurs = new ArrayList<Superviseur>();
-			String selectQuery = "SELECT  * FROM " + TABLE_SUPERVISEUR;
+		public List<TrancheAge> getAllTranchesAge() {
+			List<TrancheAge> tranchesAge = new ArrayList<TrancheAge>();
+			String selectQuery = "SELECT  * FROM " + TABLE_TRANCHEAGE;
 
 			Log.e(LOG, selectQuery);
 
@@ -330,17 +475,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			// looping through all rows and adding to list
 			if (c.moveToFirst()) {
 				do {
-					Superviseur Superviseur = new Superviseur();
-					Superviseur.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-					Superviseur.setNom((c.getString(c.getColumnIndex(KEY_NOM))));					
-					Superviseur.setPrenom((c.getString(c.getColumnIndex(KEY_PRENOM))));
-					
-					// add to list
-					Superviseurs.add(Superviseur);
+					TrancheAge trancheAge = new TrancheAge();
+					trancheAge.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+					trancheAge.setLibelle((c.getString(c
+							.getColumnIndex(KEY_LIBELLE))));
+
+					// adding to todo list
+					tranchesAge.add(trancheAge);
 				} while (c.moveToNext());
 			}
 
-			return Superviseurs;
+			return tranchesAge;
 		}
 
 	/* ************************************************************************************************************
