@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.DatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daizybuzz.model.PDV;
@@ -202,7 +203,8 @@ public class Fragment1 extends Fragment implements LocationListener {
         	
         	
             // Get the location from the given provider
-            Location location = locationManager.getLastKnownLocation(provider);
+        	//Location location = Common.getLastKnownLocation(provider);
+            Location location = Common.getLocation(this.getActivity());
  
             locationManager.requestLocationUpdates(provider, 20000, 1, this);
             
@@ -279,7 +281,9 @@ public class Fragment1 extends Fragment implements LocationListener {
 		PDV pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());
 		params.put("superviseur", String.valueOf(superviseur.getId()));
 		params.put("pdv", String.valueOf(pdv.getId()));
-		Location location = locationManager.getLastKnownLocation(provider);
+		// Location location = locationManager.getLastKnownLocation(provider);
+		Location location = Common.getLocation(this.getActivity());
+		
 		params.put("longitude", String.valueOf(location.getLongitude()));
 		params.put("latitude", String.valueOf(location.getLatitude()));
 		
@@ -294,15 +298,15 @@ public class Fragment1 extends Fragment implements LocationListener {
 	public void uploadLocalisationData(View v) {
 		// When Image is selected from Gallery
 		if (imgPath != null && !imgPath.isEmpty()) {
-			prgDialog.setMessage("Converting Image to Binary Data");
-			prgDialog.show();
+			//prgDialog.setMessage("Converting Image to Binary Data");
+			//prgDialog.show();
 			// Convert image to String using Base64
 			encodeImagetoString();
 			// When Image is not selected from Gallery
 		} else {
 			Toast.makeText(
 					Fragment1.this.getActivity().getApplicationContext(),
-					"You must select image from gallery before you try to upload",
+					"Vous devez séléctionner une image avant de procéder à l'envoi !",
 					Toast.LENGTH_LONG).show();
 		}
 	}
@@ -356,12 +360,12 @@ public class Fragment1 extends Fragment implements LocationListener {
 		Preferences preferences = new Preferences(this.getActivity());
 	    String webserviceRootUrl = preferences.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
 		
-		prgDialog.setMessage("Invoking Php");
+		prgDialog.setMessage("Communication avec le serveur...");
 		AsyncHttpClient client = new AsyncHttpClient();
 		client.setTimeout(3000000); // 30 seconds
 		// Don't forget to change the IP address to your LAN address. Port no as
 		// well.
-		client.post(webserviceRootUrl + "/upload_image.php",
+		client.post(webserviceRootUrl + "/save_localisation.php",
 				params, new AsyncHttpResponseHandler() {
 					// When the response returned by REST has Http
 					// response code '200'
@@ -404,7 +408,8 @@ public class Fragment1 extends Fragment implements LocationListener {
 							Toast.makeText(
 									Fragment1.this.getActivity()
 											.getApplicationContext(),
-									"Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
+											"Erreur : Un problème de connexion ou peut être que le serveur distant n'est pas fonctionnel"
+									//"Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
 											+ statusCode, Toast.LENGTH_LONG)
 									.show();
 						}

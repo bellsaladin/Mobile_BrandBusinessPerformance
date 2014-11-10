@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -18,6 +19,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -93,7 +97,7 @@ public class Common {
 			        JSONObject jsonas = rows.getJSONObject(i);
 			        String libelle = jsonas.getString("libelle");			        
 			        // Creating marque
-					Marque marque1 = new Marque("libelle");
+					Marque marque1 = new Marque(libelle);
 					// Inserting marque in db
 					long marque_id = db.createMarque(marque1);										
 			    }
@@ -172,5 +176,20 @@ public class Common {
 			Toast.makeText(activity.getBaseContext(),
 					"Erreur lors de la synchronization : " + e.getMessage(), Toast.LENGTH_LONG).show();
 		}
+	}
+	
+	
+	public static Location getLocation(Activity activity) {
+        LocationManager lm = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);  
+        List<String> providers = lm.getProviders(true);
+
+        /* Loop over the array backwards, and if you get an accurate location, then break out the loop*/
+        Location l = null;
+        
+        for (int i=providers.size()-1; i>=0; i--) {
+                l = lm.getLastKnownLocation(providers.get(i));
+                if (l != null) break;
+        }        
+        return l;
 	}
 }

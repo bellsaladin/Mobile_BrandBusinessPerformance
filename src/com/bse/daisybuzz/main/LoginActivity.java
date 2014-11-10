@@ -25,7 +25,7 @@ public class LoginActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main_activity);
+		setContentView(R.layout.activity_login);
 		
 		// create a instance of SQLite Database
 		loginDataBaseAdapter = new LoginDataBaseAdapter(this);
@@ -68,7 +68,7 @@ public class LoginActivity extends ActionBarActivity {
 		{
 			Toast.makeText(getApplicationContext(), "Connexion en cours...",Toast.LENGTH_SHORT).show();
 			
-			Intent intent = new Intent(this, MainActivity.class);
+			Intent intent = new Intent(this, StartActivity.class);
 		    startActivity(intent);
 		}
 		else

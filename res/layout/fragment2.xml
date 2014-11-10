@@ -5,7 +5,7 @@
     android:orientation="vertical" >
 
     <Spinner
-        android:id="@+id/spinner1"
+        android:id="@+id/spinner_achete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:entries="@array/str_array_achete" />
@@ -22,27 +22,25 @@
         android:layout_height="wrap_content"
         android:entries="@array/str_array_sexe" />
 
-   
-
     <LinearLayout
         android:id="@+id/layout_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >
-		<Spinner
-	        android:id="@+id/spinner_raisonAchat"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:entries="@array/str_array_raisonAchat" />
-		 
+
+        <Spinner
+            android:id="@+id/spinner_raisonAchat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/str_array_raisonAchat" />
+
         <Spinner
             android:id="@+id/spinner_fidelite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/str_array_fidelite" />
 
-        
-       <TableLayout
+        <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
@@ -50,93 +48,101 @@
                 android:id="@+id/tableRow1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
-	                <Spinner
-	                android:id="@+id/spinner_marqueHabituelle"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_column="1" />
-	
-	            <EditText
-	                android:id="@+id/txt_marquehabituelleQte"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:ems="10"
-	                android:inputType="number"
-	                android:layout_column="2" />
-            </TableRow>
 
-            
+                <Spinner
+                    android:id="@+id/spinner_marqueHabituelle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1" />
+
+                <EditText
+                    android:id="@+id/txt_marqueHabituelleQte"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:ems="10"
+                    android:hint="Qte marque habituelle"
+                    android:inputType="number" />
+            </TableRow>
         </TableLayout>
-            
-       <TableLayout
+
+        <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
-            <TableRow  
-                android:id="@+id/tableRow2"              
+            <TableRow
+                android:id="@+id/tableRow2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
 
-            <Spinner
-                android:id="@+id/spinner_marqueAchetee"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_column="1" />
+                <Spinner
+                    android:id="@+id/spinner_marqueAchetee"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1" />
 
-            <EditText
-                android:id="@+id/txt_marqueAcheteeQte"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="number"
-                android:layout_column="2" />
-        	</TableRow>
-            
+                <EditText
+                    android:id="@+id/txt_marqueAcheteeQte"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="2"
+                    android:ems="10"
+                    android:hint="Qte marque achetée"
+                    android:inputType="number" />
+            </TableRow>
         </TableLayout>
+
         <CheckBox
-	    android:id="@+id/cb_tombola"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:text="Tombola" />
+            android:id="@+id/cb_tombola"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tombola" />
     </LinearLayout>
-	
-	<LinearLayout
+
+    <LinearLayout
         android:id="@+id/layout_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >
-		<Spinner
-	        android:id="@+id/spinner_raisonRefu"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:entries="@array/str_array_raisonRefu" />
-		
+
         <Spinner
-                android:id="@+id/spinner_marqueHabituelle2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+            android:id="@+id/spinner_raisonRefu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/str_array_raisonRefu" />
 
+        <Spinner
+            android:id="@+id/spinner_marqueHabituelle2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-            <EditText
-                android:id="@+id/txt_marquehabituelleQte2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="number" />
-        	<EditText
-		        android:id="@+id/txt_commentaire"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:layout_weight="0.57"
-		        android:ems="10"
-		        android:inputType="textMultiLine" />        		
+        <EditText
+            android:id="@+id/txt_marqueHabituelleQte2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Qte marque habituelle"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/txt_commentaire"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.57"
+            android:ems="10"
+            android:hint="commentaire"
+            android:inputType="textMultiLine" />
     </LinearLayout>
-	
-    
+
     <Button
         android:id="@+id/btn_rapport_save"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Valider" />
+        android:layout_width="200dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="25dp"
+        android:background="@drawable/buttonshape_blue"
+        android:text="Enregistrer"
+        android:textColor="#FFFFFF"
+        android:textSize="17dp" />
 
 </LinearLayout>
