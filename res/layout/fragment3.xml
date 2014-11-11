@@ -7,9 +7,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="160dp"
         android:gravity="center"
         android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/btn_pushLocalDataToServer"
+            android:layout_width="200dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="25dp"
+            android:background="@drawable/buttonshape_green"
+            android:text="Envoyer les données locales vers le serveur"            
+            android:textColor="#FFFFFF"
+            android:textSize="17dp" />
 
         <Button
             android:id="@+id/btn_synchronize"
@@ -30,7 +41,7 @@
             android:layout_marginTop="25dp"
             android:background="@drawable/buttonshape_red"
             android:text="Deconnexion"
-            android:textColor="#FFFFFF"            
+            android:textColor="#FFFFFF"
             android:textSize="17dp" />
     </LinearLayout>
 

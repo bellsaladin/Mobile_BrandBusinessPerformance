@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bse.daisybuzz.helper.Common;
-import com.bse.daisybuzz.helper.DatabaseHelper;
+import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
+import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.PDV;
 import com.bse.daizybuzz.model.Superviseur;
 import com.google.android.gms.maps.CameraUpdate;
@@ -57,30 +58,31 @@ import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 public class Fragment1 extends Fragment implements LocationListener {
-	DatabaseHelper db;
+	SqliteDatabaseHelper db;
 	
-	private static final int CAMERA_REQUEST = 1888;	
+	Localisation localisation; // model created on save methd
+	private static final int CAMERA_REQUEST = 1888;
 	LocationManager locationManager;
 	String provider;
-	
+
 	GoogleMap mMap;
-	
+
 	private ImageView imageView;
-	private Button btn_takePhoto,btn_save;
-	private EditText txt_licenceProgramme, txt_licenceRemplacee, txt_motif ;
+	private Button btn_takePhoto, btn_save;
+	private EditText txt_licenceProgramme, txt_licenceRemplacee, txt_motif;
 	private Spinner spinner_pdv, spinner_superviseur;
-	
+
 	ProgressDialog prgDialog;
 	String encodedString;
 	RequestParams params = new RequestParams();
-	String imgPath = null, fileName = null;
+	String imgPath = null, imageFileName = null;
 	Bitmap bitmap;
 	private static int RESULT_LOAD_IMG = 1;
 	View view;
-	
+
 	List<Superviseur> superviseursList;
 	List<PDV> pdvsList;
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -89,141 +91,161 @@ public class Fragment1 extends Fragment implements LocationListener {
 		// Set Cancelable as False
 		prgDialog.setCancelable(false);
 		if (view != null) {
-		    ViewGroup parent = (ViewGroup) view.getParent();
-		    if (parent != null)
-		        parent.removeView(view);
+			ViewGroup parent = (ViewGroup) view.getParent();
+			if (parent != null)
+				parent.removeView(view);
 		}
 		try {
-		    view = inflater.inflate(R.layout.fragment1, container, false);
+			view = inflater.inflate(R.layout.fragment1, container, false);
 		} catch (InflateException e) {
-		    /* map is already there, just return view as it is */
+			/* map is already there, just return view as it is */
 		}
-		
+
 		/* ****************************************************************************************************************
 		 * Finding views and implemeting listeners
-		 * ****************************************************************************************************************/
+		 * ******************************
+		 * ****************************************
+		 * *****************************************
+		 */
 
 		imageView = (ImageView) view.findViewById(R.id.iv_photo);
 		spinner_pdv = (Spinner) view.findViewById(R.id.spinner_pdv);
-		spinner_superviseur = (Spinner) view.findViewById(R.id.spinner_superviseur);		
+		spinner_superviseur = (Spinner) view
+				.findViewById(R.id.spinner_superviseur);
 		btn_save = (Button) view.findViewById(R.id.btn_save);
-		//btn_takePhoto = (Button) view.findViewById(R.id.btn_takePhoto);
-		txt_licenceProgramme = (EditText) view.findViewById(R.id.txt_licenceProgrammee);
+		// btn_takePhoto = (Button) view.findViewById(R.id.btn_takePhoto);
+		txt_licenceProgramme = (EditText) view
+				.findViewById(R.id.txt_licenceProgrammee);
 		txt_licenceProgramme.setEnabled(false);
-		txt_licenceRemplacee = (EditText) view.findViewById(R.id.txt_licenceRemplacee);
+		txt_licenceRemplacee = (EditText) view
+				.findViewById(R.id.txt_licenceRemplacee);
 		txt_motif = (EditText) view.findViewById(R.id.txt_motif);
-		
+
 		// listeners *****************
-		
+
 		imageView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				takephoto(v);
 			}
 		});
-		
+
 		btn_save.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				save(v);				
+				save();
 			}
-		});	
-		
-		spinner_pdv.setOnItemSelectedListener(new OnItemSelectedListener() {
-		    @Override
-		    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-		    	
-		    	if(pdvsList.size() > 0){
-		    		txt_licenceProgramme.setText(String.valueOf(pdvsList.get(position).getLicence()));
-		    	}
-		    
-		    }
+		});
 
-		    @Override
-		    public void onNothingSelected(AdapterView<?> parentView) {
-		        // your code here
-		    }
+		spinner_pdv.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parentView,
+					View selectedItemView, int position, long id) {
+
+				if (pdvsList.size() > 0) {
+					txt_licenceProgramme.setText(String.valueOf(pdvsList.get(
+							position).getLicence()));
+				}
+
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parentView) {
+				// your code here
+			}
 
 		});
-		
+
 		/* ****************************************************************************************************************
 		 * Load data from sqlite
-		 * ****************************************************************************************************************/
+		 * ************************************************
+		 * ***************************************************************
+		 */
 
-		db = new DatabaseHelper(this.getActivity().getApplicationContext());
+		db = new SqliteDatabaseHelper(this.getActivity().getApplicationContext());
 		superviseursList = db.getAllSuperviseurs();
 		pdvsList = db.getAllPDV();
-		
+
 		/* ****************************************************************************************************************
 		 * Form controls populating
-		 * ****************************************************************************************************************/
-		
+		 * *********************************************
+		 * ******************************************************************
+		 */
+
 		// ##### superviseurs
-		List<String> superviseursArray =  new ArrayList<String>();
-		
-		for(Superviseur superviseur : superviseursList){
-			superviseursArray.add(superviseur.getPrenom() + " " + superviseur.getNom());
+		List<String> superviseursArray = new ArrayList<String>();
+
+		for (Superviseur superviseur : superviseursList) {
+			superviseursArray.add(superviseur.getPrenom() + " "
+					+ superviseur.getNom());
 		}
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-		    this.getActivity(), android.R.layout.simple_spinner_item, superviseursArray);
+				this.getActivity(), android.R.layout.simple_spinner_item,
+				superviseursArray);
 
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		
+
 		spinner_superviseur.setAdapter(adapter);
-		
+
 		// ##### points de ventes
-		List<String> pdvsArray =  new ArrayList<String>();
-		for(PDV pdv : pdvsList){
+		List<String> pdvsArray = new ArrayList<String>();
+		for (PDV pdv : pdvsList) {
 			pdvsArray.add(String.valueOf(pdv.getNom()));
 		}
 
-		adapter = new ArrayAdapter<String>(
-		    this.getActivity(), android.R.layout.simple_spinner_item, pdvsArray);
+		adapter = new ArrayAdapter<String>(this.getActivity(),
+				android.R.layout.simple_spinner_item, pdvsArray);
 
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		
+
 		spinner_pdv.setAdapter(adapter);
-		
-		if(pdvsList.size() > 0)
-			txt_licenceProgramme.setText(String.valueOf(pdvsList.get(0).getLicence()));		
-		
+
+		if (pdvsList.size() > 0)
+			txt_licenceProgramme.setText(String.valueOf(pdvsList.get(0)
+					.getLicence()));
+
 		/* ****************************************************************************************************************
 		 * LOCALISATION
-		 * ****************************************************************************************************************/
-		
+		 * *********************************************************
+		 * ******************************************************
+		 */
+
 		// Getting LocationManager object
-        locationManager = (LocationManager)this.getActivity().getSystemService(Context.LOCATION_SERVICE);
- 
-        // Creating an empty criteria object
-        Criteria criteria = new Criteria();
- 
-        // Getting the name of the provider that meets the criteria
-        provider = locationManager.getBestProvider(criteria, false);
- 
-        if(provider!=null && !provider.equals("")){
-        	
-        	
-        	
-            // Get the location from the given provider
-        	//Location location = Common.getLastKnownLocation(provider);
-            Location location = Common.getLocation(this.getActivity());
- 
-            locationManager.requestLocationUpdates(provider, 20000, 1, this);
-            
-            mMap = ((SupportMapFragment) this.getActivity().getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            mMap.setMyLocationEnabled(true);
-            
-            if(location!=null)
-                onLocationChanged(location);
-            else
-                Toast.makeText(this.getActivity().getBaseContext(), "Location can't be retrieved", Toast.LENGTH_SHORT).show();
- 
-        }else{
-            Toast.makeText(this.getActivity().getBaseContext(), "No Provider Found", Toast.LENGTH_SHORT).show();
-        }       
-		
+		locationManager = (LocationManager) this.getActivity()
+				.getSystemService(Context.LOCATION_SERVICE);
+
+		// Creating an empty criteria object
+		Criteria criteria = new Criteria();
+
+		// Getting the name of the provider that meets the criteria
+		provider = locationManager.getBestProvider(criteria, false);
+
+		if (provider != null && !provider.equals("")) {
+
+			// Get the location from the given provider
+			// Location location = Common.getLastKnownLocation(provider);
+			Location location = Common.getLocation(this.getActivity());
+
+			locationManager.requestLocationUpdates(provider, 20000, 1, this);
+
+			mMap = ((SupportMapFragment) this.getActivity()
+					.getSupportFragmentManager().findFragmentById(R.id.map))
+					.getMap();
+			mMap.setMyLocationEnabled(true);
+
+			if (location != null)
+				onLocationChanged(location);
+			else
+				Toast.makeText(this.getActivity().getBaseContext(),
+						"Location can't be retrieved", Toast.LENGTH_SHORT)
+						.show();
+
+		} else {
+			Toast.makeText(this.getActivity().getBaseContext(),
+					"No Provider Found", Toast.LENGTH_SHORT).show();
+		}
+
 		return view;
 	}
 
@@ -252,12 +274,11 @@ public class Fragment1 extends Fragment implements LocationListener {
 				imageView.setImageBitmap(bitmap);
 				// Get the Image's file name
 				String fileNameSegments[] = imgPath.split("/");
-				fileName = fileNameSegments[fileNameSegments.length - 1];
+				imageFileName = fileNameSegments[fileNameSegments.length - 1];
 				// Put file name in Async Http Post Param which will used in Php
 				// web app
-				params.put("filename", fileName);
 			} else {
-				Toast.makeText(this.getActivity(), "You haven't picked Image",
+				Toast.makeText(this.getActivity(), "Vous n'avez pas pris de photo",
 						Toast.LENGTH_LONG).show();
 			}
 
@@ -269,42 +290,66 @@ public class Fragment1 extends Fragment implements LocationListener {
 				android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
 		startActivityForResult(cameraIntent, CAMERA_REQUEST);
 	}
-	
-	public void save(View v){		
+
+	public void save() {
 		// valdiation
-		if(pdvsList.size() == 0 || superviseursList.size() == 0)
-			return;		
-					
+		if (pdvsList.size() == 0 || superviseursList.size() == 0)
+			return;
+
 		// ********* saving
-		
-		// set parameters
+		Superviseur superviseur = superviseursList.get(spinner_superviseur
+				.getSelectedItemPosition());
+		PDV pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());
+		Location location = Common.getLocation(this.getActivity());
+
+		// setting parameters for HttpRequest
+		String animateurId = String.valueOf(Statics.animateurId);
+		String superviseurId = String.valueOf(superviseur.getId());
+		String pdvId = String.valueOf(pdv.getId());
+		String longitude = String.valueOf(location.getLongitude());
+		String latitude = String.valueOf(location.getLatitude());
 		String licenceRemplacee = txt_licenceRemplacee.getText().toString();
 		String motif = txt_motif.getText().toString();
-		Superviseur superviseur = superviseursList.get(spinner_superviseur.getSelectedItemPosition());
-		PDV pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());
-		params.put("superviseur", String.valueOf(superviseur.getId()));
-		params.put("pdv", String.valueOf(pdv.getId()));
-		// Location location = locationManager.getLastKnownLocation(provider);
-		Location location = Common.getLocation(this.getActivity());
-		
-		params.put("longitude", String.valueOf(location.getLongitude()));
-		params.put("latitude", String.valueOf(location.getLatitude()));
-		
-		
+		params.put("animateurId", animateurId);
+		params.put("superviseurId", superviseurId);
+		params.put("pdvId", pdvId);
+		params.put("longitude", longitude);
+		params.put("latitude", latitude);
 		params.put("licenceRemplacee", licenceRemplacee);
 		params.put("motif", motif);
-		// start upload of localisation data
-		uploadLocalisationData(v);
+		params.put("imageFileName", imageFileName);
+		
+		// save of Localisation data
+		if (Common.isNetworkAvailable(this.getActivity())) {
+			sendDataToServer();
+		} else {
+			localisation = new Localisation(animateurId, imageFileName,
+					superviseurId, pdvId, longitude, latitude,
+					licenceRemplacee, motif);
+			askUserIfWantToSaveToLocalStorage();
+		}
+	}
+
+	private void storeDataOnLocalStorage() {
+		db.createLocalisation(localisation);
+		
+		// change static localisation flag to done
+		Statics.localisationDone = true;		
+		
+		Toast.makeText(
+				Fragment1.this.getActivity().getApplicationContext(),
+				"Hello" + db.getRecordsCount("localisation"),
+				Toast.LENGTH_SHORT).show();
 	}
 
 	// When Upload button is clicked
-	public void uploadLocalisationData(View v) {
+	public void sendDataToServer() {
 		// When Image is selected from Gallery
 		if (imgPath != null && !imgPath.isEmpty()) {
 			//prgDialog.setMessage("Converting Image to Binary Data");
 			//prgDialog.show();
 			// Convert image to String using Base64
-			encodeImagetoString();
+			ansychronous_encodeImagetoStringThenSendDataToServer();
 			// When Image is not selected from Gallery
 		} else {
 			Toast.makeText(
@@ -315,7 +360,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 	}
 
 	// AsyncTask - To convert Image to String
-	public void encodeImagetoString() {
+	public void ansychronous_encodeImagetoStringThenSendDataToServer() {
 		new AsyncTask<Void, Void, String>() {
 
 			protected void onPreExecute() {
@@ -346,48 +391,52 @@ public class Fragment1 extends Fragment implements LocationListener {
 				prgDialog.setMessage("Calling Upload");
 				// Put converted Image string into Async Http Post param
 				params.put("image", encodedString);
-				
-				// Trigger Image upload
-				triggerImageUpload();
+
+				// Trigger upload of data (data and image)
+				uplaodDataToServer();
 			}
 		}.execute(null, null, null);
 	}
 
-	public void triggerImageUpload() {
-		if(Common.isNetworkAvailable(this.getActivity())){
+	public void uplaodDataToServer() {
+		if (Common.isNetworkAvailable(this.getActivity())) {
 			// passer http -> webservice
 			makeHTTPCall();
-		}else{
+		} else {
 			askUserIfWantToSaveToLocalStorage();
 		}
 	}
 
 	// Make Http call to upload image/ data to Php server
 	public void makeHTTPCall() {
-		
+
 		Preferences preferences = new Preferences(this.getActivity());
-	    String webserviceRootUrl = preferences.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
-		
-		prgDialog.setMessage("Communication avec le serveur...");
+		String webserviceRootUrl = preferences
+				.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
+
+		prgDialog.setMessage("Envoi des données au serveur...");
+		prgDialog.show();
 		AsyncHttpClient client = new AsyncHttpClient();
 		client.setTimeout(3000000); // 30 seconds
 		// Don't forget to change the IP address to your LAN address. Port no as
 		// well.
-		client.post(webserviceRootUrl + "/save_localisation.php",
-				params, new AsyncHttpResponseHandler() {
+		client.post(webserviceRootUrl + "/save_localisation.php", params,
+				new AsyncHttpResponseHandler() {
 					// When the response returned by REST has Http
 					// response code '200'
 					@Override
 					public void onSuccess(String response) {
 						// change static localisation flag to done
 						Statics.localisationDone = true;
+						Statics.lastLocalisationId = Integer.valueOf(response);
+						
 						// Hide Progress Dialog
 						prgDialog.hide();
 						Toast.makeText(
 								Fragment1.this.getActivity()
-										.getApplicationContext(), "Les informations de localisation on été enregistrées !",
-								Toast.LENGTH_LONG).show();
-						Statics.lastLocalisationId = Integer.valueOf(response);
+										.getApplicationContext(),
+								"Les informations de localisation on été enregistrées !",
+								Toast.LENGTH_LONG).show();						
 					}
 
 					// When the response returned by REST has Http
@@ -419,73 +468,88 @@ public class Fragment1 extends Fragment implements LocationListener {
 							Toast.makeText(
 									Fragment1.this.getActivity()
 											.getApplicationContext(),
-											"Erreur : Un problème de connexion ou peut être que le serveur distant n'est pas fonctionnel"
-									/*"Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
-											+ statusCode*/, Toast.LENGTH_LONG)
-									.show();
+									"Erreur : Un problème de connexion ou peut être que le serveur distant n'est pas fonctionnel"
+									/*
+									 * "Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
+									 * + statusCode
+									 */, Toast.LENGTH_LONG).show();
 							askUserIfWantToSaveToLocalStorage();
 						}
 
 					}
 				});
 	}
-	
-	public void askUserIfWantToSaveToLocalStorage(){
-		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-		    @Override
-		    public void onClick(DialogInterface dialog, int which) {
-		        switch (which){
-		        case DialogInterface.BUTTON_POSITIVE:
-		            //Yes button clicked
-		            break;
 
-		        case DialogInterface.BUTTON_NEGATIVE:
-		            //No button clicked
-		            break;
-		        }
-		    }
+	public void askUserIfWantToSaveToLocalStorage() {
+		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which) {
+				case DialogInterface.BUTTON_POSITIVE:
+					
+					prgDialog.setMessage("Enregistrement des informations de localisation en local...");
+					prgDialog.show();
+					
+					storeDataOnLocalStorage();
+					Toast.makeText(
+							Fragment1.this.getActivity().getApplicationContext(),
+							"Localisations in local store " + db.getRecordsCount("localisation"),
+							Toast.LENGTH_SHORT).show();
+					prgDialog.hide();
+					break;
+
+				case DialogInterface.BUTTON_NEGATIVE:
+					// No button clicked
+					break;
+				}
+			}
 		};
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-		builder.setMessage("Impossible de communiquer avec le serveur distant, la connexion est peut être très lente. Voulez vous enregistrer ces informations en local ?").setPositiveButton("Oui", dialogClickListener)
-		    .setNegativeButton("Non", dialogClickListener).show();
+		AlertDialog.Builder builder = new AlertDialog.Builder(
+				this.getActivity());
+		builder.setMessage(
+				"Impossible de communiquer avec le serveur distant, la connexion est peut être très lente. Voulez vous enregistrer ces informations en local ?")
+				.setPositiveButton("Oui", dialogClickListener)
+				.setNegativeButton("Non", dialogClickListener).show();
 	}
 
 	@Override
 	public void onLocationChanged(Location location) {
 		// Getting reference to TextView tv_longitude
-        //TextView tvLongitude = (TextView)findViewById(R.id.tv_longitude);
- 
-        // Getting reference to TextView tv_latitude
-        // TextView tvLatitude = (TextView)findViewById(R.id.tv_latitude);
-		if(location != null){
-	        // Setting Current Longitude
-			// Toast.makeText(this.getActivity().getBaseContext(), location.getLongitude() + "," + location.getLatitude() , Toast.LENGTH_SHORT).show();
-			
-			CameraUpdate center=CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
-	        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
-	        mMap.moveCamera(center);
-	        mMap.animateCamera(zoom);
+		// TextView tvLongitude = (TextView)findViewById(R.id.tv_longitude);
+
+		// Getting reference to TextView tv_latitude
+		// TextView tvLatitude = (TextView)findViewById(R.id.tv_latitude);
+		if (location != null) {
+			// Setting Current Longitude
+			// Toast.makeText(this.getActivity().getBaseContext(),
+			// location.getLongitude() + "," + location.getLatitude() ,
+			// Toast.LENGTH_SHORT).show();
+
+			CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(
+					location.getLatitude(), location.getLongitude()));
+			CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+			mMap.moveCamera(center);
+			mMap.animateCamera(zoom);
 		}
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
-	
+
 }

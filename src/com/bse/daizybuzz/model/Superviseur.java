@@ -5,7 +5,7 @@ public class Superviseur {
 	private String nom;
 	private String prenom;
 	
-	public Superviseur(String nom, String prenom) {
+	public Superviseur(int id, String nom, String prenom) {
 		super();
 		this.id = id;
 		this.nom = nom;

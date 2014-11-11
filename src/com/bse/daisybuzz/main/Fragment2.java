@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bse.daisybuzz.helper.Common;
-import com.bse.daisybuzz.helper.DatabaseHelper;
+import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
 import com.bse.daizybuzz.model.Marque;
@@ -42,7 +42,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 public class Fragment2 extends Fragment {
-	DatabaseHelper db;
+	SqliteDatabaseHelper db;
 
 	RequestParams params = new RequestParams();
 
@@ -142,7 +142,7 @@ public class Fragment2 extends Fragment {
 		 * ***************************************************************
 		 */
 
-		db = new DatabaseHelper(this.getActivity().getApplicationContext());
+		db = new SqliteDatabaseHelper(this.getActivity().getApplicationContext());
 		marquesList = db.getAllMarques();
 		raisonsAchatList = db.getAllRaisonsAchat();
 		raisonsRefusList = db.getAllRaisonsRefus();
@@ -326,7 +326,8 @@ public class Fragment2 extends Fragment {
 		String webserviceRootUrl = preferences
 				.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
 
-		prgDialog.setMessage("Communication avec le serveur...");
+		prgDialog.setMessage("Envoi des données au serveur...");
+		prgDialog.show();
 		AsyncHttpClient client = new AsyncHttpClient();
 		client.setTimeout(3000000); // 30 seconds
 		// Don't forget to change the IP address to your LAN address. Port no as

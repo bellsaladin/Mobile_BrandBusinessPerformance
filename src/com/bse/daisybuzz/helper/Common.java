@@ -86,8 +86,9 @@ public class Common {
 		}
 		
 		// preprate sqlLite database
-		DatabaseHelper db = new DatabaseHelper(activity.getApplicationContext());
-		db.onUpgrade(db.getWritableDatabase(), 0, 1); // force tables to delete		
+		SqliteDatabaseHelper db = new SqliteDatabaseHelper(activity.getApplicationContext());
+		db.purgeServerFeedData();
+		// db.onUpgrade(db.getWritableDatabase(), 0, 1); // force tables to delete		
 		
 		// start JSON parsing
 		try {
@@ -149,7 +150,7 @@ public class Common {
 			        String nom = jsonas.getString("nom");
 			        String prenom = jsonas.getString("prenom");;
 			        // Creating marque
-					Superviseur superviseur = new Superviseur(nom,prenom);
+					Superviseur superviseur = new Superviseur(id, nom,prenom);
 					// Inserting marque in db
 					long superviseur_id = db.createSuperviseur(superviseur);										
 			    }

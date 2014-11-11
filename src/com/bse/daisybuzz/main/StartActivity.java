@@ -2,6 +2,7 @@ package com.bse.daisybuzz.main;
 
 import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.Preferences;
+import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 
 import android.support.v7.app.ActionBarActivity;
 import android.app.AlertDialog;
@@ -34,7 +35,11 @@ public class StartActivity extends ActionBarActivity {
 					.permitAll().build();
 			StrictMode.setThreadPolicy(policy);
 		}
-
+		
+		
+		// create sqllite database if not exists ()
+		SqliteDatabaseHelper db = new SqliteDatabaseHelper(this);
+		
 		// get preferences
 		Preferences preferences = new Preferences(this);
 		String webserviceRootUrl = preferences

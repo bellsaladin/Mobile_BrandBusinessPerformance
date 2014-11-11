@@ -1,6 +1,7 @@
 package com.bse.daisybuzz.helper;
 
 import com.bse.daizybuzz.model.Cadeau;
+import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
 import com.bse.daizybuzz.model.RaisonAchat;
@@ -21,26 +22,27 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 	// Logcat tag
 	private static final String LOG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 3;
 
 	// Database Name
 	private static final String DATABASE_NAME = "contactsManager";
 
 	// Table Names
 	private static final String TABLE_MARQUE = "marque";
-	private static final String TABLE_PDV = "pdv";
-	private static final String TABLE_LOCALISATION = "localisation";
+	private static final String TABLE_PDV = "pdv";;
 	private static final String TABLE_CADEAU = "cadeau";
 	private static final String TABLE_SUPERVISEUR = "superviseur";
 	private static final String TABLE_RAISONACHAT = "raisonachat";
 	private static final String TABLE_RAISONREFUS = "raisonrefus";
 	private static final String TABLE_TRANCHEAGE = "trancheage";
+	private static final String TABLE_LOCALISATION = "localisation";
+	private static final String TABLE_RAPPORT = "rapport";
 
 	// Common column names
 	private static final String KEY_ID = "id";
@@ -48,15 +50,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_PRENOM = "prenom";
 	private static final String KEY_CREATED_AT = "created_at";
 
-	// MARQUE Table - column nmaes
+	// MARQUE Table - column names
 	private static final String KEY_LIBELLE = "libelle";
 
 	// PDV Table - column names
 	private static final String KEY_LICENCE = "licence";
 
-	// NOTE_TAGS Table - column names
-	private static final String KEY_TODO_ID = "todo_id";
-	private static final String KEY_TAG_ID = "tag_id";
+	// Localisation Table - column names
+	private static final String KEY_ANIMATEUR_ID = "animateur_id";
+	private static final String KEY_SUPERVISEUR_ID = "superviseur_id";
+	private static final String KEY_PDV_ID = "pdv_id";
+	private static final String KEY_IMAGEFILENAME = "imageFileName";
+	private static final String KEY_LONGITUDE = "longitude";
+	private static final String KEY_LATITUDE = "latitude";
+	private static final String KEY_LICENCEREMPLACEE = "licenceRemplacee";
+	private static final String KEY_MOTIF = "motif";
 
 	// Table Create Statements
 	// Marque table create statement
@@ -91,13 +99,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 			+ TABLE_TRANCHEAGE + "(" + KEY_ID + " INTEGER," + KEY_LIBELLE
 			+ " TEXT )";
 
-	public DatabaseHelper(Context context) {
+	// Localisation table create statement
+	private static final String CREATE_TABLE_LOCALISATION = "CREATE TABLE "
+			+ TABLE_LOCALISATION + "(" + KEY_ID + " INTEGER,"
+			+ KEY_IMAGEFILENAME + " TEXT," + KEY_LONGITUDE + " TEXT,"
+			+ KEY_LATITUDE + " TEXT," + KEY_ANIMATEUR_ID + " TEXT,"
+			+ KEY_SUPERVISEUR_ID + " TEXT," + KEY_PDV_ID + " TEXT,"
+			+ KEY_LICENCEREMPLACEE + " TEXT," + KEY_MOTIF + " TEXT )";
+
+	public SqliteDatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-
 		// creating required tables
 		db.execSQL(CREATE_TABLE_MARQUE);
 		db.execSQL(CREATE_TABLE_PDV);
@@ -106,6 +121,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_TABLE_RAISONREFU);
 		db.execSQL(CREATE_TABLE_RAISONACHAT);
 		db.execSQL(CREATE_TABLE_TRANCHEAGE);
+		db.execSQL(CREATE_TABLE_LOCALISATION);
 		// db.execSQL(CREATE_TABLE_TODO_TAG);
 	}
 
@@ -119,8 +135,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RAISONACHAT);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RAISONREFUS);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANCHEAGE);
-		// db.execSQL("DROP TABLE IF EXISTS " + TABLE_TODO_TAG);
-
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCALISATION);
 		// create new tables
 		onCreate(db);
 	}
@@ -447,46 +462,108 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 		return raisonsRefu;
 	}
-	
+
 	// ------------------------ "trancheAge" table methods ----------------//
 
-		public long createTrancheAge(TrancheAge trancheAge) {
-			SQLiteDatabase db = this.getWritableDatabase();
+	public long createTrancheAge(TrancheAge trancheAge) {
+		SQLiteDatabase db = this.getWritableDatabase();
 
-			ContentValues values = new ContentValues();
-			values.put(KEY_ID, trancheAge.getId());
-			values.put(KEY_LIBELLE, trancheAge.getLibelle());
+		ContentValues values = new ContentValues();
+		values.put(KEY_ID, trancheAge.getId());
+		values.put(KEY_LIBELLE, trancheAge.getLibelle());
 
-			// insert row
-			long id = db.insert(TABLE_TRANCHEAGE, null, values);
+		// insert row
+		long id = db.insert(TABLE_TRANCHEAGE, null, values);
 
-			return id;
+		return id;
+	}
+
+	public List<TrancheAge> getAllTranchesAge() {
+		List<TrancheAge> tranchesAge = new ArrayList<TrancheAge>();
+		String selectQuery = "SELECT  * FROM " + TABLE_TRANCHEAGE;
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				TrancheAge trancheAge = new TrancheAge();
+				trancheAge.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				trancheAge.setLibelle((c.getString(c
+						.getColumnIndex(KEY_LIBELLE))));
+
+				// adding to todo list
+				tranchesAge.add(trancheAge);
+			} while (c.moveToNext());
 		}
 
-		public List<TrancheAge> getAllTranchesAge() {
-			List<TrancheAge> tranchesAge = new ArrayList<TrancheAge>();
-			String selectQuery = "SELECT  * FROM " + TABLE_TRANCHEAGE;
+		return tranchesAge;
+	}
 
-			Log.e(LOG, selectQuery);
+	// ------------------------ "localisation" table methods ----------------//
 
-			SQLiteDatabase db = this.getReadableDatabase();
-			Cursor c = db.rawQuery(selectQuery, null);
+	public long createLocalisation(Localisation localisation) {
+//		getWritableDatabase().execSQL(CREATE_TABLE_LOCALISATION);
 
-			// looping through all rows and adding to list
-			if (c.moveToFirst()) {
-				do {
-					TrancheAge trancheAge = new TrancheAge();
-					trancheAge.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-					trancheAge.setLibelle((c.getString(c
-							.getColumnIndex(KEY_LIBELLE))));
+		SQLiteDatabase db = this.getWritableDatabase();
 
-					// adding to todo list
-					tranchesAge.add(trancheAge);
-				} while (c.moveToNext());
-			}
+		ContentValues values = new ContentValues();
+		values.put(KEY_ANIMATEUR_ID, localisation.getAnimateurId());
+		values.put(KEY_SUPERVISEUR_ID, localisation.getSuperviseurId());
+		values.put(KEY_PDV_ID, localisation.getPdvId());
+		values.put(KEY_IMAGEFILENAME, localisation.getCheminImage());
+		values.put(KEY_LONGITUDE, localisation.getLongitude());
+		values.put(KEY_LATITUDE, localisation.getLatitude());
+		values.put(KEY_LICENCEREMPLACEE, localisation.getLicenceRemplacee());
+		values.put(KEY_MOTIF, localisation.getMotif());
 
-			return tranchesAge;
+		// insert row
+		long id = db.insert(TABLE_LOCALISATION, null, values);
+
+		return id;
+	}
+
+	public List<Localisation> getAllLocalisations() {
+		getWritableDatabase().execSQL(CREATE_TABLE_LOCALISATION);
+
+		List<Localisation> localisations = new ArrayList<Localisation>();
+		String selectQuery = "SELECT  * FROM " + TABLE_LOCALISATION;
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				Localisation localisation = new Localisation();
+				localisation.setAnimateurId(c.getString(c
+						.getColumnIndex(KEY_ANIMATEUR_ID)));
+				localisation.setSuperviseurId(c.getString(c
+						.getColumnIndex(KEY_SUPERVISEUR_ID)));
+				localisation
+						.setPdvId(c.getString(c.getColumnIndex(KEY_PDV_ID)));
+				localisation.setCheminImage(c.getString(c
+						.getColumnIndex(KEY_IMAGEFILENAME)));
+				localisation.setLongitude(c.getString(c
+						.getColumnIndex(KEY_LONGITUDE)));
+				localisation.setLatitude(c.getString(c
+						.getColumnIndex(KEY_LATITUDE)));
+				localisation.setLicenceRemplacee(c.getString(c
+						.getColumnIndex(KEY_LICENCEREMPLACEE)));
+				localisation.setMotif(c.getString(c.getColumnIndex(KEY_MOTIF)));
+
+				// adding to todo list
+				localisations.add(localisation);
+			} while (c.moveToNext());
 		}
+
+		return localisations;
+	}
 
 	/* ************************************************************************************************************
 	 * getting todo count
@@ -522,5 +599,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 				"yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 		Date date = new Date();
 		return dateFormat.format(date);
+	}
+
+	public void purgeServerFeedData() {
+		this.getWritableDatabase().delete(TABLE_CADEAU, null, null);
+		this.getWritableDatabase().delete(TABLE_MARQUE, null, null);
+		this.getWritableDatabase().delete(TABLE_PDV, null, null);
+		this.getWritableDatabase().delete(TABLE_SUPERVISEUR, null, null);
+		this.getWritableDatabase().delete(TABLE_RAISONACHAT, null, null);
+		this.getWritableDatabase().delete(TABLE_RAISONREFUS, null, null);
+		this.getWritableDatabase().delete(TABLE_TRANCHEAGE, null, null);
+
 	}
 }

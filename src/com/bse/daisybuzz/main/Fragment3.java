@@ -2,7 +2,7 @@ package com.bse.daisybuzz.main;
 
 import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.Preferences;
-import com.bse.daisybuzz.helper.DatabaseHelper;
+import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
