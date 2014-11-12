@@ -7,10 +7,12 @@ import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
+import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
 import com.bse.daizybuzz.model.RaisonAchat;
 import com.bse.daizybuzz.model.RaisonRefus;
+import com.bse.daizybuzz.model.Rapport;
 import com.bse.daizybuzz.model.Superviseur;
 import com.bse.daizybuzz.model.TrancheAge;
 import com.loopj.android.http.AsyncHttpClient;
@@ -42,13 +44,17 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 public class Fragment2 extends Fragment {
+	
+	Rapport rapport; // model created on save method, used to be saved in local store
+	
 	SqliteDatabaseHelper db;
 
 	RequestParams params = new RequestParams();
 
-	Spinner spinner_achete, spinner_raisonAchat, spinner_ageClient,
-			spinner_sexe, spinner_fidelite, spinner_marqueHabituelle,
-			spinner_marqueAchetee, spinner_marqueHabituelle2;
+	Spinner spinner_achete, spinner_raisonAchat, spinner_raisonRefus,
+			spinner_ageClient, spinner_sexe, spinner_fidelite,
+			spinner_marqueHabituelle, spinner_marqueAchetee,
+			spinner_marqueHabituelle2;
 	EditText txt_marqueHabituelleQte, txt_marqueAcheteeQte,
 			txt_marqueHabituelleQte2, txt_commentaire;
 	LinearLayout linearLayout1;
@@ -83,6 +89,8 @@ public class Fragment2 extends Fragment {
 		spinner_achete = (Spinner) view.findViewById(R.id.spinner_achete);
 		spinner_raisonAchat = (Spinner) view
 				.findViewById(R.id.spinner_raisonAchat);
+		spinner_raisonRefus = (Spinner) view
+				.findViewById(R.id.spinner_raisonRefus);
 		spinner_fidelite = (Spinner) view.findViewById(R.id.spinner_fidelite);
 		spinner_ageClient = (Spinner) view.findViewById(R.id.spinner_ageClient);
 		spinner_marqueAchetee = (Spinner) view
@@ -142,7 +150,8 @@ public class Fragment2 extends Fragment {
 		 * ***************************************************************
 		 */
 
-		db = new SqliteDatabaseHelper(this.getActivity().getApplicationContext());
+		db = new SqliteDatabaseHelper(this.getActivity()
+				.getApplicationContext());
 		marquesList = db.getAllMarques();
 		raisonsAchatList = db.getAllRaisonsAchat();
 		raisonsRefusList = db.getAllRaisonsRefus();
@@ -185,7 +194,21 @@ public class Fragment2 extends Fragment {
 
 		spinner_raisonAchat.setAdapter(adapter);
 
-		// ##### raisonsAchat
+		// ##### raisonRefus
+		List<String> raisonsRefusArray = new ArrayList<String>();
+
+		for (RaisonRefus raisonRefus : raisonsRefusList) {
+			raisonsRefusArray.add(raisonRefus.getLibelle());
+		}
+
+		adapter = new ArrayAdapter<String>(this.getActivity(),
+				android.R.layout.simple_spinner_item, raisonsRefusArray);
+
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+		spinner_raisonRefus.setAdapter(adapter);
+
+		// ##### tranches d'age
 		List<String> tranchesAgeArray = new ArrayList<String>();
 
 		for (TrancheAge trancheAge : tranchesAgeList) {
@@ -219,18 +242,15 @@ public class Fragment2 extends Fragment {
 	}
 
 	public void save(View v) {
-		
+
 		if (spinner_achete.getSelectedItemPosition() == 0) {
 			// getting values
+			String achete = "1";
 			String sexe = spinner_sexe.getSelectedItem().toString();
-			String trancheAgeId = String
-					.valueOf(tranchesAgeList.get(
-							spinner_ageClient.getSelectedItemPosition())
-							.getId());
-			String raisonAchatId = String
-					.valueOf(raisonsAchatList.get(
-							spinner_raisonAchat.getSelectedItemPosition())
-							.getId());
+			String trancheAgeId = String.valueOf(tranchesAgeList.get(
+					spinner_ageClient.getSelectedItemPosition()).getId());
+			String raisonAchatId = String.valueOf(raisonsAchatList.get(
+					spinner_raisonAchat.getSelectedItemPosition()).getId());
 			String fidelite = spinner_fidelite.getSelectedItem().toString();
 			String marqueHabituelleId = String
 					.valueOf(marquesList.get(
@@ -241,10 +261,12 @@ public class Fragment2 extends Fragment {
 			String marqueAcheteeId = String.valueOf(marquesList.get(
 					spinner_marqueAchetee.getSelectedItemPosition()).getId());
 			String marqueAcheteeQte = txt_marqueAcheteeQte.getText().toString();
+			String cadeauId = "1";
 			String tombola = (cb_tombola.isChecked()) ? "1" : "0";
-
+			String localisationId = String.valueOf(Statics.lastLocalisationId);
+			
 			// setting parameters
-			params.put("achete", "1");
+			params.put("achete", achete);
 			params.put("trancheAgeId", trancheAgeId);
 			params.put("sexe", sexe);
 			params.put("raisonAchatId", raisonAchatId);
@@ -254,71 +276,97 @@ public class Fragment2 extends Fragment {
 			params.put("marqueAcheteeId", marqueAcheteeId);
 			params.put("marqueAcheteeQte", marqueAcheteeQte);
 			params.put("tombola", tombola);
+			params.put("localisationId", localisationId);
+			
+			
+			rapport = new Rapport(achete, trancheAgeId, sexe, fidelite, raisonAchatId, marqueHabituelleId, marqueHabituelleQte, marqueAcheteeId, marqueAcheteeQte, cadeauId, tombola, localisationId);
 		}
 
 		if (spinner_achete.getSelectedItemPosition() == 1) {
-			String trancheAgeId = String
-					.valueOf(tranchesAgeList.get(
-							spinner_ageClient.getSelectedItemPosition())
-							.getId());
+			String achete = "0";
+			String trancheAgeId = String.valueOf(tranchesAgeList.get(
+					spinner_ageClient.getSelectedItemPosition()).getId());
+			String raisonRefusId = String.valueOf(raisonsRefusList.get(
+					spinner_raisonRefus.getSelectedItemPosition()).getId());
 			String sexe = spinner_sexe.getSelectedItem().toString();
-			String raisonRefu = "";
-			String marqueHabituelle = String
+			String marqueHabituelleId = String
 					.valueOf(marquesList.get(
 							spinner_marqueHabituelle.getSelectedItemPosition())
 							.getId());
 			String marqueHabituelleQte = txt_marqueHabituelleQte.getText()
-					.toString();
-			String marqueAcheteeQte = txt_marqueAcheteeQte.getText().toString();
+					.toString();			
 			String commentaire = txt_commentaire.getText().toString();
+			String localisationId = String.valueOf(Statics.lastLocalisationId);
 
 			// setting parameters
-			params.put("achete", "0");
+			params.put("achete", achete);
 			params.put("trancheAgeId", trancheAgeId);
 			params.put("sexe", sexe);
-			params.put("raisonRefu", raisonRefu);
-			params.put("marqueHabituelle", marqueHabituelle);
+			params.put("raisonRefusId", raisonRefusId);
+			params.put("marqueHabituelleId", marqueHabituelleId);
 			params.put("marqueHabituelleQte", marqueHabituelleQte);
 			params.put("commentaire", commentaire);
-			params.put("marqueAcheteeQte", marqueAcheteeQte);
+			params.put("localisationId", localisationId);			
+			
+			rapport = new Rapport(achete, trancheAgeId, sexe,  raisonRefusId, marqueHabituelleId, marqueHabituelleQte, commentaire, localisationId);
 		}
-		
-		params.put("localisationId", String.valueOf(Statics.lastLocalisationId));
-		params.put("animateurId", String.valueOf(Statics.animateurId));
+				
 
 		// ********* saving
 
-		if(Common.isNetworkAvailable(this.getActivity())){
+		if (Common.isNetworkAvailable(this.getActivity())) {
 			// passer http -> webservice
 			makeHTTPCall();
-		}else{
+		} else {
 			askUserIfWantToSaveToLocalStorage();
 		}
-		// start upload of localisation data		
+		// start upload of localisation data
+	}
+	
+	private void storeDataOnLocalStorage() {
+		db.createRapport(rapport);
+		
+		// change static localisation flag to done
+		Statics.localisationDone = true;		
+		
+		Toast.makeText(
+				Fragment2.this.getActivity().getApplicationContext(),
+				"Rapport enregistré sur la mémoire locale."  + db.getRecordsCount("rapport"),
+				Toast.LENGTH_SHORT).show();
 	}
 
-	public void askUserIfWantToSaveToLocalStorage(){
+	public void askUserIfWantToSaveToLocalStorage() {
 		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-		    @Override
-		    public void onClick(DialogInterface dialog, int which) {
-		        switch (which){
-		        case DialogInterface.BUTTON_POSITIVE:
-		            //Yes button clicked
-		            break;
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				switch (which) {
+				case DialogInterface.BUTTON_POSITIVE:
+					prgDialog.setMessage("Enregistrement des informations du rapport en local...");
+					prgDialog.show();
+					
+					storeDataOnLocalStorage();
+					Toast.makeText(
+							Fragment2.this.getActivity().getApplicationContext(),
+							"Rapports enregistré !",
+							Toast.LENGTH_SHORT).show();
+					prgDialog.hide();
+					break;
 
-		        case DialogInterface.BUTTON_NEGATIVE:
-		            //No button clicked
-		            break;
-		        }
-		    }
+				case DialogInterface.BUTTON_NEGATIVE:
+					// No button clicked
+					break;
+				}
+			}
 		};
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
-		builder.setMessage("Impossible de communiquer avec le serveur distant, la connexion est peut être très lente. Voulez vous enregistrer ces informations en local ?").setPositiveButton("Oui", dialogClickListener)
-		    .setNegativeButton("Non", dialogClickListener).show();
+		AlertDialog.Builder builder = new AlertDialog.Builder(
+				this.getActivity());
+		builder.setMessage(
+				"Impossible de communiquer avec le serveur distant, la connexion est peut être très lente. Voulez vous enregistrer ces informations en local ?")
+				.setPositiveButton("Oui", dialogClickListener)
+				.setNegativeButton("Non", dialogClickListener).show();
 	}
 
-	
 	// Make Http call to upload image/ data to Php server
 	public void makeHTTPCall() {
 
@@ -375,10 +423,12 @@ public class Fragment2 extends Fragment {
 							Toast.makeText(
 									Fragment2.this.getActivity()
 											.getApplicationContext(),
-									"Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
+									"Erreur : Un problème de connexion ou peut être que le serveur distant n'est pas fonctionnel"
 											+ statusCode, Toast.LENGTH_LONG)
 									.show();
 						}
+						
+						askUserIfWantToSaveToLocalStorage();
 
 					}
 				});

@@ -1,6 +1,7 @@
 package com.bse.daisybuzz.main;
 
 import com.bse.daisybuzz.helper.Common;
+import com.bse.daisybuzz.helper.Constants;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 
@@ -84,7 +85,7 @@ public class StartActivity extends ActionBarActivity {
 
 		// Set an EditText view to get user input
 		final EditText input = new EditText(this);
-		input.setText("http://192.168.1.29/_testZone/webservice/");
+		input.setText(Constants.DEFAULT_WEBSERVICE_URL_ROOT);
 		alert.setView(input);
 
 		alert.setPositiveButton("Continuer",

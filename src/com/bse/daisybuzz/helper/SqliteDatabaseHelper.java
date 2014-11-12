@@ -6,6 +6,7 @@ import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
 import com.bse.daizybuzz.model.RaisonAchat;
 import com.bse.daizybuzz.model.RaisonRefus;
+import com.bse.daizybuzz.model.Rapport;
 import com.bse.daizybuzz.model.Superviseur;
 import com.bse.daizybuzz.model.TrancheAge;
 
@@ -28,7 +29,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String LOG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 5;
 
 	// Database Name
 	private static final String DATABASE_NAME = "contactsManager";
@@ -66,6 +67,22 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_LICENCEREMPLACEE = "licenceRemplacee";
 	private static final String KEY_MOTIF = "motif";
 
+	// Rapport Table - column names
+	private static final String KEY_ACHETE = "achete";
+	private static final String KEY_TRANCHEAGE_ID = "trancheage_id";
+	private static final String KEY_RAISONACHAT_ID = "raisonachat_id";
+	private static final String KEY_RAISONREFUS_ID = "raisonrefus_id";
+	private static final String KEY_SEXE = "sexe";
+	private static final String KEY_CADEAU_ID = "cadeau_id";
+	private static final String KEY_FIDELITE = "fidelite_id";
+	private static final String KEY_MARQUEHABITUELLE_ID = "marquehabituelle_id";
+	private static final String KEY_MARQUEHABITUELLE_QTE = "marquehabituelle_qte";
+	private static final String KEY_MARQUEACHETEE_ID = "marqueachetee_id";
+	private static final String KEY_MARQUEACHETEE_QTE = "marqueachetee_qte";
+	private static final String KEY_TOMBOLA = "tombola";
+	private static final String KEY_COMMENTAIRE = "commentaire";
+	private static final String KEY_LOCALISATION_ID = "localisation_id";
+
 	// Table Create Statements
 	// Marque table create statement
 	private static final String CREATE_TABLE_MARQUE = "CREATE TABLE "
@@ -101,11 +118,22 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 	// Localisation table create statement
 	private static final String CREATE_TABLE_LOCALISATION = "CREATE TABLE "
-			+ TABLE_LOCALISATION + "(" + KEY_ID + " INTEGER,"
+			+ TABLE_LOCALISATION + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
 			+ KEY_IMAGEFILENAME + " TEXT," + KEY_LONGITUDE + " TEXT,"
 			+ KEY_LATITUDE + " TEXT," + KEY_ANIMATEUR_ID + " TEXT,"
 			+ KEY_SUPERVISEUR_ID + " TEXT," + KEY_PDV_ID + " TEXT,"
 			+ KEY_LICENCEREMPLACEE + " TEXT," + KEY_MOTIF + " TEXT )";
+
+	// Rapport table create statement
+	private static final String CREATE_TABLE_RAPPORT = "CREATE TABLE "
+			+ TABLE_RAPPORT + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
+			+ KEY_ACHETE + " TEXT," + KEY_TRANCHEAGE_ID + " TEXT," + KEY_SEXE
+			+ " TEXT," + KEY_FIDELITE + " TEXT, " + KEY_RAISONACHAT_ID
+			+ " TEXT," + KEY_RAISONREFUS_ID + " TEXT,"
+			+ KEY_MARQUEHABITUELLE_ID + " TEXT," + KEY_MARQUEHABITUELLE_QTE
+			+ " TEXT," + KEY_MARQUEACHETEE_ID + " TEXT ,"
+			+ KEY_MARQUEACHETEE_QTE + " TEXT ," + KEY_CADEAU_ID + " TEXT,"
+			+ KEY_COMMENTAIRE + " TEXT ," + KEY_TOMBOLA + " TEXT )";
 
 	public SqliteDatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -122,6 +150,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_TABLE_RAISONACHAT);
 		db.execSQL(CREATE_TABLE_TRANCHEAGE);
 		db.execSQL(CREATE_TABLE_LOCALISATION);
+		db.execSQL(CREATE_TABLE_RAPPORT);
 		// db.execSQL(CREATE_TABLE_TODO_TAG);
 	}
 
@@ -136,6 +165,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RAISONREFUS);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANCHEAGE);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCALISATION);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_RAPPORT);
 		// create new tables
 		onCreate(db);
 	}
@@ -506,7 +536,6 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	// ------------------------ "localisation" table methods ----------------//
 
 	public long createLocalisation(Localisation localisation) {
-//		getWritableDatabase().execSQL(CREATE_TABLE_LOCALISATION);
 
 		SQLiteDatabase db = this.getWritableDatabase();
 
@@ -527,7 +556,6 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	public List<Localisation> getAllLocalisations() {
-		getWritableDatabase().execSQL(CREATE_TABLE_LOCALISATION);
 
 		List<Localisation> localisations = new ArrayList<Localisation>();
 		String selectQuery = "SELECT  * FROM " + TABLE_LOCALISATION;
@@ -541,6 +569,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		if (c.moveToFirst()) {
 			do {
 				Localisation localisation = new Localisation();
+				localisation.setId(c.getInt(c.getColumnIndex(KEY_ID)));
 				localisation.setAnimateurId(c.getString(c
 						.getColumnIndex(KEY_ANIMATEUR_ID)));
 				localisation.setSuperviseurId(c.getString(c
@@ -563,6 +592,78 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		}
 
 		return localisations;
+	}
+
+	// ------------------------ "rapport" table methods ----------------//
+
+	public long createRapport(Rapport rapport) {
+
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_ACHETE, rapport.getAchete());
+		values.put(KEY_TRANCHEAGE_ID, rapport.getTrancheAgeId());
+		values.put(KEY_SEXE, rapport.getSexe());
+		values.put(KEY_FIDELITE, rapport.getFidelite());
+		values.put(KEY_RAISONACHAT_ID, rapport.getRaisonAchatId());
+		values.put(KEY_RAISONREFUS_ID, rapport.getRaisonRefusId());
+		values.put(KEY_MARQUEHABITUELLE_ID, rapport.getMarqueHabituelleId());
+		values.put(KEY_MARQUEHABITUELLE_QTE, rapport.getMarqueHabituelleQte());
+		values.put(KEY_MARQUEACHETEE_ID, rapport.getMarqueAcheteeId());
+		values.put(KEY_MARQUEACHETEE_QTE, rapport.getMarqueAcheteeQte());
+		values.put(KEY_CADEAU_ID, rapport.getCadeauId());
+		values.put(KEY_TOMBOLA, rapport.getTombola());
+		values.put(KEY_COMMENTAIRE, rapport.getCommentaire());
+
+		// insert row
+		long id = db.insert(TABLE_RAPPORT, null, values);
+
+		return id;
+	}
+
+	public List<Rapport> getAllRapports() {
+
+		List<Rapport> rapports = new ArrayList<Rapport>();
+		String selectQuery = "SELECT  * FROM " + TABLE_RAPPORT;
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				Rapport rapport = new Rapport();
+				rapport.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				rapport.setAchete(c.getString(c.getColumnIndex(KEY_ACHETE)));
+				rapport.setTrancheAgeId(c.getString(c
+						.getColumnIndex(KEY_TRANCHEAGE_ID)));
+				rapport.setSexe(c.getString(c.getColumnIndex(KEY_SEXE)));
+				rapport.setFidelite(c.getString(c.getColumnIndex(KEY_FIDELITE)));
+				rapport.setRaisonAchatId(c.getString(c
+						.getColumnIndex(KEY_RAISONACHAT_ID)));
+				rapport.setRaisonRefusId(c.getString(c
+						.getColumnIndex(KEY_RAISONREFUS_ID)));
+				rapport.setMarqueHabituelleId(c.getString(c
+						.getColumnIndex(KEY_MARQUEHABITUELLE_ID)));
+				rapport.setMarqueHabituelleQte(c.getString(c
+						.getColumnIndex(KEY_MARQUEHABITUELLE_QTE)));
+				rapport.setMarqueAcheteeId(c.getString(c
+						.getColumnIndex(KEY_MARQUEACHETEE_ID)));
+				rapport.setMarqueAcheteeQte(c.getString(c
+						.getColumnIndex(KEY_MARQUEACHETEE_QTE)));
+				rapport.setCadeauId(c.getString(c.getColumnIndex(KEY_CADEAU_ID)));
+				rapport.setTombola(c.getString(c.getColumnIndex(KEY_TOMBOLA)));
+				rapport.setCommentaire(c.getString(c
+						.getColumnIndex(KEY_COMMENTAIRE)));
+
+				// adding to rapports list
+				rapports.add(rapport);
+			} while (c.moveToNext());
+		}
+
+		return rapports;
 	}
 
 	/* ************************************************************************************************************
@@ -610,5 +711,11 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		this.getWritableDatabase().delete(TABLE_RAISONREFUS, null, null);
 		this.getWritableDatabase().delete(TABLE_TRANCHEAGE, null, null);
 
+	}
+
+	public void removeLocalisation(Localisation localisation) {
+		this.getWritableDatabase().delete(TABLE_LOCALISATION,
+				new String(KEY_ID + "=?"),
+				new String[] { String.valueOf(localisation.getId()) });
 	}
 }

@@ -80,7 +80,7 @@ public class MainActivity extends ActionBarActivity {
 
 			@Override
 			public void onTabSelected(Tab tab, FragmentTransaction ft) {				
-				if(mActionbar != null){
+				/*if(mActionbar != null){
 					if(tab.getPosition() == 1 && !Statics.localisationDone){						
 						//mActionbar.selectTab(tab1);
 						tab1.select();
@@ -91,7 +91,7 @@ public class MainActivity extends ActionBarActivity {
 								Toast.LENGTH_SHORT).show();
 						return;
 					}
-				}
+				}*/
 				mPager.setCurrentItem(tab.getPosition());
 			}
 

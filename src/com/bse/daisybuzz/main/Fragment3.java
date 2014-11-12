@@ -41,9 +41,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class Fragment3 extends Fragment {
-
-	private Button btn_disconnect;
-	private Button btn_synchronize;
+	
+	private Button btn_synchronize, btn_pushLocalDataToServer, btn_disconnect;
 
 	ProgressDialog prgDialog;
 
@@ -56,9 +55,9 @@ public class Fragment3 extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		/* prgDialog = new ProgressDialog(this.getActivity());
+		prgDialog = new ProgressDialog(this.getActivity());
 		// Set Cancelable as False
-		prgDialog.setCancelable(false);*/
+		prgDialog.setCancelable(false);
 		View view = inflater.inflate(R.layout.fragment3, null);
 
 		btn_disconnect = (Button) view.findViewById(R.id.btn_disconnect);
@@ -73,6 +72,14 @@ public class Fragment3 extends Fragment {
 			@Override
 			public void onClick(View v) {
 				synchronize(v);
+			}
+		});
+		
+		btn_pushLocalDataToServer = (Button) view.findViewById(R.id.btn_pushLocalDataToServer);
+		btn_pushLocalDataToServer.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				pushLocalDataToServer(Fragment3.this.getActivity(), prgDialog);
 			}
 		});
 			
@@ -90,6 +97,10 @@ public class Fragment3 extends Fragment {
 					Toast.LENGTH_SHORT).show();
 		}
 		
+	}
+	
+	public void pushLocalDataToServer(Activity activity, ProgressDialog prgDialog){
+		Common.pushDataToServer(activity, prgDialog);
 	}
 
 	public void disconnecte(View v) {

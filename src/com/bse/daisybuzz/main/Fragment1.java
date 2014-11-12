@@ -60,7 +60,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 public class Fragment1 extends Fragment implements LocationListener {
 	SqliteDatabaseHelper db;
 	
-	Localisation localisation; // model created on save methd
+	Localisation localisation; // model created on save method, used to be saved in local store
 	private static final int CAMERA_REQUEST = 1888;
 	LocationManager locationManager;
 	String provider;
@@ -292,6 +292,16 @@ public class Fragment1 extends Fragment implements LocationListener {
 	}
 
 	public void save() {
+		
+		// getting location first
+		Location location = Common.getLocation(this.getActivity());
+		if(location == null){
+			Toast.makeText(
+					Fragment1.this.getActivity().getApplicationContext(),
+					"Erreur : Impossible de récupérer la dernière localisation ! Le cache de la dernière position a peut être été vider.",
+					Toast.LENGTH_LONG).show();
+			return;
+		}
 		// valdiation
 		if (pdvsList.size() == 0 || superviseursList.size() == 0)
 			return;
@@ -299,8 +309,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		// ********* saving
 		Superviseur superviseur = superviseursList.get(spinner_superviseur
 				.getSelectedItemPosition());
-		PDV pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());
-		Location location = Common.getLocation(this.getActivity());
+		PDV pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());		
 
 		// setting parameters for HttpRequest
 		String animateurId = String.valueOf(Statics.animateurId);
@@ -319,13 +328,14 @@ public class Fragment1 extends Fragment implements LocationListener {
 		params.put("motif", motif);
 		params.put("imageFileName", imageFileName);
 		
+		localisation = new Localisation(animateurId, imageFileName,
+				superviseurId, pdvId, longitude, latitude,
+				licenceRemplacee, motif);
+		
 		// save of Localisation data
 		if (Common.isNetworkAvailable(this.getActivity())) {
 			sendDataToServer();
-		} else {
-			localisation = new Localisation(animateurId, imageFileName,
-					superviseurId, pdvId, longitude, latitude,
-					licenceRemplacee, motif);
+		} else {			
 			askUserIfWantToSaveToLocalStorage();
 		}
 	}
@@ -338,7 +348,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		
 		Toast.makeText(
 				Fragment1.this.getActivity().getApplicationContext(),
-				"Hello" + db.getRecordsCount("localisation"),
+				"Localisation enregistrée sur la mémoire locale.",
 				Toast.LENGTH_SHORT).show();
 	}
 
