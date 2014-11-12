@@ -348,7 +348,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		
 		Statics.localisationDone = true;
 		Statics.lastLocalisationId = (int) localisationId;
-		MainActivity.addReportTab();
+		MainActivity.addRapportTab();
 		
 		Toast.makeText(
 				Fragment1.this.getActivity().getApplicationContext(),
@@ -443,7 +443,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 						// change static localisation flag to done
 						Statics.localisationDone = true;
 						Statics.lastLocalisationId = Integer.valueOf(response);
-						MainActivity.addReportTab();
+						MainActivity.addRapportTab();
 						
 						// Hide Progress Dialog
 						prgDialog.hide();
@@ -502,17 +502,13 @@ public class Fragment1 extends Fragment implements LocationListener {
 				switch (which) {
 				case DialogInterface.BUTTON_POSITIVE:
 					
-					prgDialog.setMessage("Enregistrement des informations de localisation en local...");
-					prgDialog.show();
-					
 					storeDataOnLocalStorage();
 					Toast.makeText(
 							Fragment1.this.getActivity().getApplicationContext(),
 							"( "  +db.getRecordsCount("localisation") + " Localisations stockées en local)",
 							Toast.LENGTH_SHORT).show();
-					prgDialog.hide();
+					
 					break;
-
 				case DialogInterface.BUTTON_NEGATIVE:
 					// No button clicked
 					break;

@@ -1,9 +1,12 @@
 package com.bse.daisybuzz.main;
 
+import com.bse.daisybuzz.helper.Statics;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.util.Log;
 
 public class MyFragmentPagerAdapter extends FragmentPagerAdapter{
 	
@@ -17,9 +20,9 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter{
 
 	/** This method will be invoked when a page is requested to create */
 	@Override
-	public Fragment getItem(int arg0) {
+	public Fragment getItem(int position) {
 		Bundle data = new Bundle();
-		switch(arg0){
+		switch(position){
 		
 			/** tab1 is selected */
 			case 0:
@@ -28,8 +31,8 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter{
 				
 			/** tab2 is selected */
 			case 1:
-				Fragment2 fragment2 = new Fragment2();
-				return fragment2;
+					Fragment2 fragment2 = new Fragment2();
+					return fragment2;				
 			/** tab3 is selected */
 			case 2:
 				Fragment3 fragment3 = new Fragment3();

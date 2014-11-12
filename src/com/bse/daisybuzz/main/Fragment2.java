@@ -141,7 +141,6 @@ public class Fragment2 extends Fragment {
 					linearLayout1.setVisibility(LinearLayout.GONE);
 					linearLayout2.setVisibility(LinearLayout.VISIBLE);
 				}
-
 			}
 
 			@Override

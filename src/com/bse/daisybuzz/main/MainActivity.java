@@ -24,11 +24,15 @@ import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 
-	private ViewPager mPager;
+	static private ViewPager mPager;
 
 	static ActionBar mActionbar;
+	
 	static Tab tab1, tab2, tab3;
-
+	static FragmentManager fm; 
+	static int tab_drawable_icons[] = new int[3];
+	static int tab_drawable_icons_selected[] = new int[3];
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -50,14 +54,14 @@ public class MainActivity extends ActionBarActivity {
 		mPager = (ViewPager) findViewById(R.id.pager);
 
 		/** Getting a reference to FragmentManager */
-		FragmentManager fm = getSupportFragmentManager();
+		 fm = getSupportFragmentManager();
 
 		/** Defining a listener for pageChange */
 		ViewPager.SimpleOnPageChangeListener pageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
 			@Override
 			public void onPageSelected(int position) {
-				super.onPageSelected(position);
-				mActionbar.setSelectedNavigationItem(position);
+				//super.onPageSelected(position);
+				//mActionbar.setSelectedNavigationItem(position);
 			}
 
 		};
@@ -71,41 +75,29 @@ public class MainActivity extends ActionBarActivity {
 
 		/** Setting the FragmentPagerAdapter object to the viewPager object */
 		mPager.setAdapter(fragmentPagerAdapter);
-
+		
+		
+		
+		tab_drawable_icons[0] = R.drawable.icon_localisation;
+		tab_drawable_icons[1] = R.drawable.icon_options;		
+		tab_drawable_icons_selected[0] = R.drawable.icon_localisation_selected;
+		tab_drawable_icons_selected[1] = R.drawable.icon_options_selected;
+		
 		/** Defining tab listener */
 		ActionBar.TabListener tabListener = new ActionBar.TabListener() {
 
 			@Override
 			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-				switch (tab.getPosition()) {
-				case 0:
-					tab.setIcon(R.drawable.icon_localisation);
-					break;
-				case 1:
-					tab.setIcon(R.drawable.icon_rapport);
-					break;
-				case 2:
-					tab.setIcon(R.drawable.icon_options);
-					break;
-				}
+				tab.setIcon(tab_drawable_icons[tab.getPosition()]);	
 			}
 
 			@Override
 			public void onTabSelected(Tab tab, FragmentTransaction ft) {
-				
-				switch (tab.getPosition()) {
-				case 0:
-					tab.setIcon(R.drawable.icon_localisation_selected);
-					break;
-				case 1:
-					tab.setIcon(R.drawable.icon_rapport_selected);
-					break;
-				case 2:
-					tab.setIcon(R.drawable.icon_options_selected);
-					break;
-				}
-				
-				mPager.setCurrentItem(tab.getPosition());
+				tab.setIcon(tab_drawable_icons_selected[tab.getPosition()]);
+				if(tab.getPosition() == 1 && !Statics.localisationDone)
+					mPager.setCurrentItem(2); // show optionsFragment not localisationFragment 
+				else
+					mPager.setCurrentItem(tab.getPosition());
 			}
 
 			@Override
@@ -138,8 +130,22 @@ public class MainActivity extends ActionBarActivity {
 
 	}
 	
-	static void addReportTab(){
-		mActionbar.addTab(tab2, 1);
+	static void addRapportTab(){
+		if(mActionbar.getTabCount() <3){
+			tab_drawable_icons[1] = R.drawable.icon_rapport;
+			tab_drawable_icons[2] = R.drawable.icon_options;		
+			tab_drawable_icons_selected[1] = R.drawable.icon_rapport_selected;
+			tab_drawable_icons_selected[2] = R.drawable.icon_options_selected;
+			
+			// more stable 
+			mActionbar.removeAllTabs();
+			mActionbar.addTab(tab1);
+			mActionbar.addTab(tab2);
+			mActionbar.addTab(tab3);
+			MyFragmentPagerAdapter fragmentPagerAdapter = new MyFragmentPagerAdapter(
+					fm);
+			mPager.setAdapter(fragmentPagerAdapter);
+		}
 	}
 
 }
