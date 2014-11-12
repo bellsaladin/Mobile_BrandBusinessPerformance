@@ -53,13 +53,18 @@ public class Common {
 	 * *********************************
 	 * **************************************************
 	 */
-	public static void synchronizeAll(Activity activity) {
+	public static void synchronizeAll(Activity activity) {		
 		synchronizeAll(activity, "");
 	}
 
-	public static void synchronizeAll(Activity activity,
+	public static boolean synchronizeAll(Activity activity,
 			String webserviceRootUrl) {
-
+		if(!Common.isNetworkAvailable(activity)){
+			Toast.makeText(
+					activity.getApplicationContext(), "La connexion internet n'est pas disponible (vérifier que votre téléphone est bien configuré) !",
+					Toast.LENGTH_LONG).show();
+			return false;		
+		}
 		Preferences preferences = new Preferences(activity);
 		if (webserviceRootUrl.isEmpty())
 			webserviceRootUrl = preferences
@@ -102,17 +107,14 @@ public class Common {
 
 		// preprate sqlLite database
 		SqliteDatabaseHelper db = new SqliteDatabaseHelper(
-				activity.getApplicationContext());
-		db.purgeServerFeedData();
-		// db.onUpgrade(db.getWritableDatabase(), 0, 1); // force tables to
-		// delete
+				activity.getApplicationContext());				
 
 		// start JSON parsing
 		try {
 			JSONObject json_data = new JSONObject(result);
 
 			try {
-
+				db.purgeServerFeedData(); // FIXME : I should make sure to have no problem before purging the bd !!
 				// INSERTING MARQUES
 				// ###################################################
 				JSONArray rows = json_data.getJSONArray("marques");
@@ -258,16 +260,17 @@ public class Common {
 			} catch (JSONException e) {
 				Toast.makeText(
 						activity.getBaseContext(),
-						"Erreur lors de la synchronization : " + e.getMessage(),
+						"Erreur lors de la synchronization ! ",
 						Toast.LENGTH_LONG).show();
 				e.printStackTrace();
 			}
 
 		} catch (Exception e) {
 			Toast.makeText(activity.getBaseContext(),
-					"Erreur lors de la synchronization : " + e.getMessage(),
+					"Erreur lors de la synchronization ! La connection est trop lente.",
 					Toast.LENGTH_LONG).show();
 		}
+		return true;
 	}
 
 	public static void pushDataToServer(final Activity activity,
