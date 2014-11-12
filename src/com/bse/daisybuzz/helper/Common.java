@@ -247,8 +247,8 @@ public class Common {
 
 				// Save user authentification values
 
-				preferences.saveValue("USER_PASSWORD", "admin");
-				preferences.saveValue("USER_NAME", "123");
+				//preferences.saveValue("USER_PASSWORD", "admin");
+				//preferences.saveValue("USER_NAME", "123");
 
 				// Info popup
 				Toast.makeText(activity.getBaseContext(),

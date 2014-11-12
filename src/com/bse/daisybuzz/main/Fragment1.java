@@ -311,9 +311,11 @@ public class Fragment1 extends Fragment implements LocationListener {
 		Superviseur superviseur = superviseursList.get(spinner_superviseur
 				.getSelectedItemPosition());
 		PDV pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());		
-
+		
+		Preferences preferences = new Preferences(this.getActivity());				
 		// setting parameters for HttpRequest
-		String animateurId = String.valueOf(Statics.animateurId);
+		String animateurId = preferences
+				.getStringValue("ANIMATEUR_ID");
 		String superviseurId = String.valueOf(superviseur.getId());
 		String pdvId = String.valueOf(pdv.getId());
 		String longitude = String.valueOf(location.getLongitude());
@@ -346,6 +348,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		
 		Statics.localisationDone = true;
 		Statics.lastLocalisationId = (int) localisationId;
+		MainActivity.addReportTab();
 		
 		Toast.makeText(
 				Fragment1.this.getActivity().getApplicationContext(),
@@ -440,6 +443,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 						// change static localisation flag to done
 						Statics.localisationDone = true;
 						Statics.lastLocalisationId = Integer.valueOf(response);
+						MainActivity.addReportTab();
 						
 						// Hide Progress Dialog
 						prgDialog.hide();

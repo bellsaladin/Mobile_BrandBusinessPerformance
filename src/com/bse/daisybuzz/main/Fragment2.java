@@ -67,7 +67,7 @@ public class Fragment2 extends Fragment {
 	List<RaisonAchat> raisonsAchatList;
 	List<RaisonRefus> raisonsRefusList;
 	List<TrancheAge> tranchesAgeList;
-
+	View view;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -75,14 +75,21 @@ public class Fragment2 extends Fragment {
 		prgDialog = new ProgressDialog(this.getActivity());
 		// Set Cancelable as False
 		prgDialog.setCancelable(false);
-		View view = inflater.inflate(R.layout.fragment2, null);
+		view = inflater.inflate(R.layout.fragment2, null);
 
+		
+		return view;
+	}
+	
+	void feedView(){
 		/* ****************************************************************************************************************
 		 * Finding views and implemeting listeners
 		 * ******************************
 		 * ****************************************
 		 * *****************************************
 		 */
+		
+
 		linearLayout1 = (LinearLayout) view.findViewById(R.id.layout_1);
 		linearLayout2 = (LinearLayout) view.findViewById(R.id.layout_2);
 
@@ -237,9 +244,16 @@ public class Fragment2 extends Fragment {
 				cb_tombola.setVisibility(CheckBox.GONE);
 			}
 		}
-
-		return view;
 	}
+	
+	
+	 @Override
+	  public void onResume() {
+	     Log.e("DEBUG", "onResume of LoginFragment");
+	     super.onResume(); 
+	     feedView();
+	  }
+	
 
 	public void save(View v) {
 

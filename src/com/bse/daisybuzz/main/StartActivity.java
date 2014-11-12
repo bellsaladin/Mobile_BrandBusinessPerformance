@@ -51,9 +51,11 @@ public class StartActivity extends ActionBarActivity {
 			promptEmptyWebServiceUrlDialog();
 		}
 		else{
+			Common.synchronizeAll(this);
 			// load main activity
 			Intent intent = new Intent(StartActivity.this, MainActivity.class);
 		    startActivity(intent);
+		    finish();
 		}
 	}
 

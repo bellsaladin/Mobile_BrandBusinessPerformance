@@ -26,14 +26,15 @@ public class MainActivity extends ActionBarActivity {
 
 	private ViewPager mPager;
 
-	ActionBar mActionbar;
-	Tab tab1,tab2,tab3;
+	static ActionBar mActionbar;
+	static Tab tab1, tab2, tab3;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_main);
 
 		/** Getting a reference to action bar of this activity */
@@ -76,22 +77,34 @@ public class MainActivity extends ActionBarActivity {
 
 			@Override
 			public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+				switch (tab.getPosition()) {
+				case 0:
+					tab.setIcon(R.drawable.icon_localisation);
+					break;
+				case 1:
+					tab.setIcon(R.drawable.icon_rapport);
+					break;
+				case 2:
+					tab.setIcon(R.drawable.icon_options);
+					break;
+				}
 			}
 
 			@Override
-			public void onTabSelected(Tab tab, FragmentTransaction ft) {				
-				/*if(mActionbar != null){
-					if(tab.getPosition() == 1 && !Statics.localisationDone){						
-						//mActionbar.selectTab(tab1);
-						tab1.select();
-						//mPager.setCurrentItem(0);
-						Toast.makeText(
-								MainActivity.this.getApplicationContext(),
-								"Vous devez vous localiser avant de pouvoir enregistrer des rapports !",
-								Toast.LENGTH_SHORT).show();
-						return;
-					}
-				}*/
+			public void onTabSelected(Tab tab, FragmentTransaction ft) {
+				
+				switch (tab.getPosition()) {
+				case 0:
+					tab.setIcon(R.drawable.icon_localisation_selected);
+					break;
+				case 1:
+					tab.setIcon(R.drawable.icon_rapport_selected);
+					break;
+				case 2:
+					tab.setIcon(R.drawable.icon_options_selected);
+					break;
+				}
+				
 				mPager.setCurrentItem(tab.getPosition());
 			}
 
@@ -102,31 +115,31 @@ public class MainActivity extends ActionBarActivity {
 
 		/** Creating fragment1 Tab */
 		tab1 = mActionbar.newTab()//.setText("Localisation")
-		// .setIcon(R.drawable.ic_launcher)
-				.setIcon(R.drawable.icon_localisation)
-				//.setCustomView(R.layout.tab_custom_view)
+				// .setIcon(R.drawable.ic_launcher)
+				.setIcon(R.drawable.icon_localisation_selected)
+				// .setCustomView(R.layout.tab_custom_view)
 				.setTabListener(tabListener);
 
 		mActionbar.addTab(tab1);
-				
-		
+
 		/** Creating fragment2 Tab */
 		tab2 = mActionbar.newTab()//.setText("Rapport")
-				//.setCustomView(R.layout.tab_custom_view)
-		.setIcon(R.drawable.icon_rapport)
-				.setTabListener(tabListener);
+				// .setCustomView(R.layout.tab_custom_view)
+				.setIcon(R.drawable.icon_rapport).setTabListener(tabListener);
 
-		mActionbar.addTab(tab2);
+		//mActionbar.addTab(tab2);
 
-		tab3 = mActionbar.newTab()//.setText("Options")
-				//.setCustomView(R.layout.tab_custom_view)
+		tab3 = mActionbar.newTab()// .setText("Options")
+				// .setCustomView(R.layout.tab_custom_view)
 				.setIcon(R.drawable.icon_options)
 				.setTabListener(tabListener);
 
 		mActionbar.addTab(tab3);		
 
 	}
-
 	
+	static void addReportTab(){
+		mActionbar.addTab(tab2, 1);
+	}
 
 }

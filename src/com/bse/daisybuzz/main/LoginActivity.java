@@ -1,9 +1,32 @@
 package com.bse.daisybuzz.main;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
+import com.bse.daisybuzz.helper.Common;
+import com.bse.daisybuzz.helper.Constants;
+import com.bse.daisybuzz.helper.Preferences;
+import com.bse.daisybuzz.helper.Statics;
+
 import android.support.v7.app.ActionBarActivity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.StrictMode;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +43,10 @@ public class LoginActivity extends ActionBarActivity {
 	private Button login;
 	// int counter = 3;
 	
+	static InputStream inputStream = null;
+	static String result = null;
+	static String line = null;
+
 	LoginDataBaseAdapter loginDataBaseAdapter;
 
 	@Override
@@ -27,63 +54,182 @@ public class LoginActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
 		
-		// create a instance of SQLite Database
-		loginDataBaseAdapter = new LoginDataBaseAdapter(this);
-		loginDataBaseAdapter = loginDataBaseAdapter.open();
-		
-		// Save the Data in Database
-	    loginDataBaseAdapter.insertEntry("admin", "123");
-		
+
 		editText_username = (EditText) findViewById(R.id.editText1);
 		editText_password = (EditText) findViewById(R.id.editText2);
-		
-		// for debug 
-		editText_username.setText("admin");
-		editText_password.setText("123");
-		
-		
+
+		// for debug
+		editText_username.setText("animateur1");
+		editText_password.setText("123456");
+
 		/*
 		 * attempts = (TextView)findViewById(R.id.textView5);
 		 * attempts.setText(Integer.toString(counter));
 		 */
 		login = (Button) findViewById(R.id.button1);
+		
+		if (android.os.Build.VERSION.SDK_INT > 9) { 
+			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+					.permitAll().build();
+			StrictMode.setThreadPolicy(policy);
+		}
+		
+		// get preferences
+				Preferences preferences = new Preferences(this);
+				String webserviceRootUrl = preferences
+						.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
+
+				// check for fist use of the application
+				if (webserviceRootUrl.isEmpty()){
+					promptEmptyWebServiceUrlDialog();
+				}
+		
 	}
 
 	public void login(View view) {
-		/*if (username.getText().toString().equals("admin")
-				&& password.getText().toString().equals("admin")) {
-			Toast.makeText(getApplicationContext(), "Redirecting...",
-					Toast.LENGTH_SHORT).show();
-		} else {
-			Toast.makeText(getApplicationContext(), "Wrong Credentials",
-					Toast.LENGTH_SHORT).show();
-			
-			//attempts.setBackgroundColor(Color.RED); counter--;
-			//attempts.setText(Integer.toString(counter)); if(counter==0){
-			//login.setEnabled(false); }
-			 
-		}*/
-		
-		
-		String username = editText_username.getText().toString();
-		String password = editText_password.getText().toString();
-		// fetch the Password form database for respective user name
-		String storedPassword=loginDataBaseAdapter.getSinlgeEntry(username);
-		
-		// check if the Stored password matches with  Password entered by user
-		if(password.equals(storedPassword))
-		{
-			Toast.makeText(getApplicationContext(), "Connexion en cours...",Toast.LENGTH_SHORT).show();
-			
-			Intent intent = new Intent(this, StartActivity.class);
-		    startActivity(intent);
-		}
-		else
-		{
-			Toast.makeText(getApplicationContext(), "Compte invalide !",
-					Toast.LENGTH_SHORT).show();
-		}
+		/*
+		 * if (username.getText().toString().equals("admin") &&
+		 * password.getText().toString().equals("admin")) {
+		 * Toast.makeText(getApplicationContext(), "Redirecting...",
+		 * Toast.LENGTH_SHORT).show(); } else {
+		 * Toast.makeText(getApplicationContext(), "Wrong Credentials",
+		 * Toast.LENGTH_SHORT).show();
+		 * 
+		 * //attempts.setBackgroundColor(Color.RED); counter--;
+		 * //attempts.setText(Integer.toString(counter)); if(counter==0){
+		 * //login.setEnabled(false); }
+		 * 
+		 * }
+		 */
 
+		String inputUsername = editText_username.getText().toString();
+		String inputPassword = editText_password.getText().toString();
+		// fetch the Password form database for respective user name
+
+		Preferences preferences = new Preferences(this);
+		String storedUsername = preferences.getStringValue("USERNAME");
+		String storedPassword = preferences.getStringValue("PASSWORD");
+		String webserviceRootUrl = preferences
+				.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
+
+		if (!storedUsername.isEmpty() && !storedPassword.isEmpty()) {
+			// check if the Stored password matches with Password entered by
+			// user
+			if (inputPassword.equals(storedPassword)) {				
+				Toast.makeText(getApplicationContext(),
+						"Connexion en cours...", Toast.LENGTH_SHORT).show();
+				
+				Statics.animateurId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
+				
+				Intent intent = new Intent(this, StartActivity.class);
+				startActivity(intent);
+				finish();
+			} else {
+				Toast.makeText(getApplicationContext(), "Compte invalide !",
+						Toast.LENGTH_SHORT).show();
+			}
+		} else {
+			if (authenticateUser(inputUsername, inputPassword,webserviceRootUrl) > 0) {
+				Toast.makeText(getApplicationContext(),
+						"Connexion en cours...", Toast.LENGTH_SHORT).show();
+				
+				Statics.animateurId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
+				
+				Intent intent = new Intent(this, StartActivity.class);
+				startActivity(intent);
+				finish();
+			} else {
+				Toast.makeText(getApplicationContext(), "Compte invalide !",
+						Toast.LENGTH_SHORT).show();
+			}
+		}				
+		
+	}
+
+	private int authenticateUser(String username, String password, String webserviceRootUrl) {
+		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+
+		nameValuePairs.add(new BasicNameValuePair("username",
+				username));
+		nameValuePairs.add(new BasicNameValuePair("password",
+				password));
+		Toast.makeText(getApplicationContext(),
+				"Communication avec le serveur...", Toast.LENGTH_SHORT).show();
+		try {
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpPost httppost = new HttpPost(webserviceRootUrl
+					+ "/authentification");
+			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			HttpResponse response = httpclient.execute(httppost);
+			HttpEntity entity = response.getEntity();
+			inputStream = entity.getContent();
+			Log.e("pass 1", "connection success");
+			
+			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					inputStream, "iso-8859-1"), 8);
+			StringBuilder sb = new StringBuilder();
+			while ((line = reader.readLine()) != null) {
+				sb.append(line + "\n");
+			}
+			inputStream.close();
+			result = sb.toString();
+			Log.e("DEBUG", result);
+			int animateurId = Integer.valueOf(result.trim());
+			Log.e("DEBUG", String.valueOf(animateurId));
+			if(animateurId > 0){
+				Preferences preferences = new Preferences(this);
+				preferences.saveValue("USERNAME", username);
+				preferences.saveValue("PASSWORD", password);
+				preferences.saveValue("ANIMATEUR_ID", String.valueOf(animateurId));
+				Log.e("DEBUG", String.valueOf(animateurId));
+			}
+			
+			return animateurId;
+		} catch (Exception e) {
+			Log.e("Fail 1", e.toString());
+			Toast.makeText(
+					this.getApplicationContext(),
+					"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
+					Toast.LENGTH_LONG).show();
+		}
+		
+		return 0;
+	}
+	
+	
+	private void promptEmptyWebServiceUrlDialog() {
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+		alert.setTitle("Première utilisation");
+		alert.setMessage("Vous devez lié l'application à un webservice : Ex : http://192.168.1.29/_testZone/webservice/");
+
+		// Set an EditText view to get user input
+		final EditText input = new EditText(this);
+		input.setText(Constants.DEFAULT_WEBSERVICE_URL_ROOT);
+		alert.setView(input);
+
+		alert.setPositiveButton("Continuer",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						String value = input.getText().toString();
+						Preferences preferences = new Preferences(
+								LoginActivity.this);
+						preferences.saveValue("PARAM_WEBSERVICE_ROOT_URL",
+								value);
+												
+					}
+				});
+
+		alert.setNegativeButton("Quitter l'application",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// stop the appication on cancel
+						finish();
+					}
+				});
+
+		alert.show();
 	}
 
 	@Override
