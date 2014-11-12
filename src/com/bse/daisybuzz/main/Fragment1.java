@@ -40,6 +40,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Base64;
+import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -341,10 +342,10 @@ public class Fragment1 extends Fragment implements LocationListener {
 	}
 
 	private void storeDataOnLocalStorage() {
-		db.createLocalisation(localisation);
+		long localisationId = db.createLocalisation(localisation);		
 		
-		// change static localisation flag to done
-		Statics.localisationDone = true;		
+		Statics.localisationDone = true;
+		Statics.lastLocalisationId = (int) localisationId;
 		
 		Toast.makeText(
 				Fragment1.this.getActivity().getApplicationContext(),
@@ -503,7 +504,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 					storeDataOnLocalStorage();
 					Toast.makeText(
 							Fragment1.this.getActivity().getApplicationContext(),
-							"Localisations in local store " + db.getRecordsCount("localisation"),
+							"( "  +db.getRecordsCount("localisation") + " Localisations stockées en local)",
 							Toast.LENGTH_SHORT).show();
 					prgDialog.hide();
 					break;

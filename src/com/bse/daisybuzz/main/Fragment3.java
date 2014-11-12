@@ -104,7 +104,8 @@ public class Fragment3 extends Fragment {
 	}
 
 	public void disconnecte(View v) {
-
+		this.getActivity().finish();
+		System.exit(0);
 	}
 
 	

@@ -297,7 +297,7 @@ public class Fragment2 extends Fragment {
 					.toString();			
 			String commentaire = txt_commentaire.getText().toString();
 			String localisationId = String.valueOf(Statics.lastLocalisationId);
-
+			
 			// setting parameters
 			params.put("achete", achete);
 			params.put("trancheAgeId", trancheAgeId);
@@ -347,7 +347,7 @@ public class Fragment2 extends Fragment {
 					storeDataOnLocalStorage();
 					Toast.makeText(
 							Fragment2.this.getActivity().getApplicationContext(),
-							"Rapports enregistré !",
+							"Rapport enregistré !",
 							Toast.LENGTH_SHORT).show();
 					prgDialog.hide();
 					break;

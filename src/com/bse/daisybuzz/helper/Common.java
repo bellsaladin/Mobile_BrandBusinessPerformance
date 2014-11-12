@@ -35,6 +35,7 @@ import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
 import com.bse.daizybuzz.model.RaisonAchat;
 import com.bse.daizybuzz.model.RaisonRefus;
+import com.bse.daizybuzz.model.Rapport;
 import com.bse.daizybuzz.model.Superviseur;
 import com.bse.daizybuzz.model.TrancheAge;
 import com.loopj.android.http.AsyncHttpClient;
@@ -279,65 +280,170 @@ public class Common {
 		final SqliteDatabaseHelper db = new SqliteDatabaseHelper(
 				activity.getApplicationContext());
 		List<Localisation> localisationsList = db.getAllLocalisations();
-		int elementsCount = localisationsList.size();
-		int currentElement = 1;
+		int localisationsCount = localisationsList.size();
+		
+		if(localisationsCount==0){
+			Toast.makeText(activity.getApplicationContext(), "Aucune donnée stockée en local à traiter !",
+					Toast.LENGTH_LONG).show();
+		}
+		
+		int currentLocalisationNum = 1;
 		for (final Localisation localisation : localisationsList) {
 			if (!Common.isNetworkAvailable(activity)) {
 				Toast.makeText(activity.getApplicationContext(), "La connexion internet n'est pas disponible !",
 						Toast.LENGTH_SHORT).show();
+				prgDialog.hide();
 				return;
-			}
-			Toast.makeText(activity.getApplicationContext(),
-					"" + localisation.getId(), Toast.LENGTH_LONG).show();
-			prgDialog.setMessage("Rapport " + currentElement + "/ "
-					+ elementsCount);
+			}			
+			prgDialog.setMessage("Localisation " + currentLocalisationNum + "/ "
+					+ localisationsCount);
 			prgDialog.show();
+			
 			Preferences preferences = new Preferences(activity);
 			String webserviceRootUrl = preferences
 					.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
+			
 
-			// prgDialog.setMessage("Envoi des données au serveur...");
-			prgDialog.show();
-
-			ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-
-			nameValuePairs.add(new BasicNameValuePair("animateurId",
-					localisation.getAnimateurId()));
-			nameValuePairs.add(new BasicNameValuePair("superviseurId",
-					localisation.getSuperviseurId()));
-			nameValuePairs.add(new BasicNameValuePair("pdvId", localisation
-					.getPdvId()));
-			nameValuePairs.add(new BasicNameValuePair("imageFileName",
-					localisation.getCheminImage()));
-			nameValuePairs.add(new BasicNameValuePair("latitude", localisation
-					.getLatitude()));
-			nameValuePairs.add(new BasicNameValuePair("longitude", localisation
-					.getLongitude()));
-			nameValuePairs.add(new BasicNameValuePair("licenceRemplacee",
-					localisation.getLicenceRemplacee()));
-			nameValuePairs.add(new BasicNameValuePair("motif", localisation
-					.getMotif()));
-
-			try {
-				HttpClient httpclient = new DefaultHttpClient();
-				HttpPost httppost = new HttpPost(webserviceRootUrl
-						+ "/save_localisation.php");
-				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-				HttpResponse response = httpclient.execute(httppost);
-				HttpEntity entity = response.getEntity();
-				inputStream = entity.getContent();
-				Log.e("pass 1", "connection success");
-			} catch (Exception e) {
-				Log.e("Fail 1", e.toString());
-				Toast.makeText(
-						activity.getApplicationContext(),
-						"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
-						Toast.LENGTH_LONG).show();
+			// send the current localisation to the server
+			int insertedLocalisationId = sendLocalisationToServer(localisation,webserviceRootUrl,db, activity);
+			if(insertedLocalisationId == -1){
+				prgDialog.hide();
+				return; // stop if problem while send any localisation to the server
+			}				
+			
+			List<Rapport> rapportsList = db.getAllRapports();
+			// send all the rapports related to the current localisation  to server
+			for (final Rapport rapport : rapportsList) {
+				if(rapport.getLocalisationId().equals(String.valueOf(localisation.getId()))){
+					// update localisationId of rapport by the last inserted one
+					rapport.setLocalisationId(String.valueOf(insertedLocalisationId));
+					// try send it to the server
+					if(!sendRapportToServer(rapport,webserviceRootUrl, db, activity)){
+						prgDialog.hide();
+						return; // avoid going to delete this localisation if any the reports are still not saved on the server
+					}
+					db.deleteRapport(rapport);
+				}				
+					
 			}
-			currentElement++;
+			db.deleteLocalisation(localisation);
+			
+			Toast.makeText(activity.getApplicationContext(),
+					"Localisation " + currentLocalisationNum + "/" + localisationsCount + " envoyée au serveur ...", Toast.LENGTH_SHORT).show();
+			
+			currentLocalisationNum++;
 		}	
 		prgDialog.hide();
 
+	}
+
+	private static int sendLocalisationToServer(Localisation localisation, String webserviceRootUrl, SqliteDatabaseHelper db ,Activity activity) {
+		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+
+		nameValuePairs.add(new BasicNameValuePair("animateurId",
+				localisation.getAnimateurId()));
+		nameValuePairs.add(new BasicNameValuePair("superviseurId",
+				localisation.getSuperviseurId()));
+		nameValuePairs.add(new BasicNameValuePair("pdvId", localisation
+				.getPdvId()));
+		nameValuePairs.add(new BasicNameValuePair("imageFileName",
+				localisation.getCheminImage()));
+		nameValuePairs.add(new BasicNameValuePair("latitude", localisation
+				.getLatitude()));
+		nameValuePairs.add(new BasicNameValuePair("longitude", localisation
+				.getLongitude()));
+		nameValuePairs.add(new BasicNameValuePair("licenceRemplacee",
+				localisation.getLicenceRemplacee()));
+		nameValuePairs.add(new BasicNameValuePair("motif", localisation
+				.getMotif()));
+
+		try {
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpPost httppost = new HttpPost(webserviceRootUrl
+					+ "/save_localisation.php");
+			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			HttpResponse response = httpclient.execute(httppost);
+			HttpEntity entity = response.getEntity();
+			inputStream = entity.getContent();
+			Log.e("pass 1", "connection success");
+			
+			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					inputStream, "iso-8859-1"), 8);
+			StringBuilder sb = new StringBuilder();
+			while ((line = reader.readLine()) != null) {
+				sb.append(line + "\n");
+			}
+			inputStream.close();
+			result = sb.toString();
+			
+			/*Toast.makeText(
+					activity.getApplicationContext(),
+					"Localisation envoyée au serveur !",
+					Toast.LENGTH_LONG).show();*/
+			return Integer.valueOf(result.trim());
+		} catch (Exception e) {
+			Log.e("Fail 1", e.toString());
+			Toast.makeText(
+					activity.getApplicationContext(),
+					"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ..." + e.getMessage(),
+					Toast.LENGTH_LONG).show();
+		}
+		return -1;
+		
+	}
+	
+	private static boolean sendRapportToServer(Rapport rapport, String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
+		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+
+		nameValuePairs.add(new BasicNameValuePair("achete",
+				rapport.getAchete()));
+		nameValuePairs.add(new BasicNameValuePair("trancheAgeId",
+				rapport.getTrancheAgeId()));
+		nameValuePairs.add(new BasicNameValuePair("sexe", rapport
+				.getSexe()));
+		nameValuePairs.add(new BasicNameValuePair("raisonAchatId",
+				rapport.getRaisonAchatId()));
+		nameValuePairs.add(new BasicNameValuePair("raisonRefusId", rapport
+				.getRaisonRefusId()));
+		nameValuePairs.add(new BasicNameValuePair("fidelite", rapport
+				.getFidelite()));
+		nameValuePairs.add(new BasicNameValuePair("marqueHabituelleId",
+				rapport.getMarqueHabituelleId()));
+		nameValuePairs.add(new BasicNameValuePair("marqueHabituelleQte",
+				rapport.getMarqueHabituelleId()));
+		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeId",
+				rapport.getMarqueHabituelleId()));
+		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeQte",
+				rapport.getMarqueHabituelleId()));
+		nameValuePairs.add(new BasicNameValuePair("cadeauId",
+				rapport.getCadeauId()));
+		nameValuePairs.add(new BasicNameValuePair("tombola",
+				rapport.getTombola()));
+		nameValuePairs.add(new BasicNameValuePair("commentaire", rapport
+				.getCommentaire()));
+		nameValuePairs.add(new BasicNameValuePair("localisationId", rapport
+				.getLocalisationId()));
+
+		try {
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpPost httppost = new HttpPost(webserviceRootUrl
+					+ "/save_rapport.php");
+			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			HttpResponse response = httpclient.execute(httppost);
+			HttpEntity entity = response.getEntity();
+			inputStream = entity.getContent();
+			Log.e("pass 1", "connection success");
+						
+			return true;
+		} catch (Exception e) {
+			Log.e("Fail 1", e.toString());
+			Toast.makeText(
+					activity.getApplicationContext(),
+					"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
+					Toast.LENGTH_LONG).show();
+		}
+		return false;		
 	}
 
 	public static Location getLocation(Activity activity) {

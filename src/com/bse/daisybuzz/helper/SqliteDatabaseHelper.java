@@ -29,7 +29,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String LOG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 5;
+	private static final int DATABASE_VERSION = 7;
 
 	// Database Name
 	private static final String DATABASE_NAME = "contactsManager";
@@ -133,7 +133,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 			+ KEY_MARQUEHABITUELLE_ID + " TEXT," + KEY_MARQUEHABITUELLE_QTE
 			+ " TEXT," + KEY_MARQUEACHETEE_ID + " TEXT ,"
 			+ KEY_MARQUEACHETEE_QTE + " TEXT ," + KEY_CADEAU_ID + " TEXT,"
-			+ KEY_COMMENTAIRE + " TEXT ," + KEY_TOMBOLA + " TEXT )";
+			+ KEY_COMMENTAIRE + " TEXT ," + KEY_TOMBOLA + " TEXT ," + KEY_LOCALISATION_ID + " TEXT )";
 
 	public SqliteDatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -594,6 +594,12 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		return localisations;
 	}
 
+	public void deleteLocalisation(Localisation localisation) {
+		this.getWritableDatabase().delete(TABLE_LOCALISATION,
+				new String(KEY_ID + "=?"),
+				new String[] { String.valueOf(localisation.getId()) });
+	}
+	
 	// ------------------------ "rapport" table methods ----------------//
 
 	public long createRapport(Rapport rapport) {
@@ -614,6 +620,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_CADEAU_ID, rapport.getCadeauId());
 		values.put(KEY_TOMBOLA, rapport.getTombola());
 		values.put(KEY_COMMENTAIRE, rapport.getCommentaire());
+		values.put(KEY_LOCALISATION_ID, rapport.getLocalisationId());
 
 		// insert row
 		long id = db.insert(TABLE_RAPPORT, null, values);
@@ -656,14 +663,22 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				rapport.setCadeauId(c.getString(c.getColumnIndex(KEY_CADEAU_ID)));
 				rapport.setTombola(c.getString(c.getColumnIndex(KEY_TOMBOLA)));
 				rapport.setCommentaire(c.getString(c
-						.getColumnIndex(KEY_COMMENTAIRE)));
-
+						.getColumnIndex(KEY_COMMENTAIRE)));				
+				rapport.setLocalisationId(c.getString(c
+						.getColumnIndex(KEY_LOCALISATION_ID)));
+				
 				// adding to rapports list
 				rapports.add(rapport);
 			} while (c.moveToNext());
 		}
 
 		return rapports;
+	}
+	
+	public void deleteRapport(Rapport rapport) {
+		this.getWritableDatabase().delete(TABLE_RAPPORT,
+				new String(KEY_ID + "=?"),
+				new String[] { String.valueOf(rapport.getId()) });
 	}
 
 	/* ************************************************************************************************************
@@ -711,11 +726,5 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		this.getWritableDatabase().delete(TABLE_RAISONREFUS, null, null);
 		this.getWritableDatabase().delete(TABLE_TRANCHEAGE, null, null);
 
-	}
-
-	public void removeLocalisation(Localisation localisation) {
-		this.getWritableDatabase().delete(TABLE_LOCALISATION,
-				new String(KEY_ID + "=?"),
-				new String[] { String.valueOf(localisation.getId()) });
-	}
+	}	
 }
