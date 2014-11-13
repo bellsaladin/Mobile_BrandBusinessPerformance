@@ -385,12 +385,12 @@ public class Fragment1 extends Fragment implements LocationListener {
 			protected String doInBackground(Void... params) {
 				BitmapFactory.Options options = null;
 				options = new BitmapFactory.Options();
-				options.inSampleSize = 3;
+				options.inSampleSize = 2;
 				bitmap = BitmapFactory.decodeFile(imgPath, options);
 				ByteArrayOutputStream stream = new ByteArrayOutputStream();
 				// Must compress the Image to reduce image size to make upload
 				// easy
-				bitmap.compress(Bitmap.CompressFormat.JPEG, 5, stream);
+				bitmap.compress(Bitmap.CompressFormat.JPEG, 25, stream);
 				byte[] byte_arr = stream.toByteArray();
 				// Encode Image to String
 				encodedString = Base64.encodeToString(byte_arr, 0);
@@ -440,13 +440,13 @@ public class Fragment1 extends Fragment implements LocationListener {
 					// response code '200'
 					@Override
 					public void onSuccess(String response) {
+						// Hide Progress Dialog
+						prgDialog.hide();
 						// change static localisation flag to done
 						Statics.localisationDone = true;
 						Statics.lastLocalisationId = Integer.valueOf(response);
 						MainActivity.addRapportTab();
-						
-						// Hide Progress Dialog
-						prgDialog.hide();
+												
 						Toast.makeText(
 								Fragment1.this.getActivity()
 										.getApplicationContext(),

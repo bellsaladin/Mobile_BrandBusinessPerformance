@@ -414,11 +414,11 @@ public class Common {
 		nameValuePairs.add(new BasicNameValuePair("marqueHabituelleId",
 				rapport.getMarqueHabituelleId()));
 		nameValuePairs.add(new BasicNameValuePair("marqueHabituelleQte",
-				rapport.getMarqueHabituelleId()));
+				rapport.getMarqueHabituelleQte()));
 		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeId",
 				rapport.getMarqueHabituelleId()));
 		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeQte",
-				rapport.getMarqueHabituelleId()));
+				rapport.getMarqueHabituelleQte()));
 		nameValuePairs.add(new BasicNameValuePair("cadeauId",
 				rapport.getCadeauId()));
 		nameValuePairs.add(new BasicNameValuePair("tombola",
@@ -437,7 +437,16 @@ public class Common {
 			HttpEntity entity = response.getEntity();
 			inputStream = entity.getContent();
 			Log.e("pass 1", "connection success");
-						
+			
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					inputStream, "iso-8859-1"), 8);
+			StringBuilder sb = new StringBuilder();
+			while ((line = reader.readLine()) != null) {
+				sb.append(line + "\n");
+			}
+			inputStream.close();
+			result = sb.toString();
+			Log.e("Debug", result);
 			return true;
 		} catch (Exception e) {
 			Log.e("Fail 1", e.toString());

@@ -22,7 +22,7 @@ public class Rapport {
 	}
 	
 	public Rapport( String achete, String trancheAgeId, String sexe,
-			String raisonAchatId, String fidelite,
+			String fidelite, String raisonAchatId, 
 			String marqueHabituelleId, String marqueHabituelleQte,
 			String marqueAcheteeId, String marqueAcheteeQte, String cadeauId,
 			String tombola, String localisationId) {		

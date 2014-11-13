@@ -304,9 +304,9 @@ public class Fragment2 extends Fragment {
 			String sexe = spinner_sexe.getSelectedItem().toString();
 			String marqueHabituelleId = String
 					.valueOf(marquesList.get(
-							spinner_marqueHabituelle.getSelectedItemPosition())
+							spinner_marqueHabituelle2.getSelectedItemPosition())
 							.getId());
-			String marqueHabituelleQte = txt_marqueHabituelleQte.getText()
+			String marqueHabituelleQte = txt_marqueHabituelleQte2.getText()
 					.toString();			
 			String commentaire = txt_commentaire.getText().toString();
 			String localisationId = String.valueOf(Statics.lastLocalisationId);
