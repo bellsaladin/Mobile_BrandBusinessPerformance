@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -52,6 +53,8 @@ public class LoginActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_login);
 		
 
@@ -80,8 +83,10 @@ public class LoginActivity extends ActionBarActivity {
 						.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
 
 				// check for fist use of the application
-				if (webserviceRootUrl.isEmpty()){
-					promptEmptyWebServiceUrlDialog();
+				if (webserviceRootUrl.isEmpty()){					
+					preferences.saveValue("PARAM_WEBSERVICE_ROOT_URL",
+							Constants.DEFAULT_WEBSERVICE_URL_ROOT);
+					//promptEmptyWebServiceUrlDialog();
 				}
 		
 	}
@@ -129,7 +134,8 @@ public class LoginActivity extends ActionBarActivity {
 						Toast.LENGTH_SHORT).show();
 			}
 		} else {
-			if (authenticateUser(inputUsername, inputPassword,webserviceRootUrl) > 0) {
+			int authenticationResult = authenticateUser(inputUsername, inputPassword, webserviceRootUrl);
+			if (authenticationResult > 0) {
 				Toast.makeText(getApplicationContext(),
 						"Connexion en cours...", Toast.LENGTH_SHORT).show();
 				
@@ -138,9 +144,14 @@ public class LoginActivity extends ActionBarActivity {
 				Intent intent = new Intent(this, StartActivity.class);
 				startActivity(intent);
 				finish();
-			} else {
+			} else if (authenticationResult == 0){
 				Toast.makeText(getApplicationContext(), "Compte invalide !",
 						Toast.LENGTH_SHORT).show();
+			} else if (authenticationResult == -1){
+				Toast.makeText(
+						this.getApplicationContext(),
+						"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
+						Toast.LENGTH_LONG).show();
 			}
 		}				
 		
@@ -187,14 +198,10 @@ public class LoginActivity extends ActionBarActivity {
 			
 			return animateurId;
 		} catch (Exception e) {
-			Log.e("Fail 1", e.toString());
-			Toast.makeText(
-					this.getApplicationContext(),
-					"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
-					Toast.LENGTH_LONG).show();
+			Log.e("Fail 1", e.toString());			
+			return -1; // error
 		}
-		
-		return 0;
+				
 	}
 	
 	

@@ -7,6 +7,7 @@ import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
+import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
@@ -44,9 +45,10 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 public class Fragment2 extends Fragment {
-	
-	Rapport rapport; // model created on save method, used to be saved in local store
-	
+
+	Rapport rapport; // model created on save method, used to be saved in local
+						// store
+
 	SqliteDatabaseHelper db;
 
 	RequestParams params = new RequestParams();
@@ -60,14 +62,16 @@ public class Fragment2 extends Fragment {
 	LinearLayout linearLayout1;
 	LinearLayout linearLayout2;
 	CheckBox cb_tombola;
-	private Button btn_takePhoto, btn_save;
+	private Button btn_choixCadeaux, btn_save;
 	ProgressDialog prgDialog;
 
 	List<Marque> marquesList;
+	List<Cadeau> cadeauxList;
 	List<RaisonAchat> raisonsAchatList;
 	List<RaisonRefus> raisonsRefusList;
 	List<TrancheAge> tranchesAgeList;
 	View view;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -77,18 +81,16 @@ public class Fragment2 extends Fragment {
 		prgDialog.setCancelable(false);
 		view = inflater.inflate(R.layout.fragment2, null);
 
-		
 		return view;
 	}
-	
-	void feedView(){
+
+	void feedView() {
 		/* ****************************************************************************************************************
 		 * Finding views and implemeting listeners
 		 * ******************************
 		 * ****************************************
 		 * *****************************************
 		 */
-		
 
 		linearLayout1 = (LinearLayout) view.findViewById(R.id.layout_1);
 		linearLayout2 = (LinearLayout) view.findViewById(R.id.layout_2);
@@ -119,13 +121,22 @@ public class Fragment2 extends Fragment {
 		cb_tombola = (CheckBox) view.findViewById(R.id.cb_tombola);
 
 		btn_save = (Button) view.findViewById(R.id.btn_rapport_save);
+		btn_choixCadeaux = (Button) view.findViewById(R.id.btn_choixCadeaux);
 
 		// listeners *****************
-
+		
+		
+		btn_choixCadeaux.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				openSelectCadeauxDialog();
+			}
+		});
+		
 		btn_save.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				save(v);
+				save(v);				
 			}
 		});
 
@@ -159,6 +170,8 @@ public class Fragment2 extends Fragment {
 		db = new SqliteDatabaseHelper(this.getActivity()
 				.getApplicationContext());
 		marquesList = db.getAllMarques();
+		cadeauxList = db.getAllCadeaux();
+		
 		raisonsAchatList = db.getAllRaisonsAchat();
 		raisonsRefusList = db.getAllRaisonsRefus();
 		tranchesAgeList = db.getAllTranchesAge();
@@ -244,15 +257,13 @@ public class Fragment2 extends Fragment {
 			}
 		}
 	}
-	
-	
-	 @Override
-	  public void onResume() {
-	     Log.e("DEBUG", "onResume of LoginFragment");
-	     super.onResume(); 
-	     feedView();
-	  }
-	
+
+	@Override
+	public void onResume() {
+		Log.e("DEBUG", "onResume of LoginFragment");
+		super.onResume();
+		feedView();
+	}
 
 	public void save(View v) {
 
@@ -277,7 +288,7 @@ public class Fragment2 extends Fragment {
 			String cadeauId = "1";
 			String tombola = (cb_tombola.isChecked()) ? "1" : "0";
 			String localisationId = String.valueOf(Statics.lastLocalisationId);
-			
+
 			// setting parameters
 			params.put("achete", achete);
 			params.put("trancheAgeId", trancheAgeId);
@@ -290,9 +301,11 @@ public class Fragment2 extends Fragment {
 			params.put("marqueAcheteeQte", marqueAcheteeQte);
 			params.put("tombola", tombola);
 			params.put("localisationId", localisationId);
-			
-			
-			rapport = new Rapport(achete, trancheAgeId, sexe, fidelite, raisonAchatId, marqueHabituelleId, marqueHabituelleQte, marqueAcheteeId, marqueAcheteeQte, cadeauId, tombola, localisationId);
+
+			rapport = new Rapport(achete, trancheAgeId, sexe, fidelite,
+					raisonAchatId, marqueHabituelleId, marqueHabituelleQte,
+					marqueAcheteeId, marqueAcheteeQte, cadeauId, tombola,
+					localisationId);
 		}
 
 		if (spinner_achete.getSelectedItemPosition() == 1) {
@@ -302,15 +315,14 @@ public class Fragment2 extends Fragment {
 			String raisonRefusId = String.valueOf(raisonsRefusList.get(
 					spinner_raisonRefus.getSelectedItemPosition()).getId());
 			String sexe = spinner_sexe.getSelectedItem().toString();
-			String marqueHabituelleId = String
-					.valueOf(marquesList.get(
-							spinner_marqueHabituelle2.getSelectedItemPosition())
-							.getId());
+			String marqueHabituelleId = String.valueOf(marquesList.get(
+					spinner_marqueHabituelle2.getSelectedItemPosition())
+					.getId());
 			String marqueHabituelleQte = txt_marqueHabituelleQte2.getText()
-					.toString();			
+					.toString();
 			String commentaire = txt_commentaire.getText().toString();
 			String localisationId = String.valueOf(Statics.lastLocalisationId);
-			
+
 			// setting parameters
 			params.put("achete", achete);
 			params.put("trancheAgeId", trancheAgeId);
@@ -319,11 +331,12 @@ public class Fragment2 extends Fragment {
 			params.put("marqueHabituelleId", marqueHabituelleId);
 			params.put("marqueHabituelleQte", marqueHabituelleQte);
 			params.put("commentaire", commentaire);
-			params.put("localisationId", localisationId);			
-			
-			rapport = new Rapport(achete, trancheAgeId, sexe,  raisonRefusId, marqueHabituelleId, marqueHabituelleQte, commentaire, localisationId);
+			params.put("localisationId", localisationId);
+
+			rapport = new Rapport(achete, trancheAgeId, sexe, raisonRefusId,
+					marqueHabituelleId, marqueHabituelleQte, commentaire,
+					localisationId);
 		}
-				
 
 		// ********* saving
 
@@ -335,17 +348,18 @@ public class Fragment2 extends Fragment {
 		}
 		// start upload of localisation data
 	}
-	
+
 	private void storeDataOnLocalStorage() {
 		db.createRapport(rapport);
-		
+
 		// change static localisation flag to done
-		Statics.localisationDone = true;		
-		
+		Statics.localisationDone = true;
+
 		Toast.makeText(
 				Fragment2.this.getActivity().getApplicationContext(),
-				"Rapport enregistré sur la mémoire locale."  + db.getRecordsCount("rapport"),
-				Toast.LENGTH_SHORT).show();
+				"Rapport enregistré sur la mémoire locale."
+						+ db.getRecordsCount("rapport"), Toast.LENGTH_SHORT)
+				.show();
 	}
 
 	public void askUserIfWantToSaveToLocalStorage() {
@@ -354,14 +368,15 @@ public class Fragment2 extends Fragment {
 			public void onClick(DialogInterface dialog, int which) {
 				switch (which) {
 				case DialogInterface.BUTTON_POSITIVE:
-					prgDialog.setMessage("Enregistrement des informations du rapport en local...");
+					prgDialog
+							.setMessage("Enregistrement des informations du rapport en local...");
 					prgDialog.show();
-					
+
 					storeDataOnLocalStorage();
 					Toast.makeText(
-							Fragment2.this.getActivity().getApplicationContext(),
-							"Rapport enregistré !",
-							Toast.LENGTH_SHORT).show();
+							Fragment2.this.getActivity()
+									.getApplicationContext(),
+							"Rapport enregistré !", Toast.LENGTH_SHORT).show();
 					prgDialog.hide();
 					break;
 
@@ -440,10 +455,69 @@ public class Fragment2 extends Fragment {
 											+ statusCode, Toast.LENGTH_LONG)
 									.show();
 						}
-						
+
 						askUserIfWantToSaveToLocalStorage();
 
 					}
 				});
+	}
+
+	private void openSelectCadeauxDialog() {
+		final String[] items = new String[cadeauxList.size()];
+		for(int i=0; i < cadeauxList.size(); i++){
+			items[i] = cadeauxList.get(i).toString();
+		}
+		// arraylist to keep the selected items
+		final ArrayList<Integer> seletedItems = new ArrayList<Integer>();
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(
+				this.getActivity());
+		builder.setTitle("Choix des cadeaux");
+		builder.setMultiChoiceItems(items, null,
+				new DialogInterface.OnMultiChoiceClickListener() {
+					// indexSelected contains the index of item (of which
+					// checkbox checked)
+					@Override
+					public void onClick(DialogInterface dialog,
+							int indexSelected, boolean isChecked) {
+						if (isChecked) {
+							// If the user checked the item, add it to the
+							// selected items
+							// write your code when user checked the checkbox
+							seletedItems.add(indexSelected);
+						} else if (seletedItems.contains(indexSelected)) {
+							// Else, if the item is already in the array, remove
+							// it
+							// write your code when user Uchecked the checkbox
+							seletedItems.remove(Integer.valueOf(indexSelected));
+						}
+					}
+				})
+				// Set the action buttons
+				.setPositiveButton("Valider",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								String msg = "Cadeaux : ";
+								for (int i = 0; i < seletedItems.size(); i++) {
+									Integer itemIndex = seletedItems.get(i);
+									Cadeau cadeau = cadeauxList.get(itemIndex);
+									msg += (i > seletedItems.size())?cadeau.getLibelle() + ", ": cadeau.getLibelle();
+								}								
+								btn_choixCadeaux.setText(msg);
+							}
+						})
+				.setNegativeButton("Annuler",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int id) {
+								// Your code when user clicked on Cancel
+
+							}
+						});
+
+		AlertDialog dialog = builder.create();// AlertDialog dialog; create like
+												// this outside onClick
+		dialog.show();
 	}
 }

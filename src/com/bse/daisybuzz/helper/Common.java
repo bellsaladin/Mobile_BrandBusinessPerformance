@@ -258,6 +258,7 @@ public class Common {
 						Toast.LENGTH_SHORT).show();
 
 			} catch (JSONException e) {
+				Log.e("DEBUG", e.getMessage());
 				Toast.makeText(
 						activity.getBaseContext(),
 						"Erreur lors de la synchronization ! ",
@@ -266,6 +267,7 @@ public class Common {
 			}
 
 		} catch (Exception e) {
+			Log.e("DEBUG", e.getMessage());
 			Toast.makeText(activity.getBaseContext(),
 					"Erreur lors de la synchronization ! La connection est trop lente.",
 					Toast.LENGTH_LONG).show();

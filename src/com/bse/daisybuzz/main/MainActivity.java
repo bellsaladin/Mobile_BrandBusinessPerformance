@@ -145,6 +145,7 @@ public class MainActivity extends ActionBarActivity {
 			MyFragmentPagerAdapter fragmentPagerAdapter = new MyFragmentPagerAdapter(
 					fm);
 			mPager.setAdapter(fragmentPagerAdapter);
+			mPager.setCurrentItem(1); // show "Rapport" page
 		}
 	}
 
