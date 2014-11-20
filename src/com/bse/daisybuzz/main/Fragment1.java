@@ -339,7 +339,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		if (Common.isNetworkAvailable(this.getActivity())) {
 			sendDataToServer();
 		} else {			
-			askUserIfWantToSaveToLocalStorage();
+			storeDataOnLocalStorage();
 		}
 	}
 
@@ -417,7 +417,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 			// passer http -> webservice
 			makeHTTPCall();
 		} else {
-			askUserIfWantToSaveToLocalStorage();
+			storeDataOnLocalStorage();
 		}
 	}
 
@@ -488,14 +488,14 @@ public class Fragment1 extends Fragment implements LocationListener {
 									 * "Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
 									 * + statusCode
 									 */, Toast.LENGTH_LONG).show();
-							askUserIfWantToSaveToLocalStorage();
+							//storeDataOnLocalStorage();
 						}
 
 					}
 				});
 	}
 
-	public void askUserIfWantToSaveToLocalStorage() {
+	/*public void askUserIfWantToSaveToLocalStorage() {
 		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -522,7 +522,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 				"Impossible de communiquer avec le serveur distant, la connexion est peut être très lente. Voulez vous enregistrer ces informations en local ?")
 				.setPositiveButton("Oui", dialogClickListener)
 				.setNegativeButton("Non", dialogClickListener).show();
-	}
+	}*/
 
 	@Override
 	public void onLocationChanged(Location location) {

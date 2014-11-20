@@ -29,6 +29,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.bse.daisybuzz.main.Fragment1;
+import com.bse.daisybuzz.main.Fragment2;
+import com.bse.daisybuzz.main.MainActivity;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
@@ -89,6 +91,7 @@ public class Common {
 					activity.getApplicationContext(),
 					"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
 					Toast.LENGTH_LONG).show();
+			return false;
 		}
 
 		try {
@@ -111,6 +114,7 @@ public class Common {
 
 		// start JSON parsing
 		try {
+			Log.e("DEBUG", result);
 			JSONObject json_data = new JSONObject(result);
 
 			try {
@@ -245,14 +249,16 @@ public class Common {
 					String value = jsonas.getString("value");
 					;					
 					preferences.saveValue(key, value);
-				}
-
-				// Save user authentification values
-
-				//preferences.saveValue("USER_PASSWORD", "admin");
-				//preferences.saveValue("USER_NAME", "123");
+				}				
 				
-				//activity.recreate();
+				// try to repopulate rapport page
+				// FIXME : 
+				// TODO : Régler ce problème 
+				if(MainActivity.fragmentPagerAdapter != null){
+					Fragment2 fragment2 = (Fragment2)MainActivity.fragmentPagerAdapter.getFragment(1);
+					if(fragment2 != null)
+						fragment2.populateFields();
+				}
 				// Info popup
 				Toast.makeText(activity.getBaseContext(),
 						"L'application a été synchronisée correctement ! ",
@@ -268,10 +274,10 @@ public class Common {
 			}
 
 		} catch (Exception e) {
-			Log.e("DEBUG", e.getMessage());
-			Toast.makeText(activity.getBaseContext(),
+			e.printStackTrace();
+			/*Toast.makeText(activity.getBaseContext(),
 					"Erreur lors de la synchronization ! La connection est trop lente.",
-					Toast.LENGTH_LONG).show();
+					Toast.LENGTH_LONG).show()*/
 		}
 		return true;
 	}
@@ -291,6 +297,7 @@ public class Common {
 		if(localisationsCount==0){
 			Toast.makeText(activity.getApplicationContext(), "Aucune donnée stockée en local à traiter !",
 					Toast.LENGTH_LONG).show();
+			return;
 		}
 		
 		int currentLocalisationNum = 1;
@@ -314,6 +321,8 @@ public class Common {
 			int insertedLocalisationId = sendLocalisationToServer(localisation,webserviceRootUrl,db, activity);
 			if(insertedLocalisationId == -1){
 				prgDialog.hide();
+				Toast.makeText(activity.getApplicationContext(),
+						"Synchronisation interrompue ! Reéssayez dans quelque instants...", Toast.LENGTH_SHORT).show();
 				return; // stop if problem while send any localisation to the server
 			}				
 			
@@ -326,6 +335,8 @@ public class Common {
 					// try send it to the server
 					if(!sendRapportToServer(rapport,webserviceRootUrl, db, activity)){
 						prgDialog.hide();
+						Toast.makeText(activity.getApplicationContext(),
+								"Synchronisation interrompue ! Reéssayez dans quelque instants...", Toast.LENGTH_SHORT).show();
 						return; // avoid going to delete this localisation if any the reports are still not saved on the server
 					}
 					db.deleteRapport(rapport);
@@ -334,13 +345,14 @@ public class Common {
 			}
 			db.deleteLocalisation(localisation);
 			
-			Toast.makeText(activity.getApplicationContext(),
-					"Localisation " + currentLocalisationNum + "/" + localisationsCount + " envoyée au serveur ...", Toast.LENGTH_SHORT).show();
+			/*Toast.makeText(activity.getApplicationContext(),
+					"Localisation " + currentLocalisationNum + "/" + localisationsCount + " envoyée au serveur ...", Toast.LENGTH_SHORT).show();*/
 			
 			currentLocalisationNum++;
 		}	
 		prgDialog.hide();
-
+		Toast.makeText(activity.getApplicationContext(),
+				"Synchronisation terminée avec succès !", Toast.LENGTH_SHORT).show();
 	}
 
 	private static int sendLocalisationToServer(Localisation localisation, String webserviceRootUrl, SqliteDatabaseHelper db ,Activity activity) {

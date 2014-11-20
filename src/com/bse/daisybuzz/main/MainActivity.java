@@ -27,7 +27,7 @@ public class MainActivity extends ActionBarActivity {
 	static private ViewPager mPager;
 
 	static ActionBar mActionbar;
-	
+	public static MyFragmentPagerAdapter fragmentPagerAdapter;
 	static Tab tab1, tab2, tab3;
 	static FragmentManager fm; 
 	static int tab_drawable_icons[] = new int[3];
@@ -70,7 +70,7 @@ public class MainActivity extends ActionBarActivity {
 		mPager.setOnPageChangeListener(pageChangeListener);
 
 		/** Creating an instance of FragmentPagerAdapter */
-		MyFragmentPagerAdapter fragmentPagerAdapter = new MyFragmentPagerAdapter(
+		fragmentPagerAdapter = new MyFragmentPagerAdapter(
 				fm);
 
 		/** Setting the FragmentPagerAdapter object to the viewPager object */
@@ -97,7 +97,7 @@ public class MainActivity extends ActionBarActivity {
 				if(tab.getPosition() == 1 && !Statics.localisationDone)
 					mPager.setCurrentItem(2); // show optionsFragment not localisationFragment 
 				else
-					mPager.setCurrentItem(tab.getPosition());
+					mPager.setCurrentItem(tab.getPosition());				
 			}
 
 			@Override

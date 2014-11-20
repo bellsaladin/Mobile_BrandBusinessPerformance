@@ -84,7 +84,7 @@ public class Fragment2 extends Fragment {
 		return view;
 	}
 
-	void feedView() {
+	public void populateFields() {
 		/* ****************************************************************************************************************
 		 * Finding views and implemeting listeners
 		 * ******************************
@@ -262,7 +262,7 @@ public class Fragment2 extends Fragment {
 	public void onResume() {
 		Log.e("DEBUG", "onResume of LoginFragment");
 		super.onResume();
-		feedView();
+		populateFields();
 	}
 
 	public void save(View v) {
@@ -345,7 +345,7 @@ public class Fragment2 extends Fragment {
 			// passer http -> webservice
 			makeHTTPCall();
 		} else {
-			askUserIfWantToSaveToLocalStorage();
+			storeDataOnLocalStorage();
 		}
 		// start upload of localisation data
 	}
@@ -358,12 +358,11 @@ public class Fragment2 extends Fragment {
 
 		Toast.makeText(
 				Fragment2.this.getActivity().getApplicationContext(),
-				"Rapport enregistré sur la mémoire locale."
-						+ db.getRecordsCount("rapport"), Toast.LENGTH_SHORT)
+				"Rapport enregistré sur la mémoire locale.", Toast.LENGTH_SHORT)
 				.show();
 	}
 
-	public void askUserIfWantToSaveToLocalStorage() {
+	/*public void askUserIfWantToSaveToLocalStorage() {
 		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -394,7 +393,7 @@ public class Fragment2 extends Fragment {
 				"Impossible de communiquer avec le serveur distant, la connexion est peut être très lente. Voulez vous enregistrer ces informations en local ?")
 				.setPositiveButton("Oui", dialogClickListener)
 				.setNegativeButton("Non", dialogClickListener).show();
-	}
+	}*/
 
 	// Make Http call to upload image/ data to Php server
 	public void makeHTTPCall() {
@@ -457,7 +456,7 @@ public class Fragment2 extends Fragment {
 									.show();
 						}
 
-						askUserIfWantToSaveToLocalStorage();
+						// askUserIfWantToSaveToLocalStorage();
 
 					}
 				});
