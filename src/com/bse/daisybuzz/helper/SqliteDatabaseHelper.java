@@ -29,7 +29,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String LOG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 7;
+	private static final int DATABASE_VERSION = 8;
 
 	// Database Name
 	private static final String DATABASE_NAME = "contactsManager";
@@ -73,7 +73,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_RAISONACHAT_ID = "raisonachat_id";
 	private static final String KEY_RAISONREFUS_ID = "raisonrefus_id";
 	private static final String KEY_SEXE = "sexe";
-	private static final String KEY_CADEAU_ID = "cadeau_id";
+	private static final String KEY_CADEAUX_IDS = "cadeaux_ids";
 	private static final String KEY_FIDELITE = "fidelite_id";
 	private static final String KEY_MARQUEHABITUELLE_ID = "marquehabituelle_id";
 	private static final String KEY_MARQUEHABITUELLE_QTE = "marquehabituelle_qte";
@@ -132,7 +132,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 			+ " TEXT," + KEY_RAISONREFUS_ID + " TEXT,"
 			+ KEY_MARQUEHABITUELLE_ID + " TEXT," + KEY_MARQUEHABITUELLE_QTE
 			+ " TEXT," + KEY_MARQUEACHETEE_ID + " TEXT ,"
-			+ KEY_MARQUEACHETEE_QTE + " TEXT ," + KEY_CADEAU_ID + " TEXT,"
+			+ KEY_MARQUEACHETEE_QTE + " TEXT ," + KEY_CADEAUX_IDS + " TEXT,"
 			+ KEY_COMMENTAIRE + " TEXT ," + KEY_TOMBOLA + " TEXT ," + KEY_LOCALISATION_ID + " TEXT )";
 
 	public SqliteDatabaseHelper(Context context) {
@@ -617,7 +617,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_MARQUEHABITUELLE_QTE, rapport.getMarqueHabituelleQte());
 		values.put(KEY_MARQUEACHETEE_ID, rapport.getMarqueAcheteeId());
 		values.put(KEY_MARQUEACHETEE_QTE, rapport.getMarqueAcheteeQte());
-		values.put(KEY_CADEAU_ID, rapport.getCadeauId());
+		values.put(KEY_CADEAUX_IDS, rapport.getCadeauId());
 		values.put(KEY_TOMBOLA, rapport.getTombola());
 		values.put(KEY_COMMENTAIRE, rapport.getCommentaire());
 		values.put(KEY_LOCALISATION_ID, rapport.getLocalisationId());
@@ -660,7 +660,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 						.getColumnIndex(KEY_MARQUEACHETEE_ID)));
 				rapport.setMarqueAcheteeQte(c.getString(c
 						.getColumnIndex(KEY_MARQUEACHETEE_QTE)));
-				rapport.setCadeauId(c.getString(c.getColumnIndex(KEY_CADEAU_ID)));
+				rapport.setCadeauId(c.getString(c.getColumnIndex(KEY_CADEAUX_IDS)));
 				rapport.setTombola(c.getString(c.getColumnIndex(KEY_TOMBOLA)));
 				rapport.setCommentaire(c.getString(c
 						.getColumnIndex(KEY_COMMENTAIRE)));				

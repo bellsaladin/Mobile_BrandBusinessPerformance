@@ -199,8 +199,17 @@
                 android:background="@drawable/buttonshape_gray"
                 android:text="Choix des cadeaux"
                 android:textColor="#FFFFFF"
-                android:textSize="17dp" />
-				
+                android:textSize="17dp" />				
+
+                <EditText
+                    android:id="@+id/txt_cadeaux_ids"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"                    
+					android:enabled="false"                                        
+                    android:text="" />
+                        
+                        
                 <CheckBox
                     android:id="@+id/cb_tombola"
                     android:layout_width="match_parent"

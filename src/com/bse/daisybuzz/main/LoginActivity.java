@@ -48,8 +48,6 @@ public class LoginActivity extends ActionBarActivity {
 	static String result = null;
 	static String line = null;
 
-	LoginDataBaseAdapter loginDataBaseAdapter;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

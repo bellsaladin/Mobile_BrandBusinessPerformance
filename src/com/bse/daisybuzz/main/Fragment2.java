@@ -58,7 +58,7 @@ public class Fragment2 extends Fragment {
 			spinner_marqueHabituelle, spinner_marqueAchetee,
 			spinner_marqueHabituelle2;
 	EditText txt_marqueHabituelleQte, txt_marqueAcheteeQte,
-			txt_marqueHabituelleQte2, txt_commentaire;
+			txt_marqueHabituelleQte2, txt_commentaire, txt_cadeauxIds;
 	LinearLayout linearLayout1;
 	LinearLayout linearLayout2;
 	CheckBox cb_tombola;
@@ -117,7 +117,7 @@ public class Fragment2 extends Fragment {
 		txt_marqueHabituelleQte2 = (EditText) view
 				.findViewById(R.id.txt_marqueHabituelleQte2);
 		txt_commentaire = (EditText) view.findViewById(R.id.txt_commentaire);
-
+		txt_cadeauxIds = (EditText) view.findViewById(R.id.txt_cadeaux_ids);
 		cb_tombola = (CheckBox) view.findViewById(R.id.cb_tombola);
 
 		btn_save = (Button) view.findViewById(R.id.btn_rapport_save);
@@ -285,7 +285,7 @@ public class Fragment2 extends Fragment {
 			String marqueAcheteeId = String.valueOf(marquesList.get(
 					spinner_marqueAchetee.getSelectedItemPosition()).getId());
 			String marqueAcheteeQte = txt_marqueAcheteeQte.getText().toString();
-			String cadeauId = "1";
+			String cadeauxIds = txt_cadeauxIds.getText().toString();
 			String tombola = (cb_tombola.isChecked()) ? "1" : "0";
 			String localisationId = String.valueOf(Statics.lastLocalisationId);
 
@@ -294,17 +294,18 @@ public class Fragment2 extends Fragment {
 			params.put("trancheAgeId", trancheAgeId);
 			params.put("sexe", sexe);
 			params.put("raisonAchatId", raisonAchatId);
-			params.put("fidelete", fidelite);
+			params.put("fidelite", fidelite);
 			params.put("marqueHabituelleId", marqueHabituelleId);
 			params.put("marqueHabituelleQte", marqueHabituelleQte);
 			params.put("marqueAcheteeId", marqueAcheteeId);
 			params.put("marqueAcheteeQte", marqueAcheteeQte);
+			params.put("cadeauxIds", cadeauxIds);
 			params.put("tombola", tombola);
 			params.put("localisationId", localisationId);
 
 			rapport = new Rapport(achete, trancheAgeId, sexe, fidelite,
 					raisonAchatId, marqueHabituelleId, marqueHabituelleQte,
-					marqueAcheteeId, marqueAcheteeQte, cadeauId, tombola,
+					marqueAcheteeId, marqueAcheteeQte, cadeauxIds, tombola,
 					localisationId);
 		}
 
@@ -498,12 +499,14 @@ public class Fragment2 extends Fragment {
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
-								String msg = "Cadeaux : ";
+								String ids = "", msg ="Cadeaux : ";
 								for (int i = 0; i < seletedItems.size(); i++) {
 									Integer itemIndex = seletedItems.get(i);
 									Cadeau cadeau = cadeauxList.get(itemIndex);
-									msg += (i > seletedItems.size())?cadeau.getLibelle() + ", ": cadeau.getLibelle();
-								}								
+									msg += (i < seletedItems.size() -1)?cadeau.getLibelle() + ", ": cadeau.getLibelle();
+									ids += (i < seletedItems.size() -1)?cadeau.getId() + ", ": cadeau.getId();
+								}
+								txt_cadeauxIds.setText(ids);
 								btn_choixCadeaux.setText(msg);
 							}
 						})

@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
+import android.view.MenuItem;
 
 public class MyFragmentPagerAdapter extends FragmentPagerAdapter{
 	
@@ -26,7 +27,7 @@ public class MyFragmentPagerAdapter extends FragmentPagerAdapter{
 		
 			/** tab1 is selected */
 			case 0:
-				Fragment1 fragment1 = new Fragment1();				
+				Fragment1 fragment1 = new Fragment1();
 				return fragment1;
 				
 			/** tab2 is selected */

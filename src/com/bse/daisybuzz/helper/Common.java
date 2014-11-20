@@ -251,7 +251,8 @@ public class Common {
 
 				//preferences.saveValue("USER_PASSWORD", "admin");
 				//preferences.saveValue("USER_NAME", "123");
-
+				
+				//activity.recreate();
 				// Info popup
 				Toast.makeText(activity.getBaseContext(),
 						"L'application a été synchronisée correctement ! ",
@@ -421,7 +422,7 @@ public class Common {
 				rapport.getMarqueHabituelleId()));
 		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeQte",
 				rapport.getMarqueHabituelleQte()));
-		nameValuePairs.add(new BasicNameValuePair("cadeauId",
+		nameValuePairs.add(new BasicNameValuePair("cadeauxIds",
 				rapport.getCadeauId()));
 		nameValuePairs.add(new BasicNameValuePair("tombola",
 				rapport.getTombola()));
