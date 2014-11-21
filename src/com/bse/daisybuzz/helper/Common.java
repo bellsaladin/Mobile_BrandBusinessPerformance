@@ -74,7 +74,8 @@ public class Common {
 
 		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
-		nameValuePairs.add(new BasicNameValuePair("id", "1"));
+		nameValuePairs.add(new BasicNameValuePair("animateurId",
+				String.valueOf(Statics.animateurId)));
 
 		try {
 			HttpClient httpclient = new DefaultHttpClient();
