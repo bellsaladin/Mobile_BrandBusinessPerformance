@@ -308,7 +308,7 @@ public class Common {
 						Toast.LENGTH_SHORT).show();
 				prgDialog.hide();
 				return;
-			}			
+			}
 			prgDialog.setMessage("Localisation " + currentLocalisationNum + "/ "
 					+ localisationsCount);
 			prgDialog.show();
