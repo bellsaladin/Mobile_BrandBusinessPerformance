@@ -1,6 +1,7 @@
 package com.bse.daisybuzz.helper;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -21,10 +22,13 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -376,6 +380,29 @@ public class Common {
 		nameValuePairs.add(new BasicNameValuePair("motif", localisation
 				.getMotif()));
 
+		// ******************* ENCODING IMAGE ********************** //
+		
+		Bitmap bitmap = Utils.getBitmapUsingRealPath(localisation.getCheminImage());
+		BitmapFactory.Options options = null;
+		options = new BitmapFactory.Options();
+		options.inSampleSize = 2;
+		bitmap = BitmapFactory.decodeFile(localisation.getCheminImage(), options);
+		//Log.e("Bitmap", "Bitmap" + localisation.getCheminImage());
+		//Log.e("Bitmap", "Bitmap" + bitmap.getHeight());
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		// Must compress the Image to reduce image size to make upload
+		// easy
+		bitmap.compress(Bitmap.CompressFormat.JPEG, 25, stream);
+		byte[] byte_arr = stream.toByteArray();
+		// Encode Image to String
+		String encodedString = Base64.encodeToString(byte_arr, 0);
+
+		bitmap.recycle();
+		bitmap = null;
+		
+		// ******************* ENCODING IMAGE ********************** //
+		nameValuePairs.add(new BasicNameValuePair("image", encodedString));
+		
 		try {
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpPost httppost = new HttpPost(webserviceRootUrl

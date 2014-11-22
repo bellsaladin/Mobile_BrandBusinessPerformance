@@ -1,6 +1,8 @@
 package com.bse.daisybuzz.main;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,7 @@ import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
+import com.bse.daisybuzz.helper.Utils;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.PDV;
 import com.bse.daizybuzz.model.Superviseur;
@@ -60,8 +63,9 @@ import android.widget.AdapterView.OnItemSelectedListener;
 
 public class Fragment1 extends Fragment implements LocationListener {
 	SqliteDatabaseHelper db;
-	
-	Localisation localisation; // model created on save method, used to be saved in local store
+
+	Localisation localisation; // model created on save method, used to be saved
+								// in local store
 	private static final int CAMERA_REQUEST = 1888;
 	LocationManager locationManager;
 	String provider;
@@ -83,6 +87,8 @@ public class Fragment1 extends Fragment implements LocationListener {
 
 	List<Superviseur> superviseursList;
 	List<PDV> pdvsList;
+
+	private String imageRealPath;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -163,7 +169,8 @@ public class Fragment1 extends Fragment implements LocationListener {
 		 * ***************************************************************
 		 */
 
-		db = new SqliteDatabaseHelper(this.getActivity().getApplicationContext());
+		db = new SqliteDatabaseHelper(this.getActivity()
+				.getApplicationContext());
 		superviseursList = db.getAllSuperviseurs();
 		pdvsList = db.getAllPDV();
 
@@ -251,13 +258,13 @@ public class Fragment1 extends Fragment implements LocationListener {
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (requestCode == CAMERA_REQUEST) {
 
-			if (null != data) {
+			if (null != intent) {
 				// Get the Image from data
-
-				Uri selectedImage = data.getData();
+				
+				Uri selectedImage = intent.getData();
 				String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
 				// Get the cursor
@@ -271,16 +278,24 @@ public class Fragment1 extends Fragment implements LocationListener {
 				cursor.close();
 
 				// Set the Image in ImageView
-				Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+				Bitmap bitmap = (Bitmap) intent.getExtras().get("data");
 				imageView.setImageBitmap(bitmap);
 				// Get the Image's file name
 				String fileNameSegments[] = imgPath.split("/");
 				imageFileName = fileNameSegments[fileNameSegments.length - 1];
 				// Put file name in Async Http Post Param which will used in Php
 				// web app
-			} else {
-				Toast.makeText(this.getActivity(), "Vous n'avez pas pris de photo",
-						Toast.LENGTH_LONG).show();
+
+				Uri uri = intent.getData();
+				imageRealPath = Utils.getRealPathFromURI(this.getActivity()
+						.getApplicationContext(), uri);
+				/*Toast.makeText(this.getActivity(), Utils.getRealPathFromURI(this.getActivity()
+						.getApplicationContext(), uri),
+						Toast.LENGTH_LONG).show();*/
+				} else {
+				Toast.makeText(this.getActivity(),
+						"Vous n'avez pas pris de photo", Toast.LENGTH_LONG)
+						.show();
 			}
 
 		}
@@ -293,10 +308,10 @@ public class Fragment1 extends Fragment implements LocationListener {
 	}
 
 	public void save() {
-		
+
 		// getting location first
 		Location location = Common.getLocation(this.getActivity());
-		if(location == null){
+		if (location == null) {
 			Toast.makeText(
 					Fragment1.this.getActivity().getApplicationContext(),
 					"Erreur : Impossible de récupérer la dernière localisation ! Le cache de la dernière position a peut être été vider.",
@@ -310,12 +325,11 @@ public class Fragment1 extends Fragment implements LocationListener {
 		// ********* saving
 		Superviseur superviseur = superviseursList.get(spinner_superviseur
 				.getSelectedItemPosition());
-		PDV pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());		
-		
-		Preferences preferences = new Preferences(this.getActivity());				
+		PDV pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());
+
+		Preferences preferences = new Preferences(this.getActivity());
 		// setting parameters for HttpRequest
-		String animateurId = preferences
-				.getStringValue("ANIMATEUR_ID");
+		String animateurId = preferences.getStringValue("ANIMATEUR_ID");
 		String superviseurId = String.valueOf(superviseur.getId());
 		String pdvId = String.valueOf(pdv.getId());
 		String longitude = String.valueOf(location.getLongitude());
@@ -329,26 +343,28 @@ public class Fragment1 extends Fragment implements LocationListener {
 		params.put("latitude", latitude);
 		params.put("licenceRemplacee", licenceRemplacee);
 		params.put("motif", motif);
-		params.put("imageFileName", imageFileName);
-		
-		localisation = new Localisation(animateurId, imageFileName,
-				superviseurId, pdvId, longitude, latitude,
-				licenceRemplacee, motif);
-		
+		//params.put("imageFileName", imageFileName);
+		params.put("imageFileName", imgPath);
+		Log.e("Debug", "" + imgPath);
+		Log.e("Debug", "" + imageRealPath);
+
+		localisation = new Localisation(animateurId, imgPath,
+				superviseurId, pdvId, longitude, latitude, licenceRemplacee,
+				motif);
+
 		// save of Localisation data
-				
-		storeDataOnLocalStorage();		
+
+		storeDataOnLocalStorage();
 	}
 
 	private void storeDataOnLocalStorage() {
-		long localisationId = db.createLocalisation(localisation);		
-		
+		long localisationId = db.createLocalisation(localisation);
+
 		Statics.localisationDone = true;
 		Statics.lastLocalisationId = (int) localisationId;
 		MainActivity.addRapportTab();
-		
-		Toast.makeText(
-				Fragment1.this.getActivity().getApplicationContext(),
+
+		Toast.makeText(Fragment1.this.getActivity().getApplicationContext(),
 				"Localisation enregistrée sur la mémoire locale.",
 				Toast.LENGTH_SHORT).show();
 	}
@@ -357,8 +373,8 @@ public class Fragment1 extends Fragment implements LocationListener {
 	public void sendDataToServer() {
 		// When Image is selected from Gallery
 		if (imgPath != null && !imgPath.isEmpty()) {
-			//prgDialog.setMessage("Converting Image to Binary Data");
-			//prgDialog.show();
+			// prgDialog.setMessage("Converting Image to Binary Data");
+			// prgDialog.show();
 			// Convert image to String using Base64
 			ansychronous_encodeImagetoStringThenSendDataToServer();
 			// When Image is not selected from Gallery
@@ -409,7 +425,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		}.execute(null, null, null);
 	}
 
-	public void uplaodDataToServer() {		
+	public void uplaodDataToServer() {
 		storeDataOnLocalStorage();
 	}
 
@@ -438,12 +454,12 @@ public class Fragment1 extends Fragment implements LocationListener {
 						Statics.localisationDone = true;
 						Statics.lastLocalisationId = Integer.valueOf(response);
 						MainActivity.addRapportTab();
-												
+
 						Toast.makeText(
 								Fragment1.this.getActivity()
 										.getApplicationContext(),
 								"Les informations de localisation on été enregistrées !",
-								Toast.LENGTH_LONG).show();						
+								Toast.LENGTH_LONG).show();
 					}
 
 					// When the response returned by REST has Http
@@ -480,41 +496,35 @@ public class Fragment1 extends Fragment implements LocationListener {
 									 * "Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
 									 * + statusCode
 									 */, Toast.LENGTH_LONG).show();
-							//storeDataOnLocalStorage();
+							// storeDataOnLocalStorage();
 						}
 
 					}
 				});
 	}
 
-	/*public void askUserIfWantToSaveToLocalStorage() {
-		DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				switch (which) {
-				case DialogInterface.BUTTON_POSITIVE:
-					
-					storeDataOnLocalStorage();
-					Toast.makeText(
-							Fragment1.this.getActivity().getApplicationContext(),
-							"( "  +db.getRecordsCount("localisation") + " Localisations stockées en local)",
-							Toast.LENGTH_SHORT).show();
-					
-					break;
-				case DialogInterface.BUTTON_NEGATIVE:
-					// No button clicked
-					break;
-				}
-			}
-		};
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(
-				this.getActivity());
-		builder.setMessage(
-				"Impossible de communiquer avec le serveur distant, la connexion est peut être très lente. Voulez vous enregistrer ces informations en local ?")
-				.setPositiveButton("Oui", dialogClickListener)
-				.setNegativeButton("Non", dialogClickListener).show();
-	}*/
+	/*
+	 * public void askUserIfWantToSaveToLocalStorage() {
+	 * DialogInterface.OnClickListener dialogClickListener = new
+	 * DialogInterface.OnClickListener() {
+	 * 
+	 * @Override public void onClick(DialogInterface dialog, int which) { switch
+	 * (which) { case DialogInterface.BUTTON_POSITIVE:
+	 * 
+	 * storeDataOnLocalStorage(); Toast.makeText(
+	 * Fragment1.this.getActivity().getApplicationContext(), "( "
+	 * +db.getRecordsCount("localisation") +
+	 * " Localisations stockées en local)", Toast.LENGTH_SHORT).show();
+	 * 
+	 * break; case DialogInterface.BUTTON_NEGATIVE: // No button clicked break;
+	 * } } };
+	 * 
+	 * AlertDialog.Builder builder = new AlertDialog.Builder(
+	 * this.getActivity()); builder.setMessage(
+	 * "Impossible de communiquer avec le serveur distant, la connexion est peut être très lente. Voulez vous enregistrer ces informations en local ?"
+	 * ) .setPositiveButton("Oui", dialogClickListener)
+	 * .setNegativeButton("Non", dialogClickListener).show(); }
+	 */
 
 	@Override
 	public void onLocationChanged(Location location) {

@@ -52,6 +52,16 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
         	Localisation localisation = db.getAllLocalisations().get(0);        	
          	List<Rapport> rapportsListOfLocalisation = db.getAllRapportsOfLocalisation(localisation);
          	
+         	// FIXME : DEBUG BLOCK --------------------------------------
+        	for(Localisation l : db.getAllLocalisations()){
+        		Log.e("Localistion ID " , "" + l.getId());
+        	}
+        	for(Rapport r : db.getAllRapports()){
+        		Log.e("Rapport ID " , "" + r.getLocalisationId());
+        	}        	
+        	Log.e("Info", "Localisations : " + localisationsCount + ", Rapports of localisation :" + rapportsListOfLocalisation.size() + ", ID of current localisation : " + localisation.getId() + ", All Rapports : " + rapportsCount);
+        	// FIXME : DEBUG BLOCK --------------------------------------
+        	
         	if(localisationsCount == 1 && rapportsListOfLocalisation.size() == 0){
           		MainActivity.showSynchronizationIndicator("Vos données sont synchronisées",false);
           		return;
@@ -74,19 +84,11 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
 					}
         		}        		        			
         	}
+        	
         	if(localisationsCount > 1 && rapportsListOfLocalisation.size() <= 0){
     			// we do not remove that last localisation because the user might still add rapport on int
     			db.deleteLocalisation(localisation);
-    		}
-        	// FIXME : DEBUG BLOCK --------------------------------------
-        	for(Localisation l : db.getAllLocalisations()){
-        		Log.e("Localistion ID " , "" + l.getId());
-        	}
-        	for(Rapport r : db.getAllRapports()){
-        		Log.e("Rapport ID " , "" + r.getLocalisationId());
-        	}
-        	Log.e("Info", "Localisations : " + localisationsCount + ", Rapports of localisation :" + rapportsListOfLocalisation.size() + ", ID of current localisation : " + localisation.getId() + ", All Rapports : " + rapportsCount);
-        	// FIXME : DEBUG BLOCK --------------------------------------
+    		}        	
          }		    
          
          //Release the lock
