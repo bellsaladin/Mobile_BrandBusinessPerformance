@@ -75,7 +75,14 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
         	MainActivity.showSynchronizationIndicator("Envoi des données au serveur ...",false); 
         	 	
         	for(Rapport rapport : rapportsListOfLocalisation){
-        		int insertedLocalisationId = Common.sendLocalisationToServer(localisation,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance());
+        		int insertedLocalisationId = -1;
+        		if(localisation.getInsertedInServerWithId().isEmpty()){ // localisation not inserted
+        			insertedLocalisationId = Common.sendLocalisationToServer(localisation,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance());
+        			localisation.setInsertedInServerWithId(String.valueOf(insertedLocalisationId));
+        			db.updateLocalisation(localisation);
+        		}else{
+        			insertedLocalisationId = Integer.valueOf(localisation.getInsertedInServerWithId());
+        		}
         		if(insertedLocalisationId != -1){ // if not error        			
         			rapport.setLocalisationId(String.valueOf(insertedLocalisationId));
 					// try send it to the server

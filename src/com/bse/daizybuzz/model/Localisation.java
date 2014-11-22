@@ -10,7 +10,7 @@ public class Localisation {
 	private String latitude;	
 	private String licenceRemplacee;
 	private String motif;
-	
+	private String insertedInServerWithId; 
 
 	public Localisation() {
 		
@@ -98,6 +98,13 @@ public class Localisation {
 	public void setMotif(String motif) {
 		this.motif = motif;
 	}
+	
+	public String getInsertedInServerWithId() {
+		return insertedInServerWithId;
+	}
 
+	public void setInsertedInServerWithId(String insertedInServerWithId) {
+		this.insertedInServerWithId = insertedInServerWithId;
+	}
 	
 }

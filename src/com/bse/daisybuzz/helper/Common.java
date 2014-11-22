@@ -59,17 +59,18 @@ public class Common {
 	 * *********************************
 	 * **************************************************
 	 */
-	public static void synchronizeAll(Activity activity) {		
+	public static void synchronizeAll(Activity activity) {
 		synchronizeAll(activity, "");
 	}
 
 	public static boolean synchronizeAll(Activity activity,
 			String webserviceRootUrl) {
-		if(!Common.isNetworkAvailable(activity)){
+		if (!Common.isNetworkAvailable(activity)) {
 			Toast.makeText(
-					activity.getApplicationContext(), "La connexion internet n'est pas disponible (vérifier que votre téléphone est bien configuré) !",
+					activity.getApplicationContext(),
+					"La connexion internet n'est pas disponible (vérifier que votre téléphone est bien configuré) !",
 					Toast.LENGTH_LONG).show();
-			return false;		
+			return false;
 		}
 		Preferences preferences = new Preferences(activity);
 		if (webserviceRootUrl.isEmpty())
@@ -78,8 +79,8 @@ public class Common {
 
 		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
-		nameValuePairs.add(new BasicNameValuePair("animateurId",
-				String.valueOf(Statics.animateurId)));
+		nameValuePairs.add(new BasicNameValuePair("animateurId", String
+				.valueOf(Statics.animateurId)));
 
 		try {
 			HttpClient httpclient = new DefaultHttpClient();
@@ -115,7 +116,7 @@ public class Common {
 
 		// preprate sqlLite database
 		SqliteDatabaseHelper db = new SqliteDatabaseHelper(
-				activity.getApplicationContext());				
+				activity.getApplicationContext());
 
 		// start JSON parsing
 		try {
@@ -123,7 +124,9 @@ public class Common {
 			JSONObject json_data = new JSONObject(result);
 
 			try {
-				db.purgeServerFeedData(); // FIXME : I should make sure to have no problem before purging the bd !!
+				db.purgeServerFeedData(); // FIXME : I should make sure to have
+											// no problem before purging the bd
+											// !!
 				// INSERTING MARQUES
 				// ###################################################
 				JSONArray rows = json_data.getJSONArray("marques");
@@ -252,16 +255,17 @@ public class Common {
 					JSONObject jsonas = rows.getJSONObject(i);
 					String key = jsonas.getString("key");
 					String value = jsonas.getString("value");
-					;					
+					;
 					preferences.saveValue(key, value);
-				}				
-				
+				}
+
 				// try to repopulate rapport page
-				// FIXME : 
-				// TODO : Régler ce problème 
-				if(MainActivity.fragmentPagerAdapter != null){
-					Fragment2 fragment2 = (Fragment2)MainActivity.fragmentPagerAdapter.getFragment(1);
-					if(fragment2 != null)
+				// FIXME :
+				// TODO : Régler ce problème
+				if (MainActivity.fragmentPagerAdapter != null) {
+					Fragment2 fragment2 = (Fragment2) MainActivity.fragmentPagerAdapter
+							.getFragment(1);
+					if (fragment2 != null)
 						fragment2.populateFields();
 				}
 				// Info popup
@@ -271,8 +275,7 @@ public class Common {
 
 			} catch (JSONException e) {
 				Log.e("DEBUG", e.getMessage());
-				Toast.makeText(
-						activity.getBaseContext(),
+				Toast.makeText(activity.getBaseContext(),
 						"Erreur lors de la synchronization ! ",
 						Toast.LENGTH_LONG).show();
 				e.printStackTrace();
@@ -280,9 +283,11 @@ public class Common {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			/*Toast.makeText(activity.getBaseContext(),
-					"Erreur lors de la synchronization ! La connection est trop lente.",
-					Toast.LENGTH_LONG).show()*/
+			/*
+			 * Toast.makeText(activity.getBaseContext(),
+			 * "Erreur lors de la synchronization ! La connection est trop lente."
+			 * , Toast.LENGTH_LONG).show()
+			 */
 		}
 		return true;
 	}
@@ -290,7 +295,8 @@ public class Common {
 	public static void pushAllDataToServer(final Activity activity,
 			final ProgressDialog prgDialog) {
 		if (!Common.isNetworkAvailable(activity)) {
-			Toast.makeText(activity.getApplicationContext(), "La connexion internet n'est pas disponible !",
+			Toast.makeText(activity.getApplicationContext(),
+					"La connexion internet n'est pas disponible !",
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
@@ -298,79 +304,97 @@ public class Common {
 				activity.getApplicationContext());
 		List<Localisation> localisationsList = db.getAllLocalisations();
 		int localisationsCount = localisationsList.size();
-		
-		if(localisationsCount==0){
-			Toast.makeText(activity.getApplicationContext(), "Aucune donnée stockée en local à traiter !",
+
+		if (localisationsCount == 0) {
+			Toast.makeText(activity.getApplicationContext(),
+					"Aucune donnée stockée en local à traiter !",
 					Toast.LENGTH_LONG).show();
 			return;
 		}
-		
+
 		int currentLocalisationNum = 1;
 		for (final Localisation localisation : localisationsList) {
 			if (!Common.isNetworkAvailable(activity)) {
-				Toast.makeText(activity.getApplicationContext(), "La connexion internet n'est pas disponible !",
+				Toast.makeText(activity.getApplicationContext(),
+						"La connexion internet n'est pas disponible !",
 						Toast.LENGTH_SHORT).show();
 				prgDialog.hide();
 				return;
 			}
-			prgDialog.setMessage("Localisation " + currentLocalisationNum + "/ "
-					+ localisationsCount);
+			prgDialog.setMessage("Localisation " + currentLocalisationNum
+					+ "/ " + localisationsCount);
 			prgDialog.show();
-			
+
 			Preferences preferences = new Preferences(activity);
 			String webserviceRootUrl = preferences
 					.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
-			
 
 			// send the current localisation to the server
-			int insertedLocalisationId = sendLocalisationToServer(localisation,webserviceRootUrl,db, activity);
-			if(insertedLocalisationId == -1){
+			int insertedLocalisationId = sendLocalisationToServer(localisation,
+					webserviceRootUrl, db, activity);
+			if (insertedLocalisationId == -1) {
 				prgDialog.hide();
-				Toast.makeText(activity.getApplicationContext(),
-						"Synchronisation interrompue ! Reéssayez dans quelque instants...", Toast.LENGTH_SHORT).show();
-				return; // stop if problem while send any localisation to the server
-			}				
-			
+				Toast.makeText(
+						activity.getApplicationContext(),
+						"Synchronisation interrompue ! Reéssayez dans quelque instants...",
+						Toast.LENGTH_SHORT).show();
+				return; // stop if problem while send any localisation to the
+						// server
+			}
+
 			List<Rapport> rapportsList = db.getAllRapports();
-			// send all the rapports related to the current localisation  to server
+			// send all the rapports related to the current localisation to
+			// server
 			for (final Rapport rapport : rapportsList) {
-				if(rapport.getLocalisationId().equals(String.valueOf(localisation.getId()))){
+				if (rapport.getLocalisationId().equals(
+						String.valueOf(localisation.getId()))) {
 					// update localisationId of rapport by the last inserted one
-					rapport.setLocalisationId(String.valueOf(insertedLocalisationId));
+					rapport.setLocalisationId(String
+							.valueOf(insertedLocalisationId));
 					// try send it to the server
-					if(!sendRapportToServer(rapport,webserviceRootUrl, db, activity)){
+					if (!sendRapportToServer(rapport, webserviceRootUrl, db,
+							activity)) {
 						prgDialog.hide();
-						Toast.makeText(activity.getApplicationContext(),
-								"Synchronisation interrompue ! Reéssayez dans quelque instants...", Toast.LENGTH_SHORT).show();
-						return; // avoid going to delete this localisation if any the reports are still not saved on the server
+						Toast.makeText(
+								activity.getApplicationContext(),
+								"Synchronisation interrompue ! Reéssayez dans quelque instants...",
+								Toast.LENGTH_SHORT).show();
+						return; // avoid going to delete this localisation if
+								// any the reports are still not saved on the
+								// server
 					}
 					db.deleteRapport(rapport);
-				}				
-					
+				}
+
 			}
 			db.deleteLocalisation(localisation);
-			
-			/*Toast.makeText(activity.getApplicationContext(),
-					"Localisation " + currentLocalisationNum + "/" + localisationsCount + " envoyée au serveur ...", Toast.LENGTH_SHORT).show();*/
-			
+
+			/*
+			 * Toast.makeText(activity.getApplicationContext(), "Localisation "
+			 * + currentLocalisationNum + "/" + localisationsCount +
+			 * " envoyée au serveur ...", Toast.LENGTH_SHORT).show();
+			 */
+
 			currentLocalisationNum++;
-		}	
+		}
 		prgDialog.hide();
 		Toast.makeText(activity.getApplicationContext(),
-				"Synchronisation terminée avec succès !", Toast.LENGTH_SHORT).show();
+				"Synchronisation terminée avec succès !", Toast.LENGTH_SHORT)
+				.show();
 	}
 
-	public static int sendLocalisationToServer(Localisation localisation, String webserviceRootUrl, SqliteDatabaseHelper db ,Activity activity) {
+	public static int sendLocalisationToServer(Localisation localisation,
+			String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
 		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
-		nameValuePairs.add(new BasicNameValuePair("animateurId",
-				localisation.getAnimateurId()));
-		nameValuePairs.add(new BasicNameValuePair("superviseurId",
-				localisation.getSuperviseurId()));
+		nameValuePairs.add(new BasicNameValuePair("animateurId", localisation
+				.getAnimateurId()));
+		nameValuePairs.add(new BasicNameValuePair("superviseurId", localisation
+				.getSuperviseurId()));
 		nameValuePairs.add(new BasicNameValuePair("pdvId", localisation
 				.getPdvId()));
-		nameValuePairs.add(new BasicNameValuePair("imageFileName",
-				localisation.getCheminImage()));
+		nameValuePairs.add(new BasicNameValuePair("imageFileName", localisation
+				.getCheminImage()));
 		nameValuePairs.add(new BasicNameValuePair("latitude", localisation
 				.getLatitude()));
 		nameValuePairs.add(new BasicNameValuePair("longitude", localisation
@@ -381,28 +405,32 @@ public class Common {
 				.getMotif()));
 
 		// ******************* ENCODING IMAGE ********************** //
-		
-		Bitmap bitmap = Utils.getBitmapUsingRealPath(localisation.getCheminImage());
+
+		Bitmap bitmap = Utils.getBitmapUsingRealPath(localisation
+				.getCheminImage());
 		BitmapFactory.Options options = null;
 		options = new BitmapFactory.Options();
 		options.inSampleSize = 2;
-		bitmap = BitmapFactory.decodeFile(localisation.getCheminImage(), options);
-		//Log.e("Bitmap", "Bitmap" + localisation.getCheminImage());
-		//Log.e("Bitmap", "Bitmap" + bitmap.getHeight());
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		// Must compress the Image to reduce image size to make upload
-		// easy
-		bitmap.compress(Bitmap.CompressFormat.JPEG, 25, stream);
-		byte[] byte_arr = stream.toByteArray();
-		// Encode Image to String
-		String encodedString = Base64.encodeToString(byte_arr, 0);
+		bitmap = BitmapFactory.decodeFile(localisation.getCheminImage(),
+				options);
+		// Log.e("Bitmap", "Bitmap" + localisation.getCheminImage());
+		// Log.e("Bitmap", "Bitmap" + bitmap.getHeight());
+		if (bitmap != null) {
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			// Must compress the Image to reduce image size to make upload
+			// easy
+			bitmap.compress(Bitmap.CompressFormat.JPEG, 25, stream);
+			byte[] byte_arr = stream.toByteArray();
+			// Encode Image to String
+			String encodedString = Base64.encodeToString(byte_arr, 0);
+			nameValuePairs.add(new BasicNameValuePair("image", encodedString));
+			
+			bitmap.recycle();
+			bitmap = null;
+		}
 
-		bitmap.recycle();
-		bitmap = null;
-		
-		// ******************* ENCODING IMAGE ********************** //
-		nameValuePairs.add(new BasicNameValuePair("image", encodedString));
-		
+		// ******************* ENCODING IMAGE ********************** //	
+
 		try {
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpPost httppost = new HttpPost(webserviceRootUrl
@@ -412,8 +440,7 @@ public class Common {
 			HttpEntity entity = response.getEntity();
 			inputStream = entity.getContent();
 			Log.e("pass 1", "connection success");
-			
-			
+
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					inputStream, "iso-8859-1"), 8);
 			StringBuilder sb = new StringBuilder();
@@ -422,50 +449,51 @@ public class Common {
 			}
 			inputStream.close();
 			result = sb.toString();
-			
-			/*Toast.makeText(
-					activity.getApplicationContext(),
-					"Localisation envoyée au serveur !",
-					Toast.LENGTH_LONG).show();*/
+
+			/*
+			 * Toast.makeText( activity.getApplicationContext(),
+			 * "Localisation envoyée au serveur !", Toast.LENGTH_LONG).show();
+			 */
 			return Integer.valueOf(result.trim());
 		} catch (Exception e) {
 			Log.e("Fail 1", e.toString());
-			/*Toast.makeText(
-					activity.getApplicationContext(),
-					"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ..." + e.getMessage(),
-					Toast.LENGTH_LONG).show();*/
+			/*
+			 * Toast.makeText( activity.getApplicationContext(),
+			 * "Impossible de communiquer avec le serveur distant ! Réessayer plus tard ..."
+			 * + e.getMessage(), Toast.LENGTH_LONG).show();
+			 */
 		}
 		return -1;
-		
+
 	}
-	
-	public static boolean sendRapportToServer(Rapport rapport, String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
+
+	public static boolean sendRapportToServer(Rapport rapport,
+			String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
 		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
-		nameValuePairs.add(new BasicNameValuePair("achete",
-				rapport.getAchete()));
-		nameValuePairs.add(new BasicNameValuePair("trancheAgeId",
-				rapport.getTrancheAgeId()));
-		nameValuePairs.add(new BasicNameValuePair("sexe", rapport
-				.getSexe()));
-		nameValuePairs.add(new BasicNameValuePair("raisonAchatId",
-				rapport.getRaisonAchatId()));
+		nameValuePairs
+				.add(new BasicNameValuePair("achete", rapport.getAchete()));
+		nameValuePairs.add(new BasicNameValuePair("trancheAgeId", rapport
+				.getTrancheAgeId()));
+		nameValuePairs.add(new BasicNameValuePair("sexe", rapport.getSexe()));
+		nameValuePairs.add(new BasicNameValuePair("raisonAchatId", rapport
+				.getRaisonAchatId()));
 		nameValuePairs.add(new BasicNameValuePair("raisonRefusId", rapport
 				.getRaisonRefusId()));
 		nameValuePairs.add(new BasicNameValuePair("fidelite", rapport
 				.getFidelite()));
-		nameValuePairs.add(new BasicNameValuePair("marqueHabituelleId",
-				rapport.getMarqueHabituelleId()));
+		nameValuePairs.add(new BasicNameValuePair("marqueHabituelleId", rapport
+				.getMarqueHabituelleId()));
 		nameValuePairs.add(new BasicNameValuePair("marqueHabituelleQte",
 				rapport.getMarqueHabituelleQte()));
-		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeId",
-				rapport.getMarqueAcheteeId()));
-		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeQte",
-				rapport.getMarqueAcheteeQte()));
-		nameValuePairs.add(new BasicNameValuePair("cadeauxIds",
-				rapport.getCadeauId()));
-		nameValuePairs.add(new BasicNameValuePair("tombola",
-				rapport.getTombola()));
+		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeId", rapport
+				.getMarqueAcheteeId()));
+		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeQte", rapport
+				.getMarqueAcheteeQte()));
+		nameValuePairs.add(new BasicNameValuePair("cadeauxIds", rapport
+				.getCadeauId()));
+		nameValuePairs.add(new BasicNameValuePair("tombola", rapport
+				.getTombola()));
 		nameValuePairs.add(new BasicNameValuePair("commentaire", rapport
 				.getCommentaire()));
 		nameValuePairs.add(new BasicNameValuePair("localisationId", rapport
@@ -480,7 +508,7 @@ public class Common {
 			HttpEntity entity = response.getEntity();
 			inputStream = entity.getContent();
 			Log.e("pass 1", "connection success");
-			
+
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					inputStream, "iso-8859-1"), 8);
 			StringBuilder sb = new StringBuilder();
@@ -493,12 +521,13 @@ public class Common {
 			return true;
 		} catch (Exception e) {
 			Log.e("Fail 1", e.toString());
-			/*Toast.makeText(
-					activity.getApplicationContext(),
-					"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
-					Toast.LENGTH_LONG).show();*/
+			/*
+			 * Toast.makeText( activity.getApplicationContext(),
+			 * "Impossible de communiquer avec le serveur distant ! Réessayer plus tard ..."
+			 * , Toast.LENGTH_LONG).show();
+			 */
 		}
-		return false;		
+		return false;
 	}
 
 	public static Location getLocation(Activity activity) {

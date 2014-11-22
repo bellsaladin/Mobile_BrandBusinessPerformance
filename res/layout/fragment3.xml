@@ -20,7 +20,8 @@
             android:background="@drawable/buttonshape_green"
             android:text="Envoyer les données locales vers le serveur"            
             android:textColor="#FFFFFF"
-            android:textSize="17dp" />
+            android:textSize="17dp" 
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/btn_synchronize"

@@ -263,7 +263,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 
 			if (null != intent) {
 				// Get the Image from data
-				
+
 				Uri selectedImage = intent.getData();
 				String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
@@ -289,10 +289,12 @@ public class Fragment1 extends Fragment implements LocationListener {
 				Uri uri = intent.getData();
 				imageRealPath = Utils.getRealPathFromURI(this.getActivity()
 						.getApplicationContext(), uri);
-				/*Toast.makeText(this.getActivity(), Utils.getRealPathFromURI(this.getActivity()
-						.getApplicationContext(), uri),
-						Toast.LENGTH_LONG).show();*/
-				} else {
+				/*
+				 * Toast.makeText(this.getActivity(),
+				 * Utils.getRealPathFromURI(this.getActivity()
+				 * .getApplicationContext(), uri), Toast.LENGTH_LONG).show();
+				 */
+			} else {
 				Toast.makeText(this.getActivity(),
 						"Vous n'avez pas pris de photo", Toast.LENGTH_LONG)
 						.show();
@@ -308,6 +310,14 @@ public class Fragment1 extends Fragment implements LocationListener {
 	}
 
 	public void save() {
+		// save of Localisation data
+		if (imgPath == null || imgPath.isEmpty()) {
+			Toast.makeText(
+					Fragment1.this.getActivity().getApplicationContext(),
+					"Vous devez prendre une photo du magasin !",
+					Toast.LENGTH_LONG).show();
+			return;
+		}
 
 		// getting location first
 		Location location = Common.getLocation(this.getActivity());
@@ -318,6 +328,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 					Toast.LENGTH_LONG).show();
 			return;
 		}
+
 		// valdiation
 		if (pdvsList.size() == 0 || superviseursList.size() == 0)
 			return;
@@ -343,16 +354,13 @@ public class Fragment1 extends Fragment implements LocationListener {
 		params.put("latitude", latitude);
 		params.put("licenceRemplacee", licenceRemplacee);
 		params.put("motif", motif);
-		//params.put("imageFileName", imageFileName);
+		// params.put("imageFileName", imageFileName);
 		params.put("imageFileName", imgPath);
 		Log.e("Debug", "" + imgPath);
 		Log.e("Debug", "" + imageRealPath);
 
-		localisation = new Localisation(animateurId, imgPath,
-				superviseurId, pdvId, longitude, latitude, licenceRemplacee,
-				motif);
-
-		// save of Localisation data
+		localisation = new Localisation(animateurId, imgPath, superviseurId,
+				pdvId, longitude, latitude, licenceRemplacee, motif);
 
 		storeDataOnLocalStorage();
 	}
