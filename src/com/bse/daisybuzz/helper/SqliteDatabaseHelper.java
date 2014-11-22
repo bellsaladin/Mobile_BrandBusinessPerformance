@@ -675,6 +675,52 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		return rapports;
 	}
 	
+	public List<Rapport> getAllRapportsOfLocalisation(Localisation localisation) {
+
+		List<Rapport> rapports = new ArrayList<Rapport>();
+		String selectQuery = "SELECT  * FROM " + TABLE_RAPPORT + " WHERE " + KEY_LOCALISATION_ID + " = ? ";
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, new String[]{String.valueOf(localisation.getId())});
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				Rapport rapport = new Rapport();
+				rapport.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				rapport.setAchete(c.getString(c.getColumnIndex(KEY_ACHETE)));
+				rapport.setTrancheAgeId(c.getString(c
+						.getColumnIndex(KEY_TRANCHEAGE_ID)));
+				rapport.setSexe(c.getString(c.getColumnIndex(KEY_SEXE)));
+				rapport.setFidelite(c.getString(c.getColumnIndex(KEY_FIDELITE)));
+				rapport.setRaisonAchatId(c.getString(c
+						.getColumnIndex(KEY_RAISONACHAT_ID)));
+				rapport.setRaisonRefusId(c.getString(c
+						.getColumnIndex(KEY_RAISONREFUS_ID)));
+				rapport.setMarqueHabituelleId(c.getString(c
+						.getColumnIndex(KEY_MARQUEHABITUELLE_ID)));
+				rapport.setMarqueHabituelleQte(c.getString(c
+						.getColumnIndex(KEY_MARQUEHABITUELLE_QTE)));
+				rapport.setMarqueAcheteeId(c.getString(c
+						.getColumnIndex(KEY_MARQUEACHETEE_ID)));
+				rapport.setMarqueAcheteeQte(c.getString(c
+						.getColumnIndex(KEY_MARQUEACHETEE_QTE)));
+				rapport.setCadeauId(c.getString(c.getColumnIndex(KEY_CADEAUX_IDS)));
+				rapport.setTombola(c.getString(c.getColumnIndex(KEY_TOMBOLA)));
+				rapport.setCommentaire(c.getString(c
+						.getColumnIndex(KEY_COMMENTAIRE)));				
+				rapport.setLocalisationId(c.getString(c
+						.getColumnIndex(KEY_LOCALISATION_ID)));
+				
+				// adding to rapports list
+				rapports.add(rapport);
+			} while (c.moveToNext());
+		}
+
+		return rapports;
+	}
+	
 	public void deleteRapport(Rapport rapport) {
 		this.getWritableDatabase().delete(TABLE_RAPPORT,
 				new String(KEY_ID + "=?"),

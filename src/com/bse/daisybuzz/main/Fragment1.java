@@ -336,11 +336,8 @@ public class Fragment1 extends Fragment implements LocationListener {
 				licenceRemplacee, motif);
 		
 		// save of Localisation data
-		if (Common.isNetworkAvailable(this.getActivity())) {
-			sendDataToServer();
-		} else {			
-			storeDataOnLocalStorage();
-		}
+				
+		storeDataOnLocalStorage();		
 	}
 
 	private void storeDataOnLocalStorage() {
@@ -412,13 +409,8 @@ public class Fragment1 extends Fragment implements LocationListener {
 		}.execute(null, null, null);
 	}
 
-	public void uplaodDataToServer() {
-		if (Common.isNetworkAvailable(this.getActivity())) {
-			// passer http -> webservice
-			makeHTTPCall();
-		} else {
-			storeDataOnLocalStorage();
-		}
+	public void uplaodDataToServer() {		
+		storeDataOnLocalStorage();
 	}
 
 	// Make Http call to upload image/ data to Php server

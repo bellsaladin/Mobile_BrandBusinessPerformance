@@ -283,7 +283,7 @@ public class Common {
 		return true;
 	}
 
-	public static void pushDataToServer(final Activity activity,
+	public static void pushAllDataToServer(final Activity activity,
 			final ProgressDialog prgDialog) {
 		if (!Common.isNetworkAvailable(activity)) {
 			Toast.makeText(activity.getApplicationContext(), "La connexion internet n'est pas disponible !",
@@ -356,7 +356,7 @@ public class Common {
 				"Synchronisation terminée avec succès !", Toast.LENGTH_SHORT).show();
 	}
 
-	private static int sendLocalisationToServer(Localisation localisation, String webserviceRootUrl, SqliteDatabaseHelper db ,Activity activity) {
+	public static int sendLocalisationToServer(Localisation localisation, String webserviceRootUrl, SqliteDatabaseHelper db ,Activity activity) {
 		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
 		nameValuePairs.add(new BasicNameValuePair("animateurId",
@@ -403,16 +403,16 @@ public class Common {
 			return Integer.valueOf(result.trim());
 		} catch (Exception e) {
 			Log.e("Fail 1", e.toString());
-			Toast.makeText(
+			/*Toast.makeText(
 					activity.getApplicationContext(),
 					"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ..." + e.getMessage(),
-					Toast.LENGTH_LONG).show();
+					Toast.LENGTH_LONG).show();*/
 		}
 		return -1;
 		
 	}
 	
-	private static boolean sendRapportToServer(Rapport rapport, String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
+	public static boolean sendRapportToServer(Rapport rapport, String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
 		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
 		nameValuePairs.add(new BasicNameValuePair("achete",
@@ -432,9 +432,9 @@ public class Common {
 		nameValuePairs.add(new BasicNameValuePair("marqueHabituelleQte",
 				rapport.getMarqueHabituelleQte()));
 		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeId",
-				rapport.getMarqueHabituelleId()));
+				rapport.getMarqueAcheteeId()));
 		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeQte",
-				rapport.getMarqueHabituelleQte()));
+				rapport.getMarqueAcheteeQte()));
 		nameValuePairs.add(new BasicNameValuePair("cadeauxIds",
 				rapport.getCadeauId()));
 		nameValuePairs.add(new BasicNameValuePair("tombola",
@@ -466,10 +466,10 @@ public class Common {
 			return true;
 		} catch (Exception e) {
 			Log.e("Fail 1", e.toString());
-			Toast.makeText(
+			/*Toast.makeText(
 					activity.getApplicationContext(),
 					"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
-					Toast.LENGTH_LONG).show();
+					Toast.LENGTH_LONG).show();*/
 		}
 		return false;		
 	}

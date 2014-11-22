@@ -341,20 +341,13 @@ public class Fragment2 extends Fragment {
 
 		// ********* saving
 
-		if (Common.isNetworkAvailable(this.getActivity())) {
-			// passer http -> webservice
-			makeHTTPCall();
-		} else {
-			storeDataOnLocalStorage();
-		}
+		storeDataOnLocalStorage();
+		
 		// start upload of localisation data
 	}
 
 	private void storeDataOnLocalStorage() {
 		db.createRapport(rapport);
-
-		// change static localisation flag to done
-		Statics.localisationDone = true;
 
 		Toast.makeText(
 				Fragment2.this.getActivity().getApplicationContext(),

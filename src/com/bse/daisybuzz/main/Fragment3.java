@@ -93,7 +93,7 @@ public class Fragment3 extends Fragment {
 	}
 	
 	public void pushLocalDataToServer(Activity activity, ProgressDialog prgDialog){
-		Common.pushDataToServer(activity, prgDialog);
+		Common.pushAllDataToServer(activity, prgDialog);
 	}
 
 	public void disconnecte(View v) {
