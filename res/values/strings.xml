@@ -25,8 +25,8 @@
         <item>40+</item>
     </string-array>
     <string-array name="str_array_fidelite">
-        <item>Oui</item>
-        <item>Non</item>
+        <item>Habitué à la marque</item>
+        <item>1er achat</item>
     </string-array>    
 
 </resources>

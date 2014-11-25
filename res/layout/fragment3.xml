@@ -30,7 +30,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="25dp"
             android:background="@drawable/buttonshape_blue"
-            android:text="Synchroniser"
+            android:text="MAJ des données"
             android:textColor="#FFFFFF"
             android:textSize="17dp" />
 
