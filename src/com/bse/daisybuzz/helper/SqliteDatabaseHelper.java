@@ -29,7 +29,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String LOG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 9;
+	private static final int DATABASE_VERSION = 8;
 
 	// Database Name
 	private static final String DATABASE_NAME = "contactsManager";
@@ -66,7 +66,6 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_LATITUDE = "latitude";
 	private static final String KEY_LICENCEREMPLACEE = "licenceRemplacee";
 	private static final String KEY_MOTIF = "motif";
-	private static final String KEY_INSERTED_IN_SERVER_WITH_ID = "insertedInServerWithId";
 
 	// Rapport Table - column names
 	private static final String KEY_ACHETE = "achete";
@@ -123,7 +122,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 			+ KEY_IMAGEFILENAME + " TEXT," + KEY_LONGITUDE + " TEXT,"
 			+ KEY_LATITUDE + " TEXT," + KEY_ANIMATEUR_ID + " TEXT,"
 			+ KEY_SUPERVISEUR_ID + " TEXT," + KEY_PDV_ID + " TEXT,"
-			+ KEY_LICENCEREMPLACEE + " TEXT," + KEY_MOTIF + " TEXT," + KEY_INSERTED_IN_SERVER_WITH_ID + " TEXT)";
+			+ KEY_LICENCEREMPLACEE + " TEXT," + KEY_MOTIF + " TEXT )";
 
 	// Rapport table create statement
 	private static final String CREATE_TABLE_RAPPORT = "CREATE TABLE "
@@ -549,25 +548,12 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_LATITUDE, localisation.getLatitude());
 		values.put(KEY_LICENCEREMPLACEE, localisation.getLicenceRemplacee());
 		values.put(KEY_MOTIF, localisation.getMotif());
-		values.put(KEY_INSERTED_IN_SERVER_WITH_ID,"");
 
 		// insert row
 		long id = db.insert(TABLE_LOCALISATION, null, values);
 
 		return id;
 	}
-	
-	public int updateLocalisation(Localisation localisation) {
-		SQLiteDatabase db = this.getWritableDatabase();
-
-		ContentValues values = new ContentValues();
-		values.put(KEY_INSERTED_IN_SERVER_WITH_ID, localisation.getInsertedInServerWithId());		
-
-		// updating row
-		return db.update(TABLE_LOCALISATION, values, KEY_ID + " = ?",
-				new String[] { String.valueOf(localisation.getId()) });
-	}
-
 
 	public List<Localisation> getAllLocalisations() {
 
@@ -599,8 +585,6 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				localisation.setLicenceRemplacee(c.getString(c
 						.getColumnIndex(KEY_LICENCEREMPLACEE)));
 				localisation.setMotif(c.getString(c.getColumnIndex(KEY_MOTIF)));
-				
-				localisation.setInsertedInServerWithId(c.getString(c.getColumnIndex(KEY_INSERTED_IN_SERVER_WITH_ID)));
 
 				// adding to todo list
 				localisations.add(localisation);
