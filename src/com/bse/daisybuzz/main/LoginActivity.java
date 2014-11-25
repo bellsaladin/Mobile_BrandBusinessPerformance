@@ -18,7 +18,6 @@ import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.Constants;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
-import com.bse.daisybuzz.helper.Utils;
 
 import android.support.v7.app.ActionBarActivity;
 import android.app.AlertDialog;
@@ -166,8 +165,7 @@ public class LoginActivity extends ActionBarActivity {
 		Toast.makeText(getApplicationContext(),
 				"Communication avec le serveur...", Toast.LENGTH_SHORT).show();
 		try {
-			Utils.initHttpParams();
-			DefaultHttpClient httpclient = new DefaultHttpClient();
+			HttpClient httpclient = new DefaultHttpClient();
 			HttpPost httppost = new HttpPost(webserviceRootUrl
 					+ "/authentification");
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));

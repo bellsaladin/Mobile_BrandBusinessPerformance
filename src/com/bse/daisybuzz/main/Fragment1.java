@@ -330,21 +330,8 @@ public class Fragment1 extends Fragment implements LocationListener {
 		}
 
 		// valdiation
-		if (superviseursList.size() == 0){
-			Toast.makeText(
-					Fragment1.this.getActivity().getApplicationContext(),
-					"Vous devez indiquer un superviseur.",
-					Toast.LENGTH_LONG).show();
+		if (pdvsList.size() == 0 || superviseursList.size() == 0)
 			return;
-		}
-		
-		if (pdvsList.size() == 0){
-			Toast.makeText(
-					Fragment1.this.getActivity().getApplicationContext(),
-					"Vous devez indiquer un point de vente.",
-					Toast.LENGTH_LONG).show();
-			return;
-		}
 
 		// ********* saving
 		Superviseur superviseur = superviseursList.get(spinner_superviseur
