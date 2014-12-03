@@ -70,17 +70,17 @@ public class MapActivity extends FragmentActivity {
 
         updateEnabledState();
 
-        setUpMapIfNeeded();
+        // setUpMapIfNeeded();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         updateEnabledState();
-        setUpMapIfNeeded();
+        //setUpMapIfNeeded();
     }
 
-    private void setUpMapIfNeeded() {
+    /*private void setUpMapIfNeeded() {
         if (mMap == null) {
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
@@ -88,7 +88,7 @@ public class MapActivity extends FragmentActivity {
                 setUpMap();
             }
         }
-    }
+    }*/
 
     private void setUpMap() {
         // We will provide our own zoom controls.

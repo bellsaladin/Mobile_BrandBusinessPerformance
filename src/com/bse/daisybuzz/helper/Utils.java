@@ -1,5 +1,8 @@
 package com.bse.daisybuzz.helper;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -34,8 +37,14 @@ public class Utils {
 			}
 		}
 	}
-	
-	public static Bitmap getBitmapUsingRealPath(String imagePath){
+
+	public static String now() {
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return sdf.format(cal.getTime());
+	}
+
+	public static Bitmap getBitmapUsingRealPath(String imagePath) {
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 		options.inSampleSize = 2;
@@ -43,16 +52,17 @@ public class Utils {
 		return bitmap;
 	}
 
-	public static void initHttpParams(){
+	public static void initHttpParams() {
 		HttpParams httpParameters = new BasicHttpParams();
 		// Set the timeout in milliseconds until a connection is established.
-		// The default value is zero, that means the timeout is not used. 
-		int timeoutConnection = 20000;
-		HttpConnectionParams.setConnectionTimeout(httpParameters, timeoutConnection);
-		// Set the default socket timeout (SO_TIMEOUT) 
+		// The default value is zero, that means the timeout is not used.
+		int timeoutConnection = 15000;
+		HttpConnectionParams.setConnectionTimeout(httpParameters,
+				timeoutConnection);
+		// Set the default socket timeout (SO_TIMEOUT)
 		// in milliseconds which is the timeout for waiting for data.
-		int timeoutSocket = 50000;
+		int timeoutSocket = 15000;
 		HttpConnectionParams.setSoTimeout(httpParameters, timeoutSocket);
 	}
-	
+
 }

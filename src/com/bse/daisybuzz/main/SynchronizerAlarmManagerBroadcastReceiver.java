@@ -60,9 +60,39 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
         		Log.e("Rapport ID " , "" + r.getLocalisationId());
         	}        	
         	Log.e("Info", "Localisations : " + localisationsCount + ", Rapports of localisation :" + rapportsListOfLocalisation.size() + ", ID of current localisation : " + localisation.getId() + ", All Rapports : " + rapportsCount);
-        	// FIXME : DEBUG BLOCK --------------------------------------
+        	// FIXME : DEBUG BLOCK --------------------------------------        	        	
         	
-        	if(localisationsCount == 1 && rapportsListOfLocalisation.size() == 0){
+        	int insertedLocalisationId = -1;
+    		if(localisation.getInsertedInServerWithId().isEmpty()){ // localisation not inserted
+    			MainActivity.showSynchronizationIndicator("Envoi des données au serveur ...",false);
+    			insertedLocalisationId = Common.sendLocalisationToServer(localisation,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance());    			
+    			localisation.setInsertedInServerWithId(String.valueOf(insertedLocalisationId));
+    			db.updateLocalisation(localisation);
+    			return; // FIXME : OPTIMIZATION STORE ONE ENTITY AT ONCE  
+    		}else{
+    			insertedLocalisationId = Integer.valueOf(localisation.getInsertedInServerWithId());
+    		}
+    		
+        	for(Rapport rapport : rapportsListOfLocalisation){
+        		
+        		if(insertedLocalisationId != -1){ // if not error        			
+        			rapport.setLocalisationId(String.valueOf(insertedLocalisationId));
+					// try send it to the server
+        			MainActivity.showSynchronizationIndicator("Envoi des données au serveur ...",false);
+					if(Common.sendRapportToServer(rapport,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance())){
+						db.deleteRapport(rapport);
+					}
+					return; // FIXME : OPTIMIZATION STORE ONE ENTITY AT ONCE
+        		}        		        			
+        	}
+        	
+        	if(localisationsCount > 1 && rapportsListOfLocalisation.size() <= 0){
+    			// we do not remove that last localisation because the user might still add rapport on int
+    			db.deleteLocalisation(localisation);
+    			return;
+    		}
+        	
+        	if(!localisation.getInsertedInServerWithId().isEmpty() && rapportsListOfLocalisation.size() == 0){
           		MainActivity.showSynchronizationIndicator("Vos données sont synchronisées",false);
           		return;
        	    }
@@ -71,31 +101,7 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
          		MainActivity.showSynchronizationIndicator("Tentative de synchronisation : Internet indisponible",true);
          		return;
       	    }
-        	
-        	MainActivity.showSynchronizationIndicator("Envoi des données au serveur ...",false); 
-        	 	
-        	for(Rapport rapport : rapportsListOfLocalisation){
-        		int insertedLocalisationId = -1;
-        		if(localisation.getInsertedInServerWithId().isEmpty()){ // localisation not inserted
-        			insertedLocalisationId = Common.sendLocalisationToServer(localisation,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance());
-        			localisation.setInsertedInServerWithId(String.valueOf(insertedLocalisationId));
-        			db.updateLocalisation(localisation);
-        		}else{
-        			insertedLocalisationId = Integer.valueOf(localisation.getInsertedInServerWithId());
-        		}
-        		if(insertedLocalisationId != -1){ // if not error        			
-        			rapport.setLocalisationId(String.valueOf(insertedLocalisationId));
-					// try send it to the server
-					if(Common.sendRapportToServer(rapport,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance())){
-						db.deleteRapport(rapport);
-					}
-        		}        		        			
-        	}
-        	
-        	if(localisationsCount > 1 && rapportsListOfLocalisation.size() <= 0){
-    			// we do not remove that last localisation because the user might still add rapport on int
-    			db.deleteLocalisation(localisation);
-    		}        	
+ 
          }		    
          
          //Release the lock

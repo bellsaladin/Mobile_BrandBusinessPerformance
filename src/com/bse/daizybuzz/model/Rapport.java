@@ -16,6 +16,7 @@ public class Rapport {
 	private String tombola;
 	private String commentaire;	
 	private String localisationId;	
+	private String dateCreation;
 	
 	public Rapport() {
 	
@@ -25,7 +26,7 @@ public class Rapport {
 			String fidelite, String raisonAchatId, 
 			String marqueHabituelleId, String marqueHabituelleQte,
 			String marqueAcheteeId, String marqueAcheteeQte, String cadeauId,
-			String tombola, String localisationId) {		
+			String tombola, String localisationId, String dateCreation) {		
 		this.achete = achete;
 		this.trancheAgeId = trancheAgeId;
 		this.sexe = sexe;
@@ -38,6 +39,7 @@ public class Rapport {
 		this.cadeauId = cadeauId;
 		this.tombola = tombola;		
 		this.localisationId = localisationId;
+		this.setDateCreation(dateCreation);
 	}
 	
 	
@@ -45,7 +47,7 @@ public class Rapport {
 	public Rapport(String achete, String trancheAgeId, String sexe,
 			String raisonRefusId, 
 			String marqueHabituelleId, String marqueHabituelleQte,
-			String commentaire, String localisationId) {		
+			String commentaire, String localisationId,  String dateCreation) {		
 		this.achete = achete;
 		this.trancheAgeId = trancheAgeId;
 		this.sexe = sexe;		
@@ -54,6 +56,7 @@ public class Rapport {
 		this.marqueHabituelleQte = marqueHabituelleQte;
 		this.commentaire = commentaire;
 		this.localisationId = localisationId;
+		this.setDateCreation(dateCreation);
 	}
 
 	public int getId() {
@@ -148,6 +151,14 @@ public class Rapport {
 
 	public void setLocalisationId(String localisationId) {
 		this.localisationId = localisationId;
+	}
+
+	public String getDateCreation() {
+		return dateCreation;
+	}
+
+	public void setDateCreation(String dateCreation) {
+		this.dateCreation = dateCreation;
 	}
 	
 }

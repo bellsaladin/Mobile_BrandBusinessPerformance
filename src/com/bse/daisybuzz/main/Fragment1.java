@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bse.daisybuzz.helper.Common;
+import com.bse.daisybuzz.helper.Constants;
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
@@ -237,10 +238,10 @@ public class Fragment1 extends Fragment implements LocationListener {
 
 			locationManager.requestLocationUpdates(provider, 20000, 1, this);
 
-			mMap = ((SupportMapFragment) this.getActivity()
+			/* mMap = ((SupportMapFragment) this.getActivity()
 					.getSupportFragmentManager().findFragmentById(R.id.map))
-					.getMap();
-			mMap.setMyLocationEnabled(true);
+					.getMap();*/
+			// mMap.setMyLocationEnabled(true);
 
 			if (location != null)
 				onLocationChanged(location);
@@ -311,13 +312,13 @@ public class Fragment1 extends Fragment implements LocationListener {
 
 	public void save() {
 		// save of Localisation data
-		if (imgPath == null || imgPath.isEmpty()) {
+		/*if (imgPath == null || imgPath.isEmpty()) {
 			Toast.makeText(
 					Fragment1.this.getActivity().getApplicationContext(),
 					"Vous devez prendre une photo du magasin !",
 					Toast.LENGTH_LONG).show();
 			return;
-		}
+		}*/
 
 		// getting location first
 		Location location = Common.getLocation(this.getActivity());
@@ -373,7 +374,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		Log.e("Debug", "" + imageRealPath);
 
 		localisation = new Localisation(animateurId, imgPath, superviseurId,
-				pdvId, longitude, latitude, licenceRemplacee, motif);
+				pdvId, longitude, latitude, licenceRemplacee, motif, Utils.now());
 
 		storeDataOnLocalStorage();
 	}
@@ -419,12 +420,12 @@ public class Fragment1 extends Fragment implements LocationListener {
 			protected String doInBackground(Void... params) {
 				BitmapFactory.Options options = null;
 				options = new BitmapFactory.Options();
-				options.inSampleSize = 2;
+				options.inSampleSize = 4;
 				bitmap = BitmapFactory.decodeFile(imgPath, options);
 				ByteArrayOutputStream stream = new ByteArrayOutputStream();
 				// Must compress the Image to reduce image size to make upload
 				// easy
-				bitmap.compress(Bitmap.CompressFormat.JPEG, 25, stream);
+				bitmap.compress(Bitmap.CompressFormat.JPEG, 1, stream);
 				byte[] byte_arr = stream.toByteArray();
 				// Encode Image to String
 				encodedString = Base64.encodeToString(byte_arr, 0);
@@ -452,18 +453,13 @@ public class Fragment1 extends Fragment implements LocationListener {
 
 	// Make Http call to upload image/ data to Php server
 	public void makeHTTPCall() {
-
-		Preferences preferences = new Preferences(this.getActivity());
-		String webserviceRootUrl = preferences
-				.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
-
 		prgDialog.setMessage("Envoi des données au serveur...");
 		prgDialog.show();
 		AsyncHttpClient client = new AsyncHttpClient();
 		client.setTimeout(3000000); // 30 seconds
 		// Don't forget to change the IP address to your LAN address. Port no as
 		// well.
-		client.post(webserviceRootUrl + "/save_localisation.php", params,
+		client.post(Constants.DEFAULT_WEBSERVICE_URL_ROOT + "/save_localisation.php", params,
 				new AsyncHttpResponseHandler() {
 					// When the response returned by REST has Http
 					// response code '200'
@@ -560,11 +556,11 @@ public class Fragment1 extends Fragment implements LocationListener {
 			// location.getLongitude() + "," + location.getLatitude() ,
 			// Toast.LENGTH_SHORT).show();
 
-			CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(
+			/*CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(
 					location.getLatitude(), location.getLongitude()));
 			CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
 			mMap.moveCamera(center);
-			mMap.animateCamera(zoom);
+			mMap.animateCamera(zoom);*/
 		}
 	}
 

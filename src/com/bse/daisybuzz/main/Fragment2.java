@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bse.daisybuzz.helper.Common;
+import com.bse.daisybuzz.helper.Constants;
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
+import com.bse.daisybuzz.helper.Utils;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
@@ -306,7 +308,7 @@ public class Fragment2 extends Fragment {
 			rapport = new Rapport(achete, trancheAgeId, sexe, fidelite,
 					raisonAchatId, marqueHabituelleId, marqueHabituelleQte,
 					marqueAcheteeId, marqueAcheteeQte, cadeauxIds, tombola,
-					localisationId);
+					localisationId, Utils.now());
 		}
 
 		if (spinner_achete.getSelectedItemPosition() == 1) {
@@ -336,14 +338,14 @@ public class Fragment2 extends Fragment {
 
 			rapport = new Rapport(achete, trancheAgeId, sexe, raisonRefusId,
 					marqueHabituelleId, marqueHabituelleQte, commentaire,
-					localisationId);
+					localisationId, Utils.now());
 		}
 
 		// ********* saving
 
 		storeDataOnLocalStorage();
 		
-		// start upload of localisation data
+		cleanInputFields();
 	}
 
 	private void storeDataOnLocalStorage() {
@@ -390,18 +392,13 @@ public class Fragment2 extends Fragment {
 
 	// Make Http call to upload image/ data to Php server
 	public void makeHTTPCall() {
-
-		Preferences preferences = new Preferences(this.getActivity());
-		String webserviceRootUrl = preferences
-				.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
-
 		prgDialog.setMessage("Envoi des données au serveur...");
 		prgDialog.show();
 		AsyncHttpClient client = new AsyncHttpClient();
 		client.setTimeout(3000000); // 30 seconds
 		// Don't forget to change the IP address to your LAN address. Port no as
 		// well.
-		client.post(webserviceRootUrl + "/save_rapport.php", params,
+		client.post(Constants.DEFAULT_WEBSERVICE_URL_ROOT + "/save_rapport.php", params,
 				new AsyncHttpResponseHandler() {
 					// When the response returned by REST has Http
 					// response code '200'
@@ -514,5 +511,10 @@ public class Fragment2 extends Fragment {
 		AlertDialog dialog = builder.create();// AlertDialog dialog; create like
 												// this outside onClick
 		dialog.show();
+	}
+	
+	private void cleanInputFields(){
+		txt_cadeauxIds.setText("");
+		btn_choixCadeaux.setText("Choix des cadeaux");
 	}
 }

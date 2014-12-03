@@ -112,9 +112,7 @@ public class LoginActivity extends ActionBarActivity {
 
 		Preferences preferences = new Preferences(this);
 		String storedUsername = preferences.getStringValue("USERNAME");
-		String storedPassword = preferences.getStringValue("PASSWORD");
-		String webserviceRootUrl = preferences
-				.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
+		String storedPassword = preferences.getStringValue("PASSWORD");		
 
 		if (!storedUsername.isEmpty() && !storedPassword.isEmpty()) {
 			// check if the Stored password matches with Password entered by
@@ -133,7 +131,7 @@ public class LoginActivity extends ActionBarActivity {
 						Toast.LENGTH_SHORT).show();
 			}
 		} else {
-			int authenticationResult = authenticateUser(inputUsername, inputPassword, webserviceRootUrl);
+			int authenticationResult = authenticateUser(inputUsername, inputPassword);
 			if (authenticationResult > 0) {
 				Toast.makeText(getApplicationContext(),
 						"Connexion en cours...", Toast.LENGTH_SHORT).show();
@@ -156,7 +154,7 @@ public class LoginActivity extends ActionBarActivity {
 		
 	}
 
-	private int authenticateUser(String username, String password, String webserviceRootUrl) {
+	private int authenticateUser(String username, String password) {
 		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
 		nameValuePairs.add(new BasicNameValuePair("username",
@@ -168,7 +166,7 @@ public class LoginActivity extends ActionBarActivity {
 		try {
 			Utils.initHttpParams();
 			DefaultHttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(webserviceRootUrl
+			HttpPost httppost = new HttpPost(Constants.DEFAULT_WEBSERVICE_URL_ROOT
 					+ "/authentification");
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			HttpResponse response = httpclient.execute(httppost);

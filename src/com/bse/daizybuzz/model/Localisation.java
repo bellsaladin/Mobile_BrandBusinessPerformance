@@ -10,13 +10,14 @@ public class Localisation {
 	private String latitude;	
 	private String licenceRemplacee;
 	private String motif;
-	private String insertedInServerWithId; 
+	private String insertedInServerWithId;
+	private String dateCreation;
 
 	public Localisation() {
 		
 	}
 	
-	public Localisation(String animateurId, String imageFileName,  String superviseurId, String pdvId, String longitude, String latitude, String licenceRemplacee, String motif) {		
+	public Localisation(String animateurId, String imageFileName,  String superviseurId, String pdvId, String longitude, String latitude, String licenceRemplacee, String motif, String dateCreation) {		
 		this.animateurId = animateurId;
 		this.imageFileName = imageFileName;
 		this.superviseurId = superviseurId;
@@ -25,6 +26,7 @@ public class Localisation {
 		this.latitude = latitude;
 		this.licenceRemplacee = licenceRemplacee;
 		this.motif = motif;
+		this.dateCreation = dateCreation;
 	}
 
 	public int getId() {
@@ -105,6 +107,14 @@ public class Localisation {
 
 	public void setInsertedInServerWithId(String insertedInServerWithId) {
 		this.insertedInServerWithId = insertedInServerWithId;
+	}
+
+	public String getDateCreation() {
+		return dateCreation;
+	}
+
+	public void setDateCreation(String dateCreation) {
+		this.dateCreation = dateCreation;
 	}
 	
 }

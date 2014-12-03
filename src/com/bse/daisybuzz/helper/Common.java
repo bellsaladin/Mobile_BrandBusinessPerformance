@@ -72,10 +72,7 @@ public class Common {
 					Toast.LENGTH_LONG).show();
 			return false;
 		}
-		Preferences preferences = new Preferences(activity);
-		if (webserviceRootUrl.isEmpty())
-			webserviceRootUrl = preferences
-					.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
+		Preferences preferences = new Preferences(activity);		
 
 		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
@@ -84,7 +81,7 @@ public class Common {
 
 		try {
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(webserviceRootUrl
+			HttpPost httppost = new HttpPost(Constants.DEFAULT_WEBSERVICE_URL_ROOT
 					+ "/get_data.php");
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			HttpResponse response = httpclient.execute(httppost);
@@ -403,7 +400,9 @@ public class Common {
 				localisation.getLicenceRemplacee()));
 		nameValuePairs.add(new BasicNameValuePair("motif", localisation
 				.getMotif()));
-
+		nameValuePairs.add(new BasicNameValuePair("dateCreation", localisation
+				.getDateCreation()));
+		
 		// ******************* ENCODING IMAGE ********************** //
 
 		Bitmap bitmap = Utils.getBitmapUsingRealPath(localisation
@@ -433,7 +432,7 @@ public class Common {
 
 		try {
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(webserviceRootUrl
+			HttpPost httppost = new HttpPost(Constants.DEFAULT_WEBSERVICE_URL_ROOT
 					+ "/save_localisation.php");
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			HttpResponse response = httpclient.execute(httppost);
@@ -498,10 +497,13 @@ public class Common {
 				.getCommentaire()));
 		nameValuePairs.add(new BasicNameValuePair("localisationId", rapport
 				.getLocalisationId()));
+		
+		nameValuePairs.add(new BasicNameValuePair("dateCreation", rapport
+				.getDateCreation()));
 
 		try {
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(webserviceRootUrl
+			HttpPost httppost = new HttpPost(Constants.DEFAULT_WEBSERVICE_URL_ROOT
 					+ "/save_rapport.php");
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			HttpResponse response = httpclient.execute(httppost);

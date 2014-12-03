@@ -29,7 +29,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String LOG = "DatabaseHelper";
 
 	// Database Version
-	private static final int DATABASE_VERSION = 9;
+	private static final int DATABASE_VERSION = 10;
 
 	// Database Name
 	private static final String DATABASE_NAME = "contactsManager";
@@ -49,7 +49,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_ID = "id";
 	private static final String KEY_NOM = "nom";
 	private static final String KEY_PRENOM = "prenom";
-	private static final String KEY_CREATED_AT = "created_at";
+	private static final String KEY_DATE_CREATION = "dateCreation";
 
 	// MARQUE Table - column names
 	private static final String KEY_LIBELLE = "libelle";
@@ -123,7 +123,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 			+ KEY_IMAGEFILENAME + " TEXT," + KEY_LONGITUDE + " TEXT,"
 			+ KEY_LATITUDE + " TEXT," + KEY_ANIMATEUR_ID + " TEXT,"
 			+ KEY_SUPERVISEUR_ID + " TEXT," + KEY_PDV_ID + " TEXT,"
-			+ KEY_LICENCEREMPLACEE + " TEXT," + KEY_MOTIF + " TEXT," + KEY_INSERTED_IN_SERVER_WITH_ID + " TEXT)";
+			+ KEY_LICENCEREMPLACEE + " TEXT," + KEY_MOTIF + " TEXT," + KEY_INSERTED_IN_SERVER_WITH_ID + " TEXT," + KEY_DATE_CREATION +" TEXT)";
 
 	// Rapport table create statement
 	private static final String CREATE_TABLE_RAPPORT = "CREATE TABLE "
@@ -134,7 +134,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 			+ KEY_MARQUEHABITUELLE_ID + " TEXT," + KEY_MARQUEHABITUELLE_QTE
 			+ " TEXT," + KEY_MARQUEACHETEE_ID + " TEXT ,"
 			+ KEY_MARQUEACHETEE_QTE + " TEXT ," + KEY_CADEAUX_IDS + " TEXT,"
-			+ KEY_COMMENTAIRE + " TEXT ," + KEY_TOMBOLA + " TEXT ," + KEY_LOCALISATION_ID + " TEXT )";
+			+ KEY_COMMENTAIRE + " TEXT ," + KEY_TOMBOLA + " TEXT ," + KEY_LOCALISATION_ID + " TEXT," + KEY_DATE_CREATION +" TEXT)";
 
 	public SqliteDatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -550,6 +550,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_LICENCEREMPLACEE, localisation.getLicenceRemplacee());
 		values.put(KEY_MOTIF, localisation.getMotif());
 		values.put(KEY_INSERTED_IN_SERVER_WITH_ID,"");
+		values.put(KEY_DATE_CREATION, localisation.getDateCreation());
 
 		// insert row
 		long id = db.insert(TABLE_LOCALISATION, null, values);
@@ -601,7 +602,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				localisation.setMotif(c.getString(c.getColumnIndex(KEY_MOTIF)));
 				
 				localisation.setInsertedInServerWithId(c.getString(c.getColumnIndex(KEY_INSERTED_IN_SERVER_WITH_ID)));
-
+				localisation.setDateCreation(c.getString(c.getColumnIndex(KEY_DATE_CREATION)));
+				
 				// adding to todo list
 				localisations.add(localisation);
 			} while (c.moveToNext());
@@ -637,7 +639,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_TOMBOLA, rapport.getTombola());
 		values.put(KEY_COMMENTAIRE, rapport.getCommentaire());
 		values.put(KEY_LOCALISATION_ID, rapport.getLocalisationId());
-
+		values.put(KEY_DATE_CREATION, rapport.getDateCreation());
 		// insert row
 		long id = db.insert(TABLE_RAPPORT, null, values);
 
@@ -682,6 +684,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 						.getColumnIndex(KEY_COMMENTAIRE)));				
 				rapport.setLocalisationId(c.getString(c
 						.getColumnIndex(KEY_LOCALISATION_ID)));
+				rapport.setDateCreation(c.getString(c
+						.getColumnIndex(KEY_DATE_CREATION)));
 				
 				// adding to rapports list
 				rapports.add(rapport);
@@ -728,6 +732,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 						.getColumnIndex(KEY_COMMENTAIRE)));				
 				rapport.setLocalisationId(c.getString(c
 						.getColumnIndex(KEY_LOCALISATION_ID)));
+				rapport.setDateCreation(c.getString(c
+						.getColumnIndex(KEY_DATE_CREATION)));
 				
 				// adding to rapports list
 				rapports.add(rapport);
