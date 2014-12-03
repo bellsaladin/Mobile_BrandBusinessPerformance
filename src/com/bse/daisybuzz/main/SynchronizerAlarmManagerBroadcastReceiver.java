@@ -18,7 +18,10 @@ import android.util.Log;
 
 public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver {	
 	
-	SqliteDatabaseHelper db;	
+	public static SqliteDatabaseHelper db;	
+	public static Localisation processedLocalisation;
+	public static Rapport processedRapport;
+	
 	
 	public SynchronizerAlarmManagerBroadcastReceiver(){
 		
@@ -49,8 +52,8 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
      	 
      	
          if(localisationsCount > 0){
-        	Localisation localisation = db.getAllLocalisations().get(0);        	
-         	List<Rapport> rapportsListOfLocalisation = db.getAllRapportsOfLocalisation(localisation);
+        	processedLocalisation = db.getAllLocalisations().get(0);        	
+         	List<Rapport> rapportsListOfLocalisation = db.getAllRapportsOfLocalisation(processedLocalisation);
          	
          	// FIXME : DEBUG BLOCK --------------------------------------
         	for(Localisation l : db.getAllLocalisations()){
@@ -59,18 +62,16 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
         	for(Rapport r : db.getAllRapports()){
         		Log.e("Rapport ID " , "" + r.getLocalisationId());
         	}        	
-        	Log.e("Info", "Localisations : " + localisationsCount + ", Rapports of localisation :" + rapportsListOfLocalisation.size() + ", ID of current localisation : " + localisation.getId() + ", All Rapports : " + rapportsCount);
+        	Log.e("Info", "Localisations : " + localisationsCount + ", Rapports of localisation :" + rapportsListOfLocalisation.size() + ", ID of current localisation : " + processedLocalisation.getId() + ", All Rapports : " + rapportsCount);
         	// FIXME : DEBUG BLOCK --------------------------------------        	        	
         	
         	int insertedLocalisationId = -1;
-    		if(localisation.getInsertedInServerWithId().isEmpty()){ // localisation not inserted
+    		if(processedLocalisation.getInsertedInServerWithId().isEmpty()){ // localisation not inserted
     			MainActivity.showSynchronizationIndicator("Envoi des données au serveur ...",false);
-    			insertedLocalisationId = Common.sendLocalisationToServer(localisation,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance());    			
-    			localisation.setInsertedInServerWithId(String.valueOf(insertedLocalisationId));
-    			db.updateLocalisation(localisation);
+    			Common.sendLocalisationToServer(processedLocalisation,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance());    			
     			return; // FIXME : OPTIMIZATION STORE ONE ENTITY AT ONCE  
     		}else{
-    			insertedLocalisationId = Integer.valueOf(localisation.getInsertedInServerWithId());
+    			insertedLocalisationId = Integer.valueOf(processedLocalisation.getInsertedInServerWithId());
     		}
     		
         	for(Rapport rapport : rapportsListOfLocalisation){
@@ -79,20 +80,19 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
         			rapport.setLocalisationId(String.valueOf(insertedLocalisationId));
 					// try send it to the server
         			MainActivity.showSynchronizationIndicator("Envoi des données au serveur ...",false);
-					if(Common.sendRapportToServer(rapport,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance())){
-						db.deleteRapport(rapport);
-					}
+					Common.sendRapportToServer(rapport,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance());
+					
 					return; // FIXME : OPTIMIZATION STORE ONE ENTITY AT ONCE
         		}        		        			
         	}
         	
         	if(localisationsCount > 1 && rapportsListOfLocalisation.size() <= 0){
     			// we do not remove that last localisation because the user might still add rapport on int
-    			db.deleteLocalisation(localisation);
+    			db.deleteLocalisation(processedLocalisation);
     			return;
     		}
         	
-        	if(!localisation.getInsertedInServerWithId().isEmpty() && rapportsListOfLocalisation.size() == 0){
+        	if(!processedLocalisation.getInsertedInServerWithId().isEmpty() && rapportsListOfLocalisation.size() == 0){
           		MainActivity.showSynchronizationIndicator("Vos données sont synchronisées",false);
           		return;
        	    }

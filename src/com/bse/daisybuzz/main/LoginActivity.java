@@ -22,6 +22,7 @@ import com.bse.daisybuzz.helper.Utils;
 
 import android.support.v7.app.ActionBarActivity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -45,6 +46,8 @@ public class LoginActivity extends ActionBarActivity {
 	private Button login;
 	// int counter = 3;
 	
+	
+	
 	static InputStream inputStream = null;
 	static String result = null;
 	static String line = null;
@@ -52,6 +55,7 @@ public class LoginActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_login);
@@ -90,7 +94,8 @@ public class LoginActivity extends ActionBarActivity {
 		
 	}
 
-	public void login(View view) {
+	public void login(View view) {		
+		
 		/*
 		 * if (username.getText().toString().equals("admin") &&
 		 * password.getText().toString().equals("admin")) {
@@ -150,7 +155,7 @@ public class LoginActivity extends ActionBarActivity {
 						"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
 						Toast.LENGTH_LONG).show();
 			}
-		}				
+		}
 		
 	}
 
@@ -161,8 +166,9 @@ public class LoginActivity extends ActionBarActivity {
 				username));
 		nameValuePairs.add(new BasicNameValuePair("password",
 				password));
-		Toast.makeText(getApplicationContext(),
-				"Communication avec le serveur...", Toast.LENGTH_SHORT).show();
+		/*Toast.makeText(getApplicationContext(),
+				"Communication avec le serveur...", Toast.LENGTH_SHORT).show();*/		
+		
 		try {
 			Utils.initHttpParams();
 			DefaultHttpClient httpclient = new DefaultHttpClient();
@@ -197,6 +203,7 @@ public class LoginActivity extends ActionBarActivity {
 			return animateurId;
 		} catch (Exception e) {
 			Log.e("Fail 1", e.toString());			
+			
 			return -1; // error
 		}
 				

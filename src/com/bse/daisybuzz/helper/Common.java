@@ -35,6 +35,7 @@ import android.widget.Toast;
 import com.bse.daisybuzz.main.Fragment1;
 import com.bse.daisybuzz.main.Fragment2;
 import com.bse.daisybuzz.main.MainActivity;
+import com.bse.daisybuzz.main.SynchronizerAlarmManagerBroadcastReceiver;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
@@ -380,28 +381,28 @@ public class Common {
 				.show();
 	}
 
-	public static int sendLocalisationToServer(Localisation localisation,
+	public static int sendLocalisationToServer(final Localisation localisation,
 			String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
-		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-
-		nameValuePairs.add(new BasicNameValuePair("animateurId", localisation
-				.getAnimateurId()));
-		nameValuePairs.add(new BasicNameValuePair("superviseurId", localisation
-				.getSuperviseurId()));
-		nameValuePairs.add(new BasicNameValuePair("pdvId", localisation
-				.getPdvId()));
-		nameValuePairs.add(new BasicNameValuePair("imageFileName", localisation
-				.getCheminImage()));
-		nameValuePairs.add(new BasicNameValuePair("latitude", localisation
-				.getLatitude()));
-		nameValuePairs.add(new BasicNameValuePair("longitude", localisation
-				.getLongitude()));
-		nameValuePairs.add(new BasicNameValuePair("licenceRemplacee",
-				localisation.getLicenceRemplacee()));
-		nameValuePairs.add(new BasicNameValuePair("motif", localisation
-				.getMotif()));
-		nameValuePairs.add(new BasicNameValuePair("dateCreation", localisation
-				.getDateCreation()));
+		RequestParams params = new RequestParams();
+		
+		params.put("animateurId", localisation
+				.getAnimateurId());
+		params.put("superviseurId", localisation
+				.getSuperviseurId());
+		params.put("pdvId", localisation
+				.getPdvId());
+		params.put("imageFileName", localisation
+				.getCheminImage());
+		params.put("latitude", localisation
+				.getLatitude());
+		params.put("longitude", localisation
+				.getLongitude());
+		params.put("licenceRemplacee",
+				localisation.getLicenceRemplacee());
+		params.put("motif", localisation
+				.getMotif());
+		params.put("dateCreation", localisation
+				.getDateCreation());
 		
 		// ******************* ENCODING IMAGE ********************** //
 
@@ -422,7 +423,7 @@ public class Common {
 			byte[] byte_arr = stream.toByteArray();
 			// Encode Image to String
 			String encodedString = Base64.encodeToString(byte_arr, 0);
-			nameValuePairs.add(new BasicNameValuePair("image", encodedString));
+			params.put("image", encodedString);
 			
 			bitmap.recycle();
 			bitmap = null;
@@ -430,24 +431,33 @@ public class Common {
 
 		// ******************* ENCODING IMAGE ********************** //	
 
-		try {
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(Constants.DEFAULT_WEBSERVICE_URL_ROOT
-					+ "/save_localisation.php");
-			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-			HttpResponse response = httpclient.execute(httppost);
-			HttpEntity entity = response.getEntity();
-			inputStream = entity.getContent();
-			Log.e("pass 1", "connection success");
+		try {			
+			AsyncHttpClient client = new AsyncHttpClient();
+			client.setTimeout(3000000); // 30 seconds
+			client.post(Constants.DEFAULT_WEBSERVICE_URL_ROOT + "/save_localisation.php", params,
+					new AsyncHttpResponseHandler() {
+						// When the response returned by REST has Http
+						// response code '200'
+						@Override
+						public void onSuccess(String response) {
+							// Common.result = response;
+							String insertedLocalisationId = response.trim();
+							localisation.setInsertedInServerWithId(insertedLocalisationId);
+							SynchronizerAlarmManagerBroadcastReceiver.db.updateLocalisation(localisation);
+						}
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					inputStream, "iso-8859-1"), 8);
-			StringBuilder sb = new StringBuilder();
-			while ((line = reader.readLine()) != null) {
-				sb.append(line + "\n");
-			}
-			inputStream.close();
-			result = sb.toString();
+						// When the response returned by REST has Http
+						// response code other than '200' such as '404',
+						// '500' or '403' etc
+						@Override
+						public void onFailure(int statusCode, Throwable error,
+								String content) {
+
+						}
+					}
+			);
+			
+			Log.e("LOCALISATION","result : " + result);
 
 			/*
 			 * Toast.makeText( activity.getApplicationContext(),
@@ -466,60 +476,64 @@ public class Common {
 
 	}
 
-	public static boolean sendRapportToServer(Rapport rapport,
+	public static boolean sendRapportToServer(final Rapport rapport,
 			String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
-		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+		RequestParams params = new RequestParams();		
 
-		nameValuePairs
-				.add(new BasicNameValuePair("achete", rapport.getAchete()));
-		nameValuePairs.add(new BasicNameValuePair("trancheAgeId", rapport
-				.getTrancheAgeId()));
-		nameValuePairs.add(new BasicNameValuePair("sexe", rapport.getSexe()));
-		nameValuePairs.add(new BasicNameValuePair("raisonAchatId", rapport
-				.getRaisonAchatId()));
-		nameValuePairs.add(new BasicNameValuePair("raisonRefusId", rapport
-				.getRaisonRefusId()));
-		nameValuePairs.add(new BasicNameValuePair("fidelite", rapport
-				.getFidelite()));
-		nameValuePairs.add(new BasicNameValuePair("marqueHabituelleId", rapport
-				.getMarqueHabituelleId()));
-		nameValuePairs.add(new BasicNameValuePair("marqueHabituelleQte",
-				rapport.getMarqueHabituelleQte()));
-		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeId", rapport
-				.getMarqueAcheteeId()));
-		nameValuePairs.add(new BasicNameValuePair("marqueAcheteeQte", rapport
-				.getMarqueAcheteeQte()));
-		nameValuePairs.add(new BasicNameValuePair("cadeauxIds", rapport
-				.getCadeauId()));
-		nameValuePairs.add(new BasicNameValuePair("tombola", rapport
-				.getTombola()));
-		nameValuePairs.add(new BasicNameValuePair("commentaire", rapport
-				.getCommentaire()));
-		nameValuePairs.add(new BasicNameValuePair("localisationId", rapport
-				.getLocalisationId()));
+		params
+				.put("achete", rapport.getAchete());
+		params.put("trancheAgeId", rapport
+				.getTrancheAgeId());
+		params.put("sexe", rapport.getSexe());
+		params.put("raisonAchatId", rapport
+				.getRaisonAchatId());
+		params.put("raisonRefusId", rapport
+				.getRaisonRefusId());
+		params.put("fidelite", rapport
+				.getFidelite());
+		params.put("marqueHabituelleId", rapport
+				.getMarqueHabituelleId());
+		params.put("marqueHabituelleQte",
+				rapport.getMarqueHabituelleQte());
+		params.put("marqueAcheteeId", rapport
+				.getMarqueAcheteeId());
+		params.put("marqueAcheteeQte", rapport
+				.getMarqueAcheteeQte());
+		params.put("cadeauxIds", rapport
+				.getCadeauId());
+		params.put("tombola", rapport
+				.getTombola());
+		params.put("commentaire", rapport
+				.getCommentaire());
+		params.put("localisationId", rapport
+				.getLocalisationId());
 		
-		nameValuePairs.add(new BasicNameValuePair("dateCreation", rapport
-				.getDateCreation()));
+		params.put("dateCreation", rapport
+				.getDateCreation());
 
 		try {
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(Constants.DEFAULT_WEBSERVICE_URL_ROOT
-					+ "/save_rapport.php");
-			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-			HttpResponse response = httpclient.execute(httppost);
-			HttpEntity entity = response.getEntity();
-			inputStream = entity.getContent();
-			Log.e("pass 1", "connection success");
+			
+			AsyncHttpClient client = new AsyncHttpClient();
+			client.setTimeout(3000000); // 30 seconds
+			client.post(Constants.DEFAULT_WEBSERVICE_URL_ROOT + "/save_rapport.php", params,
+					new AsyncHttpResponseHandler() {
+						// When the response returned by REST has Http
+						// response code '200'
+						@Override
+						public void onSuccess(String response) {
+							SynchronizerAlarmManagerBroadcastReceiver.db.deleteRapport(rapport);
+						}
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					inputStream, "iso-8859-1"), 8);
-			StringBuilder sb = new StringBuilder();
-			while ((line = reader.readLine()) != null) {
-				sb.append(line + "\n");
-			}
-			inputStream.close();
-			result = sb.toString();
-			Log.e("Debug", result);
+						// When the response returned by REST has Http
+						// response code other than '200' such as '404',
+						// '500' or '403' etc
+						@Override
+						public void onFailure(int statusCode, Throwable error,
+								String content) {
+
+						}
+					}
+			);			
 			return true;
 		} catch (Exception e) {
 			Log.e("Fail 1", e.toString());
