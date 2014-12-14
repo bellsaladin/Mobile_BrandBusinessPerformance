@@ -36,9 +36,11 @@
         android:layout_alignBottom="@+id/textView2"
         android:layout_marginLeft="32dp"
         android:layout_toRightOf="@+id/textView2"
-        android:ems="10" >
-
-        <requestFocus />
+        android:ems="10"
+        android:singleLine="true"
+	    android:lines="1"
+	    android:maxLines="1">
+        
     </EditText>
 
     <TextView
@@ -58,7 +60,10 @@
         android:layout_alignBottom="@+id/textView3"
         android:layout_alignLeft="@+id/editText1"
         android:ems="10"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:singleLine="true"
+    	android:lines="1"
+    	android:maxLines="1"/>
 
     <!--
       <TextView

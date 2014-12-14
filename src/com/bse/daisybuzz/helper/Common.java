@@ -424,7 +424,7 @@ public class Common {
 			// Encode Image to String
 			String encodedString = Base64.encodeToString(byte_arr, 0);
 			params.put("image", encodedString);
-			
+			// Log.e("Debug", "image : " + encodedString);
 			bitmap.recycle();
 			bitmap = null;
 		}
@@ -440,6 +440,7 @@ public class Common {
 						// response code '200'
 						@Override
 						public void onSuccess(String response) {
+							Log.e("Async response",response);
 							// Common.result = response;
 							String insertedLocalisationId = response.trim();
 							localisation.setInsertedInServerWithId(insertedLocalisationId);

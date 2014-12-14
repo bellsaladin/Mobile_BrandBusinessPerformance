@@ -243,12 +243,12 @@ public class Fragment1 extends Fragment implements LocationListener {
 					.getMap();*/
 			// mMap.setMyLocationEnabled(true);
 
-			if (location != null)
+			/*if (location != null)
 				onLocationChanged(location);
 			else
 				Toast.makeText(this.getActivity().getBaseContext(),
 						"Location can't be retrieved", Toast.LENGTH_SHORT)
-						.show();
+						.show();*/
 
 		} else {
 			Toast.makeText(this.getActivity().getBaseContext(),

@@ -34,8 +34,7 @@
                     android:layout_gravity="center"
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
-                    android:src="@drawable/icon_image"
-                    android:visibility="invisible" >
+                    android:src="@drawable/icon_image">
 
                 </ImageView>
 

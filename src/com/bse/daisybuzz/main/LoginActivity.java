@@ -81,16 +81,16 @@ public class LoginActivity extends ActionBarActivity {
 		}
 		
 		// get preferences
-				Preferences preferences = new Preferences(this);
-				String webserviceRootUrl = preferences
-						.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
+		Preferences preferences = new Preferences(this);
+		String webserviceRootUrl = preferences
+				.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
 
-				// check for fist use of the application
-				if (webserviceRootUrl.isEmpty()){					
-					preferences.saveValue("PARAM_WEBSERVICE_ROOT_URL",
-							Constants.DEFAULT_WEBSERVICE_URL_ROOT);
-					//promptEmptyWebServiceUrlDialog();
-				}
+		// check for fist use of the application
+		if (webserviceRootUrl.isEmpty()){					
+			preferences.saveValue("PARAM_WEBSERVICE_ROOT_URL",
+					Constants.DEFAULT_WEBSERVICE_URL_ROOT);
+			//promptEmptyWebServiceUrlDialog();
+		}
 		
 	}
 
@@ -116,26 +116,9 @@ public class LoginActivity extends ActionBarActivity {
 		// fetch the Password form database for respective user name
 
 		Preferences preferences = new Preferences(this);
-		String storedUsername = preferences.getStringValue("USERNAME");
-		String storedPassword = preferences.getStringValue("PASSWORD");		
+			
 
-		if (!storedUsername.isEmpty() && !storedPassword.isEmpty()) {
-			// check if the Stored password matches with Password entered by
-			// user
-			if (inputPassword.equals(storedPassword)) {				
-				Toast.makeText(getApplicationContext(),
-						"Connexion en cours...", Toast.LENGTH_SHORT).show();
-				
-				Statics.animateurId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
-				
-				Intent intent = new Intent(this, StartActivity.class);
-				startActivity(intent);
-				finish();
-			} else {
-				Toast.makeText(getApplicationContext(), "Compte invalide !",
-						Toast.LENGTH_SHORT).show();
-			}
-		} else {
+		if(Common.isNetworkAvailable(this)){
 			int authenticationResult = authenticateUser(inputUsername, inputPassword);
 			if (authenticationResult > 0) {
 				Toast.makeText(getApplicationContext(),
@@ -147,7 +130,7 @@ public class LoginActivity extends ActionBarActivity {
 				startActivity(intent);
 				finish();
 			} else if (authenticationResult == 0){
-				Toast.makeText(getApplicationContext(), "Compte invalide !",
+				Toast.makeText(getApplicationContext(), "Compte invalide ! (Connexion via serveur)",
 						Toast.LENGTH_SHORT).show();
 			} else if (authenticationResult == -1){
 				Toast.makeText(
@@ -155,8 +138,30 @@ public class LoginActivity extends ActionBarActivity {
 						"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
 						Toast.LENGTH_LONG).show();
 			}
+		}else{
+			// try to connect using local data
+			String storedUsername = preferences.getStringValue("USERNAME");
+			String storedPassword = preferences.getStringValue("PASSWORD");	
+			
+			if (!storedUsername.isEmpty() && !storedPassword.isEmpty()) {
+				// check if the Stored username and password matches with Password entered by
+				// user
+				if (inputUsername.equals(storedUsername) && inputPassword.equals(storedPassword)) {				
+					Toast.makeText(getApplicationContext(),
+							"Connexion en cours...", Toast.LENGTH_SHORT).show();
+					
+					Statics.animateurId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
+					
+					Intent intent = new Intent(this, StartActivity.class);
+					startActivity(intent);
+					finish();
+				} else {
+					Toast.makeText(getApplicationContext(), "Compte invalide ! (Connexion locale)",
+							Toast.LENGTH_SHORT).show();
+				}
+			}
 		}
-		
+
 	}
 
 	private int authenticateUser(String username, String password) {
@@ -247,7 +252,7 @@ public class LoginActivity extends ActionBarActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		// getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
