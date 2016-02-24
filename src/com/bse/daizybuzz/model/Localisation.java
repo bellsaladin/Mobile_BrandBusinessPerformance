@@ -2,7 +2,7 @@ package com.bse.daizybuzz.model;
 
 public class Localisation {
 	private int id;
-	private String animateurId;
+	private String sfoId;
 	private String imageFileName;
 	private String superviseurId;
 	private String pdvId;		
@@ -17,8 +17,8 @@ public class Localisation {
 		
 	}
 	
-	public Localisation(String animateurId, String imageFileName,  String superviseurId, String pdvId, String longitude, String latitude, String licenceRemplacee, String motif, String dateCreation) {		
-		this.animateurId = animateurId;
+	public Localisation(String sfoId, String imageFileName,  String superviseurId, String pdvId, String longitude, String latitude, String licenceRemplacee, String motif, String dateCreation) {		
+		this.sfoId = sfoId;
 		this.imageFileName = imageFileName;
 		this.superviseurId = superviseurId;
 		this.pdvId = pdvId;
@@ -69,12 +69,12 @@ public class Localisation {
 		this.pdvId = pdvId;
 	}
 
-	public String getAnimateurId() {
-		return animateurId;
+	public String getSfoId() {
+		return sfoId;
 	}
 
-	public void setAnimateurId(String animateurId) {
-		this.animateurId = animateurId;
+	public void setSfoId(String sfoId) {
+		this.sfoId = sfoId;
 	}
 
 	public String getLicenceRemplacee() {

@@ -59,6 +59,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 
@@ -73,10 +74,11 @@ public class Fragment1 extends Fragment implements LocationListener {
 
 	GoogleMap mMap;
 
+	private TextView txt_GPSLocationGathering;
 	private ImageView imageView;
 	private Button btn_takePhoto, btn_save;
 	private EditText txt_licenceProgramme, txt_licenceRemplacee, txt_motif;
-	private Spinner spinner_pdv, spinner_superviseur;
+	private Spinner spinner_pdv, spinner_superviseur, spinner_ville, spinner_secteur;
 
 	ProgressDialog prgDialog;
 	String encodedString;
@@ -85,8 +87,10 @@ public class Fragment1 extends Fragment implements LocationListener {
 	Bitmap bitmap;
 	private static int RESULT_LOAD_IMG = 1;
 	View view;
-
+	
+	
 	List<Superviseur> superviseursList;
+	List<String> villesList, secteursList;
 	List<PDV> pdvsList;
 
 	private String imageRealPath;
@@ -115,9 +119,11 @@ public class Fragment1 extends Fragment implements LocationListener {
 		 * ****************************************
 		 * *****************************************
 		 */
-
+		txt_GPSLocationGathering = (TextView)view.findViewById(R.id.txt_GPSLocationGathering);
 		imageView = (ImageView) view.findViewById(R.id.iv_photo);
 		spinner_pdv = (Spinner) view.findViewById(R.id.spinner_pdv);
+		spinner_ville = (Spinner) view.findViewById(R.id.spinner_ville);
+		spinner_secteur = (Spinner) view.findViewById(R.id.spinner_secteur);
 		spinner_superviseur = (Spinner) view
 				.findViewById(R.id.spinner_superviseur);
 		btn_save = (Button) view.findViewById(R.id.btn_save);
@@ -144,15 +150,73 @@ public class Fragment1 extends Fragment implements LocationListener {
 				save();
 			}
 		});
-
-		spinner_pdv.setOnItemSelectedListener(new OnItemSelectedListener() {
+		
+		spinner_ville.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parentView,
 					View selectedItemView, int position, long id) {
 
+				String ville = villesList.get(position);
+
+				List<String> secteursArray = new ArrayList<String>();
+				for (String secteur : db.getAllSecteurs(ville)) {
+					secteursArray.add(String.valueOf(secteur));
+				}
+
+				ArrayAdapter<String> adapter = new ArrayAdapter<String>(Fragment1.this.getActivity(),
+						android.R.layout.simple_spinner_item, secteursArray);
+
+				adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+				spinner_secteur.setAdapter(adapter);
+
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parentView) {
+				// your code here
+			}
+
+		});
+
+		spinner_secteur.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parentView,
+									   View selectedItemView, int position, long id) {
+
+
+				String ville = spinner_ville.getSelectedItem().toString();
+				String secteur = spinner_secteur.getSelectedItem().toString();
+				pdvsList = db.getPDVsBySecteur(ville,secteur);
+
+				List<String> pdvsArray = new ArrayList<String>();
+				for (PDV pdv : pdvsList) {
+					pdvsArray.add(String.valueOf(pdv.getNom()));
+				}
+
+				ArrayAdapter<String> adapter = new ArrayAdapter<String>(Fragment1.this.getActivity(),
+						android.R.layout.simple_spinner_item, pdvsArray);
+
+				adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+				spinner_pdv.setAdapter(adapter);
+
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parentView) {
+				// your code here
+			}
+
+		});
+
+		spinner_pdv.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parentView,
+									   View selectedItemView, int position, long id) {
+
 				if (pdvsList.size() > 0) {
 					txt_licenceProgramme.setText(String.valueOf(pdvsList.get(
-							position).getLicence()));
+							position).getNom()));
 				}
 
 			}
@@ -173,7 +237,10 @@ public class Fragment1 extends Fragment implements LocationListener {
 		db = new SqliteDatabaseHelper(this.getActivity()
 				.getApplicationContext());
 		superviseursList = db.getAllSuperviseurs();
-		pdvsList = db.getAllPDV();
+		
+		villesList = db.getAllVilles();
+		secteursList = null;
+		pdvsList = null;
 
 		/* ****************************************************************************************************************
 		 * Form controls populating
@@ -197,11 +264,46 @@ public class Fragment1 extends Fragment implements LocationListener {
 
 		spinner_superviseur.setAdapter(adapter);
 
-		// ##### points de ventes
-		List<String> pdvsArray = new ArrayList<String>();
-		for (PDV pdv : pdvsList) {
-			pdvsArray.add(String.valueOf(pdv.getNom()));
+		// ##### villes
+		List<String> villesArray = new ArrayList<String>();
+		for (String ville : db.getAllVilles()) {
+			villesArray.add(String.valueOf(ville));
 		}
+
+		adapter = new ArrayAdapter<String>(this.getActivity(),
+				android.R.layout.simple_spinner_item, villesArray);
+
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+		spinner_ville.setAdapter(adapter);
+		
+		// ##### secteurs
+
+		List<String> secteursArray = new ArrayList<String>();
+		if(villesArray.size() > 0) {
+			for (String secteur : db.getAllSecteurs(villesArray.get(0))) {
+				secteursArray.add(String.valueOf(secteur));
+			}
+
+			adapter = new ArrayAdapter<String>(this.getActivity(),
+					android.R.layout.simple_spinner_item, secteursArray);
+
+			adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+			spinner_secteur.setAdapter(adapter);
+		}
+		// ##### points de ventes
+		if(villesArray.size() > 0 && secteursArray.size() > 0) {
+			String ville = villesArray.get(0);
+			String secteur = secteursArray.get(0);
+			pdvsList = db.getPDVsBySecteur(ville,secteur);
+		}
+		List<String> pdvsArray = new ArrayList<String>();
+		if(pdvsList != null && pdvsList.size() >0){
+			for (PDV pdv : pdvsList) {
+				pdvsArray.add(String.valueOf(pdv.getLicence()));
+			}
+		}		
 
 		adapter = new ArrayAdapter<String>(this.getActivity(),
 				android.R.layout.simple_spinner_item, pdvsArray);
@@ -210,7 +312,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 
 		spinner_pdv.setAdapter(adapter);
 
-		if (pdvsList.size() > 0)
+		if (pdvsList != null && pdvsList.size() > 0)
 			txt_licenceProgramme.setText(String.valueOf(pdvsList.get(0)
 					.getLicence()));
 
@@ -234,9 +336,11 @@ public class Fragment1 extends Fragment implements LocationListener {
 
 			// Get the location from the given provider
 			// Location location = Common.getLastKnownLocation(provider);
-			Location location = Common.getLocation(this.getActivity());
 
 			locationManager.requestLocationUpdates(provider, 20000, 1, this);
+						
+			Location location = Common.getLocation(this.getActivity());
+
 
 			/* mMap = ((SupportMapFragment) this.getActivity()
 					.getSupportFragmentManager().findFragmentById(R.id.map))
@@ -325,7 +429,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		if (location == null) {
 			Toast.makeText(
 					Fragment1.this.getActivity().getApplicationContext(),
-					"Erreur : Impossible de récupérer la dernière localisation ! Le cache de la dernière position a peut être été vider.",
+					"Erreur : Impossible de récupérer la dernière localisation (GPS)! Le cache de la dernière position a peut être été vider.",
 					Toast.LENGTH_LONG).show();
 			return;
 		}
@@ -546,11 +650,12 @@ public class Fragment1 extends Fragment implements LocationListener {
 	@Override
 	public void onLocationChanged(Location location) {
 		// Getting reference to TextView tv_longitude
-		// TextView tvLongitude = (TextView)findViewById(R.id.tv_longitude);
+		
 
 		// Getting reference to TextView tv_latitude
 		// TextView tvLatitude = (TextView)findViewById(R.id.tv_latitude);
 		if (location != null) {
+			txt_GPSLocationGathering.setText("Emplacement gps récupéré");
 			// Setting Current Longitude
 			// Toast.makeText(this.getActivity().getBaseContext(),
 			// location.getLongitude() + "," + location.getLatitude() ,
@@ -566,20 +671,17 @@ public class Fragment1 extends Fragment implements LocationListener {
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
-
 	}
 
 }

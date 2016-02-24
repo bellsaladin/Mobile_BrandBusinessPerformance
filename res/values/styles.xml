@@ -14,9 +14,7 @@
     
     <style name="Theme.AppCompat.Light.ActionBar.FullScreen" parent="@style/Theme.AppCompat.Light">
 	    <item name="android:windowNoTitle">true</item>	    
-	        <item name="android:background">#C74E4E</item>
-
-	    	    
+	    <item name="android:background">#0A3754</item>
 	</style>
 	
 
@@ -24,5 +22,19 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
+    
+    
+    <!-- <style name="TextAppearance_Large">
+	    <item name="android:textSize">22sp</item>
+	</style>
+	
+	<style name="TextAppearance_Medium">
+	    <item name="android:textSize">18sp</item>
+	</style>
+	
+	<style name="TextAppearance_Small">
+	    <item name="android:textSize">14sp</item>
+	    <item name="android:textColor">?textColorSecondary</item>
+	</style> -->
 
 </resources>

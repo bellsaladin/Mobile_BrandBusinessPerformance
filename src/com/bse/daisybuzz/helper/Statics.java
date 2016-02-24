@@ -4,6 +4,6 @@ public class Statics {
 	
 	public static boolean localisationDone = false;
 	public static int lastLocalisationId = -1; // stores the id of last done localisation. Used the 
-	public static int animateurId = 1;
+	public static int sfoId = 1;
 	
 }

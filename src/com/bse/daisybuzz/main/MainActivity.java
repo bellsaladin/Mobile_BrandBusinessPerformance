@@ -50,7 +50,6 @@ public class MainActivity extends ActionBarActivity {
 		mActionbar.setDisplayShowTitleEnabled(false);
 		mActionbar.setDisplayShowHomeEnabled(false);
 		// mActionbar.setDisplayShowTitleEnabled(false);
-		
 		layout_synchronizationIndicator = (LinearLayout) findViewById(R.id.layout_synchronizationIndicator);
 		txt_synchronizationIndicator = (TextView) findViewById(R.id.txt_synchronizationIndicator);		
 		

@@ -32,7 +32,6 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.bse.daisybuzz.main.Fragment1;
 import com.bse.daisybuzz.main.Fragment2;
 import com.bse.daisybuzz.main.MainActivity;
 import com.bse.daisybuzz.main.SynchronizerAlarmManagerBroadcastReceiver;
@@ -78,7 +77,7 @@ public class Common {
 		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
 		nameValuePairs.add(new BasicNameValuePair("animateurId", String
-				.valueOf(Statics.animateurId)));
+				.valueOf(Statics.sfoId)));
 
 		try {
 			HttpClient httpclient = new DefaultHttpClient();
@@ -152,8 +151,10 @@ public class Common {
 					int id = jsonas.getInt("id");
 					String nom = jsonas.getString("nom");
 					int licence = jsonas.getInt("licence");
+					String ville = jsonas.getString("ville");
+					String secteur = jsonas.getString("secteur");
 					// Creating pdv
-					PDV pdv = new PDV(id, nom, licence);
+					PDV pdv = new PDV(id, nom, licence, ville, secteur);
 					// Inserting pdv in db
 					long pdv_id = db.createPDV(pdv);
 				}
@@ -190,7 +191,6 @@ public class Common {
 					int id = jsonas.getInt("id");
 					String nom = jsonas.getString("nom");
 					String prenom = jsonas.getString("prenom");
-					;
 					// Creating marque
 					Superviseur superviseur = new Superviseur(id, nom, prenom);
 					// Inserting marque in db
@@ -385,8 +385,8 @@ public class Common {
 			String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
 		RequestParams params = new RequestParams();
 		
-		params.put("animateurId", localisation
-				.getAnimateurId());
+		params.put("sfoId", localisation
+				.getSfoId());
 		params.put("superviseurId", localisation
 				.getSuperviseurId());
 		params.put("pdvId", localisation
@@ -523,6 +523,7 @@ public class Common {
 						@Override
 						public void onSuccess(String response) {
 							SynchronizerAlarmManagerBroadcastReceiver.db.deleteRapport(rapport);
+							Log.i("Send rapport ", response);
 						}
 
 						// When the response returned by REST has Http
@@ -531,13 +532,14 @@ public class Common {
 						@Override
 						public void onFailure(int statusCode, Throwable error,
 								String content) {
+							Log.e("Error Send rapport ", content);
 
 						}
 					}
 			);			
 			return true;
 		} catch (Exception e) {
-			Log.e("Fail 1", e.toString());
+			Log.e("Exception Send Rapport", e.toString());
 			/*
 			 * Toast.makeText( activity.getApplicationContext(),
 			 * "Impossible de communiquer avec le serveur distant ! Réessayer plus tard ..."
@@ -559,9 +561,11 @@ public class Common {
 		Location l = null;
 
 		for (int i = providers.size() - 1; i >= 0; i--) {
+			
 			l = lm.getLastKnownLocation(providers.get(i));
 			if (l != null)
-				break;
+				return l;
+			
 		}
 		return l;
 	}

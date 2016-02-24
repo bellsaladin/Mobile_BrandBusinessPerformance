@@ -65,7 +65,7 @@ public class LoginActivity extends ActionBarActivity {
 		editText_password = (EditText) findViewById(R.id.editText2);
 
 		// for debug
-		editText_username.setText("animateur1");
+		// editText_username.setText("animateur1");
 		editText_password.setText("123456");
 
 		/*
@@ -91,6 +91,10 @@ public class LoginActivity extends ActionBarActivity {
 					Constants.DEFAULT_WEBSERVICE_URL_ROOT);
 			//promptEmptyWebServiceUrlDialog();
 		}
+
+		String storedUsername = preferences.getStringValue("USERNAME");
+		editText_username.setText(storedUsername);
+
 		
 	}
 
@@ -124,7 +128,7 @@ public class LoginActivity extends ActionBarActivity {
 				Toast.makeText(getApplicationContext(),
 						"Connexion en cours...", Toast.LENGTH_SHORT).show();
 				
-				Statics.animateurId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
+				Statics.sfoId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
 				
 				Intent intent = new Intent(this, StartActivity.class);
 				startActivity(intent);
@@ -143,6 +147,14 @@ public class LoginActivity extends ActionBarActivity {
 			String storedUsername = preferences.getStringValue("USERNAME");
 			String storedPassword = preferences.getStringValue("PASSWORD");	
 			
+			if(storedUsername.isEmpty()){
+				Toast.makeText(
+						this.getApplicationContext(),
+						"Pour pouvoir vous connecter à l'application sans internet il vous faut réaliser une connexion en vous connectant à internet !",
+						Toast.LENGTH_LONG).show();
+				return; 
+			}
+			
 			if (!storedUsername.isEmpty() && !storedPassword.isEmpty()) {
 				// check if the Stored username and password matches with Password entered by
 				// user
@@ -150,7 +162,7 @@ public class LoginActivity extends ActionBarActivity {
 					Toast.makeText(getApplicationContext(),
 							"Connexion en cours...", Toast.LENGTH_SHORT).show();
 					
-					Statics.animateurId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
+					Statics.sfoId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
 					
 					Intent intent = new Intent(this, StartActivity.class);
 					startActivity(intent);

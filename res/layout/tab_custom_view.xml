@@ -6,7 +6,7 @@
     p1:layout_height="match_parent"
     p1:id="@+id/tabRelative"
     p1:gravity="center"
-    p1:background="#000">
+    p1:background="#0A3754">
     <ImageView        
         p1:layout_width="36dp"
         p1:layout_height="36dp"

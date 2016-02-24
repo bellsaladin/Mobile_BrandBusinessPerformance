@@ -56,6 +56,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 	// PDV Table - column names
 	private static final String KEY_LICENCE = "licence";
+	private static final String KEY_VILLE = "ville";
+	private static final String KEY_SECTEUR = "secteur";
 
 	// Localisation Table - column names
 	private static final String KEY_ANIMATEUR_ID = "animateur_id";
@@ -98,7 +100,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	// PDV table create statement
 	private static final String CREATE_TABLE_PDV = "CREATE TABLE " + TABLE_PDV
 			+ "(" + KEY_ID + " INTEGER," + KEY_NOM + " TEXT," + KEY_LICENCE
-			+ " INTEGER" + ")";
+			+ " INTEGER," + KEY_VILLE + " TEXT," + KEY_SECTEUR + " TEXT )";
 
 	// SUPERVISEUR table create statement
 	private static final String CREATE_TABLE_SUPERVISEUR = "CREATE TABLE "
@@ -298,6 +300,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_ID, pdv.getId());
 		values.put(KEY_NOM, pdv.getNom());
 		values.put(KEY_LICENCE, pdv.getLicence());
+		values.put(KEY_VILLE, pdv.getVille());
+		values.put(KEY_SECTEUR, pdv.getSecteur());
 
 		// insert row
 		long pdv_id = db.insert(TABLE_PDV, null, values);
@@ -322,6 +326,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		pdv.setId(c.getInt(c.getColumnIndex(KEY_ID)));
 		pdv.setNom((c.getString(c.getColumnIndex(KEY_NOM))));
 		pdv.setLicence((c.getInt(c.getColumnIndex(KEY_LICENCE))));
+		pdv.setVille((c.getString(c.getColumnIndex(KEY_VILLE))));
+		pdv.setSecteur((c.getString(c.getColumnIndex(KEY_SECTEUR))));
 
 		return pdv;
 	}
@@ -342,13 +348,57 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				pdv.setId(c.getInt(c.getColumnIndex(KEY_ID)));
 				pdv.setNom((c.getString(c.getColumnIndex(KEY_NOM))));
 				pdv.setLicence((c.getInt(c.getColumnIndex(KEY_LICENCE))));
-
+				pdv.setVille((c.getString(c.getColumnIndex(KEY_VILLE))));
+				pdv.setSecteur((c.getString(c.getColumnIndex(KEY_SECTEUR))));
 				// adding to todo list
 				pdvs.add(pdv);
 			} while (c.moveToNext());
 		}
 
 		return pdvs;
+	}
+
+	public List<PDV> getPDVsBySecteur(String ville, String secteur) {
+		List<PDV> pdvsOfSecteur = new ArrayList<PDV>();
+		List<PDV> pdvs = getAllPDV();
+		for(PDV pdv : pdvs){
+			if(pdv.getVille().equals(ville) && pdv.getSecteur().equals(secteur)){
+				pdvsOfSecteur.add(pdv);
+			}
+		}
+		return pdvsOfSecteur;
+	}
+
+	public List<String> getAllVilles() {
+		List<String> villes = new ArrayList<String>();
+		List<PDV> pdvs = getAllPDV();
+		for(PDV pdv : pdvs){
+			boolean alreadyAdded = false;
+			for (String ville : villes){
+				if(pdv.getVille().equals(ville) ){
+					alreadyAdded = true;
+				}
+			}
+			if(!alreadyAdded) villes.add(pdv.getVille());
+		}
+		return villes;
+	}
+
+	public List<String> getAllSecteurs( String ville) {
+		List<String> secteurs = new ArrayList<String>();
+		List<PDV> pdvs = getAllPDV();
+		for(PDV pdv : pdvs){
+			if(pdv.getVille().equals(ville)){
+				boolean alreadyAdded = false;
+				for (String secteur : secteurs){
+					if(pdv.getSecteur().equals(secteur) ){
+						alreadyAdded = true;
+					}
+				}
+				if(!alreadyAdded) secteurs.add(pdv.getSecteur());
+			}
+		}
+		return secteurs;
 	}
 
 	// ------------------------ "superviseur" table methods ----------------//
@@ -541,7 +591,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
-		values.put(KEY_ANIMATEUR_ID, localisation.getAnimateurId());
+		values.put(KEY_ANIMATEUR_ID, localisation.getSfoId());
 		values.put(KEY_SUPERVISEUR_ID, localisation.getSuperviseurId());
 		values.put(KEY_PDV_ID, localisation.getPdvId());
 		values.put(KEY_IMAGEFILENAME, localisation.getCheminImage());
@@ -585,7 +635,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 			do {
 				Localisation localisation = new Localisation();
 				localisation.setId(c.getInt(c.getColumnIndex(KEY_ID)));
-				localisation.setAnimateurId(c.getString(c
+				localisation.setSfoId(c.getString(c
 						.getColumnIndex(KEY_ANIMATEUR_ID)));
 				localisation.setSuperviseurId(c.getString(c
 						.getColumnIndex(KEY_SUPERVISEUR_ID)));

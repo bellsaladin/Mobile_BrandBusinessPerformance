@@ -25,23 +25,64 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:paddingLeft="20dp"
-                android:paddingRight="20dp">
+                android:paddingRight="20dp" >
+				
+                <TextView
+			            android:layout_width="match_parent"
+			            android:layout_height="wrap_content"
+			            android:layout_marginTop="20dp"
+			            android:layout_marginBottom="10dp"
+			            android:gravity="left"
+			            android:text="1. Localisation GPS"
+			            android:textAppearance="?android:attr/textAppearanceLarge"
+			            android:textColor="#156FA9" />
+               <TextView
+			            android:id="@+id/txt_GPSLocationGathering"
+			            android:layout_width="match_parent"
+			            android:layout_height="wrap_content"
+			            android:layout_marginTop="10dp"
+			            android:layout_marginBottom="10dp"
+			            android:gravity="center"
+			            android:text="Chargement de votre position GPS..."
+			            android:textAppearance="?android:attr/textAppearanceSmall"
+			            android:textColor="#8b8191" />
 
+                <TextView
+			            android:layout_width="match_parent"
+			            android:layout_height="wrap_content"
+			            android:layout_marginTop="20dp"
+			            android:layout_marginBottom="10dp"
+			            android:gravity="left"
+			            android:text="2. Prise de photo "
+			            android:textAppearance="?android:attr/textAppearanceLarge"
+			            android:textColor="#156FA9" />
+                
                 <ImageView
                     android:id="@+id/iv_photo"
                     android:layout_width="94dp"
                     android:layout_height="94dp"
                     android:layout_gravity="center"
-                    android:paddingTop="10dp"
                     android:paddingBottom="10dp"
-                    android:src="@drawable/icon_image">
-
+                    android:paddingTop="10dp"
+                    android:src="@drawable/icon_image" >
                 </ImageView>
-
+                
                 <Spinner
                     android:id="@+id/spinner_superviseur"
                     android:layout_width="match_parent"
-                    android:layout_height="45dp" />
+                    android:layout_height="45dp"
+                    android:visibility="gone" />
+
+                <Spinner
+                    android:id="@+id/spinner_ville"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <Spinner
+                    android:id="@+id/spinner_secteur"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal" />
 
                 <Spinner
                     android:id="@+id/spinner_pdv"
@@ -53,8 +94,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:inputType="numberSigned" >
-                    
+                    android:inputType="numberSigned"
+                    android:visibility="gone">
                 </EditText>
 
                 <EditText
@@ -63,7 +104,8 @@
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:hint="licence remplacée"
-                    android:inputType="numberDecimal" />
+                    android:inputType="numberDecimal" 
+                    android:visibility="gone"/>
 
                 <EditText
                     android:id="@+id/txt_motif"
@@ -71,7 +113,8 @@
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:hint="motif"
-                    android:inputType="textMultiLine" />
+                    android:inputType="textMultiLine"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/btn_save"
@@ -79,12 +122,12 @@
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:layout_marginTop="25dp"
-                    android:textSize="17dp"
-                    android:background="@drawable/buttonshape_blue"                    
-                    android:textColor="#FFFFFF" 
-                    android:text="Enregistrer"/>
-
+                    android:background="@drawable/buttonshape_blue"
+                    android:text="Enregistrer"
+                    android:textColor="#FFFFFF"
+                    android:textSize="17dp" />
             </LinearLayout>
+
         </LinearLayout>
     </ScrollView>
 
