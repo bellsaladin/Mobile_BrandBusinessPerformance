@@ -39,5 +39,10 @@ public class Marque {
 	public void setCategories(List<Categorie> categories) {
 		this.categories = categories;
 	}
+
+	@Override
+	public String toString() {
+		return libelle;
+	}
 	
 }

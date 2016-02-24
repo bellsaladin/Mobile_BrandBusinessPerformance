@@ -13,19 +13,42 @@
 	            android:layout_width="match_parent"
 	            android:layout_height="match_parent"
 	            android:orientation="vertical" >
-	
+            
         	<LinearLayout
                 android:id="@+id/layout_questionnaire_shelfShare"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical" >
+                android:paddingLeft="10dp"
+              	android:paddingRight="10dp"
+                android:orientation="vertical">
+                <TextView
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="20dp"
+		            android:layout_marginBottom="10dp"
+		            android:gravity="left"
+		            android:text="1. Questionnaire Shelf Share"
+		            android:textAppearance="?android:attr/textAppearanceLarge"
+		            android:textColor="#156FA9" />
             </LinearLayout>
                 
             <LinearLayout
                 android:id="@+id/layout_questionnaire_disponibility"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical" >
+                android:paddingLeft="10dp"
+              	android:paddingRight="10dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+			            android:layout_width="match_parent"
+			            android:layout_height="wrap_content"
+			            android:layout_marginTop="20dp"
+			            android:layout_marginBottom="10dp"
+			            android:gravity="left"
+			            android:text="2. Questionnaire de disponibilité"
+			            android:textAppearance="?android:attr/textAppearanceLarge"
+			            android:textColor="#156FA9" />
             </LinearLayout>
             
             

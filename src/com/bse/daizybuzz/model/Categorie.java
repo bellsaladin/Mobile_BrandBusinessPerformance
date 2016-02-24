@@ -17,7 +17,6 @@ public class Categorie {
 	public Categorie() {
 	}
 
-
 	public int getId() {
 		return id;
 	}
@@ -42,6 +41,12 @@ public class Categorie {
 	public void setParentId(String parentId) {
 		this.parentId = parentId;
 	}
+
+	@Override
+	public String toString() {
+		return nom;
+	}
+	
 	
 	
 }

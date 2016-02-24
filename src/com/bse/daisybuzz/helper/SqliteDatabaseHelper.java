@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.EditText;
 
 public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
@@ -328,6 +329,20 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		return marques;
 	}
 	
+	public List<Marque> getAllMarquesOperatingInCategory(Categorie categorie) {
+		List<Marque> marques = new ArrayList<Marque>();
+		for(Marque marque : getAllMarques()){
+			for(MarqueCategorie marque_categorie : getAllMarquesCategories()){
+				if(marque.getId() == Integer.valueOf(marque_categorie.getMarqueId()) && categorie.getId() == Integer.valueOf(marque_categorie.getCategorieId())){
+					marques.add(marque);
+					break;
+				}
+			}
+		}
+
+		return marques;
+	}
+	
 	// ------------------------ "PRODUIT" table methods ----------------//
 
 	public long createProduit(Produit produit) {
@@ -458,6 +473,39 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		return categories;
 	}
 	
+	public List<Categorie> getAllCategoriesOfProduits() {
+		List<Categorie> categories = new ArrayList<Categorie>();
+		for(Categorie categorie : getAllCategories()){
+			for(MarqueCategorie marque_categorie : getAllMarquesCategories()){
+				if(categorie.getId() == Integer.valueOf(marque_categorie.getCategorieId())){
+					categories.add(categorie);
+					break;
+				}
+			}
+		}
+		return categories;
+	}
+	
+	public List<Categorie> getSegmentsOfCategorie(Categorie categorieProduits) {
+		List<Categorie> categories = new ArrayList<Categorie>();
+		for(Categorie categorie : getAllCategories()){
+			Log.d("getSegmentsOfCategorie", categorie.getNom() + ", "  +categorie.getParentId() + "," + categorieProduits.getId());
+			if(categorie.getParentId() != null && !categorie.getParentId().equals("null") && !categorie.getParentId().isEmpty() && categorieProduits != null){
+				if(Integer.valueOf(categorie.getParentId()) == categorieProduits.getId()){
+					categories.add(categorie);
+					Log.d("getSegmentsOfCategorie", categorie.getNom());
+					//getSegmentsOfCategorie(categorie);
+				}
+			}
+		}
+		// si la catégorie de produits n'a pas de segments alors elle est considérée comme segment
+		if(categories.size() <= 0){
+			categories.add(categorieProduits);
+		}
+		return categories;
+	}
+	
+	
 	// ------------------------ "MARQUE_CATEGORIE" table methods ----------------//
 
 		public long createMarqueCategorie(MarqueCategorie categorie) {
@@ -496,9 +544,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		public List<MarqueCategorie> getAllMarquesCategories() {
 			List<MarqueCategorie> marques_categories = new ArrayList<MarqueCategorie>();
 			String selectQuery = "SELECT  * FROM " + TABLE_MARQUE_CATEGORIE;
-
 			Log.e(LOG, selectQuery);
-
 			SQLiteDatabase db = this.getReadableDatabase();
 			Cursor c = db.rawQuery(selectQuery, null);
 

@@ -9,6 +9,7 @@ import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
 import com.bse.daisybuzz.helper.Utils;
+import com.bse.daisybuzz.test.QuestionnaireShelfShareCreator;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Localisation;
@@ -87,6 +88,9 @@ public class Fragment2 extends Fragment {
 		prgDialog.setCancelable(false);
 		view = inflater.inflate(R.layout.fragment2, null);
 
+		QuestionnaireShelfShareCreator questionnaireShelfShareCreator = new QuestionnaireShelfShareCreator();
+		questionnaireShelfShareCreator.init(this.getActivity(), (LinearLayout) view.findViewById(R.id.layout_questionnaire_shelfShare));
+		
 		return view;
 	}
 
