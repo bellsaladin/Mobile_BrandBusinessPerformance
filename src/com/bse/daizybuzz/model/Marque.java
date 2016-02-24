@@ -1,17 +1,22 @@
 package com.bse.daizybuzz.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Marque {
 	
 	int id;
 	String libelle;	
+	List<Categorie> categories;
 	
 	public Marque() {
-		super();		
+		categories = new ArrayList<Categorie>();
 	}
 	
-	public Marque(int id, String libelle) {		
+	public Marque(int id, String libelle) {	
 		this.id = id;
-		this.libelle = libelle;		
+		this.libelle = libelle;
+		categories = new ArrayList<Categorie>();
 	}
 	
 	public int getId() {
@@ -25,6 +30,14 @@ public class Marque {
 	}
 	public void setLibelle(String nom) {
 		this.libelle = nom;
+	}
+
+	public List<Categorie> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(List<Categorie> categories) {
+		this.categories = categories;
 	}
 	
 }

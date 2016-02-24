@@ -36,9 +36,12 @@ import com.bse.daisybuzz.main.Fragment2;
 import com.bse.daisybuzz.main.MainActivity;
 import com.bse.daisybuzz.main.SynchronizerAlarmManagerBroadcastReceiver;
 import com.bse.daizybuzz.model.Cadeau;
+import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
+import com.bse.daizybuzz.model.MarqueCategorie;
 import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.Produit;
 import com.bse.daizybuzz.model.RaisonAchat;
 import com.bse.daizybuzz.model.RaisonRefus;
 import com.bse.daizybuzz.model.Rapport;
@@ -142,6 +145,69 @@ public class Common {
 				Log.e("Synchronization",
 						"Marque : " + db.getRecordsCount("marque")
 								+ " records existing at sqllite database");
+				
+				// INSERTING PRODUITS
+				// ###################################################
+				rows = json_data.getJSONArray("produits");
+				Log.d("Rows", rows.toString());
+				for (int i = 0; i < rows.length(); i++) {
+					JSONObject jsonas = rows.getJSONObject(i);
+					int id = jsonas.getInt("id");
+					String sku = jsonas.getString("sku");
+					String libelle = jsonas.getString("libelle");
+					String categorieId = jsonas.getString("libelle");
+					// Creating marque
+					Produit produit = new Produit(id, sku, libelle, categorieId);
+					// Inserting marque in db
+					long produit_id = db.createProduit(produit);
+				}
+				Log.e("Synchronization", "PRODUIT : " + rows.length()
+						+ " records added to sqllite database");
+				Log.e("Synchronization",
+						"PRODUIT : " + db.getRecordsCount("produit")
+								+ " records existing at sqllite database");
+				
+				// INSERTING CATEGORIES
+				// ###################################################
+				rows = json_data.getJSONArray("categories");
+				Log.d("Rows", rows.toString());
+				for (int i = 0; i < rows.length(); i++) {
+					JSONObject jsonas = rows.getJSONObject(i);
+					int id = jsonas.getInt("id");
+					String context = jsonas.getString("context");
+					String nom = jsonas.getString("nom");
+					String parentId = jsonas.getString("parent_id");
+					// Creating marque
+					Categorie categorie = new Categorie(id, nom, context, parentId);
+					// Inserting marque in db
+					long categorie_id = db.createCategorie(categorie);
+				}
+				Log.e("Synchronization", "CATEGORIE : " + rows.length()
+						+ " records added to sqllite database");
+				Log.e("Synchronization",
+						"CATEGORIE : " + db.getRecordsCount("categorie")
+								+ " records existing at sqllite database");
+				
+				// INSERTING CATEGORIES
+				// ###################################################
+				rows = json_data.getJSONArray("marques_categories");
+				Log.d("Rows", rows.toString());
+				for (int i = 0; i < rows.length(); i++) {
+					JSONObject jsonas = rows.getJSONObject(i);
+					String marqueId = jsonas.getString("marque_id");
+					String categorieId = jsonas.getString("categorie_id");
+					// Creating marque
+					MarqueCategorie marque_categorie = new MarqueCategorie(marqueId, categorieId);
+					// Inserting marque in db
+					long marque_categorie_id = db.createMarqueCategorie(marque_categorie);
+				}
+				Log.e("Synchronization", "MARQUE_CATEGORIE : " + rows.length()
+						+ " records added to sqllite database");
+				Log.e("Synchronization",
+						"MARQUE_CATEGORIE : " + db.getRecordsCount("marque_categorie")
+								+ " records existing at sqllite database");
+				
+				
 				// INSERTING PDVS
 				// ###################################################
 				rows = json_data.getJSONArray("pdvs");

@@ -1,9 +1,12 @@
 package com.bse.daisybuzz.helper;
 
 import com.bse.daizybuzz.model.Cadeau;
+import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
+import com.bse.daizybuzz.model.MarqueCategorie;
 import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.Produit;
 import com.bse.daizybuzz.model.RaisonAchat;
 import com.bse.daizybuzz.model.RaisonRefus;
 import com.bse.daizybuzz.model.Rapport;
@@ -36,6 +39,9 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 	// Table Names
 	private static final String TABLE_MARQUE = "marque";
+	private static final String TABLE_PRODUIT = "produit";
+	private static final String TABLE_CATEGORIE = "categorie";
+	private static final String TABLE_MARQUE_CATEGORIE = "marque_categorie";
 	private static final String TABLE_PDV = "pdv";;
 	private static final String TABLE_CADEAU = "cadeau";
 	private static final String TABLE_SUPERVISEUR = "superviseur";
@@ -53,7 +59,19 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 	// MARQUE Table - column names
 	private static final String KEY_LIBELLE = "libelle";
+	
+	// PRODUIT Table - column names
+	private static final String KEY_SKU = "sku";
+	private static final String KEY_CATEGORIE_ID = "categorie_id";
 
+	// CATEGORIE Table - column names
+	private static final String KEY_CONTEXT = "context";
+	private static final String KEY_PARENT_ID = "parent_id";
+	
+	// MARQUE_CATEGORIE Table - column names
+	private static final String KEY_MARQUE_ID = "marque_id";
+	//private static final String KEY_CATEGORIE_ID = "KEY_CATEGORIE_ID";
+	
 	// PDV Table - column names
 	private static final String KEY_LICENCE = "licence";
 	private static final String KEY_VILLE = "ville";
@@ -92,7 +110,20 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 			+ TABLE_MARQUE + "(" + KEY_ID + " INTEGER," + KEY_LIBELLE
 			+ " TEXT )";
 
-	// Marque table create statement
+	// Produit table create statement
+	private static final String CREATE_TABLE_PRODUIT = "CREATE TABLE "
+				+ TABLE_PRODUIT + "(" + KEY_ID + " INTEGER," + KEY_SKU
+				+ " TEXT," + KEY_LIBELLE+ " TEXT," + KEY_CATEGORIE_ID+ " TEXT )";
+	// Categorie table create statement
+	private static final String CREATE_TABLE_CATEGORIE = "CREATE TABLE "
+					+ TABLE_CATEGORIE + "(" + KEY_ID + " INTEGER," + KEY_NOM
+					+ " TEXT," + KEY_CONTEXT+ " TEXT," + KEY_PARENT_ID+ " TEXT )";
+	
+	// Marque_Categorie table create statement
+	private static final String CREATE_TABLE_MARQUE_CATEGORIE = "CREATE TABLE "
+						+ TABLE_MARQUE_CATEGORIE + "(" + KEY_MARQUE_ID + " TEXT, " + KEY_CATEGORIE_ID + " TEXT )";
+		
+	// Cadeau table create statement
 	private static final String CREATE_TABLE_CADEAU = "CREATE TABLE "
 			+ TABLE_CADEAU + "(" + KEY_ID + " INTEGER ," + KEY_LIBELLE
 			+ " TEXT )";
@@ -146,6 +177,9 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		// creating required tables
 		db.execSQL(CREATE_TABLE_MARQUE);
+		db.execSQL(CREATE_TABLE_CATEGORIE);
+		db.execSQL(CREATE_TABLE_MARQUE_CATEGORIE);
+		db.execSQL(CREATE_TABLE_PRODUIT);
 		db.execSQL(CREATE_TABLE_PDV);
 		db.execSQL(CREATE_TABLE_CADEAU);
 		db.execSQL(CREATE_TABLE_SUPERVISEUR);
@@ -161,6 +195,9 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// on upgrade drop older tables
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARQUE);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIE);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARQUE_CATEGORIE);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUIT);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_PDV);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_CADEAU);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_SUPERVISEUR);
@@ -290,6 +327,193 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 		return marques;
 	}
+	
+	// ------------------------ "PRODUIT" table methods ----------------//
+
+	public long createProduit(Produit produit) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_ID, produit.getId());
+		values.put(KEY_SKU, produit.getSku());
+		values.put(KEY_LIBELLE, produit.getLibelle());
+		values.put(KEY_CATEGORIE_ID, produit.getCategorieId());
+
+		// insert row
+		long id = db.insert(TABLE_PRODUIT, null, values);
+
+		return id;
+	}
+
+	public Produit getProduit(long produit_id) {
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		String selectQuery = "SELECT  * FROM " + TABLE_PRODUIT + " WHERE "
+				+ KEY_ID + " = " + produit_id;
+
+		Log.e(LOG, selectQuery);
+
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		if (c != null)
+			c.moveToFirst();
+
+		Produit produit = new Produit();
+		produit.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+		produit.setLibelle((c.getString(c.getColumnIndex(KEY_LIBELLE))));
+		produit.setSku((c.getString(c.getColumnIndex(KEY_SKU))));
+		produit.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
+
+		return produit;
+	}
+
+	public List<Produit> getAllProduits() {
+		List<Produit> produits = new ArrayList<Produit>();
+		String selectQuery = "SELECT  * FROM " + TABLE_PRODUIT;
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				Produit produit = new Produit();
+				produit.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				produit.setLibelle((c.getString(c.getColumnIndex(KEY_LIBELLE))));
+				produit.setSku((c.getString(c.getColumnIndex(KEY_SKU))));
+				produit.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
+
+				// adding to todo list
+				produits.add(produit);
+			} while (c.moveToNext());
+		}
+
+		return produits;
+	}
+	
+	// ------------------------ "CATEGORIE" table methods ----------------//
+
+	public long createCategorie(Categorie categorie) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_ID, categorie.getId());
+		values.put(KEY_NOM, categorie.getNom());
+		values.put(KEY_CONTEXT, categorie.getContext());
+		values.put(KEY_PARENT_ID, categorie.getParentId());
+
+		// insert row
+		long id = db.insert(TABLE_CATEGORIE, null, values);
+
+		return id;
+	}
+
+	public Categorie getCategorie(long categorie_id) {
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		String selectQuery = "SELECT  * FROM " + TABLE_CATEGORIE + " WHERE "
+				+ KEY_ID + " = " + categorie_id;
+
+		Log.e(LOG, selectQuery);
+
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		if (c != null)
+			c.moveToFirst();
+
+		Categorie categorie = new Categorie();
+		categorie.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+		categorie.setContext((c.getString(c.getColumnIndex(KEY_CONTEXT))));
+		categorie.setNom((c.getString(c.getColumnIndex(KEY_NOM))));
+		categorie.setParentId((c.getString(c.getColumnIndex(KEY_PARENT_ID))));
+
+		return categorie;
+	}
+
+	public List<Categorie> getAllCategories() {
+		List<Categorie> categories = new ArrayList<Categorie>();
+		String selectQuery = "SELECT  * FROM " + TABLE_CATEGORIE;
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				Categorie categorie = new Categorie();
+				categorie.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				categorie.setContext((c.getString(c.getColumnIndex(KEY_CONTEXT))));
+				categorie.setNom((c.getString(c.getColumnIndex(KEY_NOM))));
+				categorie.setParentId((c.getString(c.getColumnIndex(KEY_PARENT_ID))));
+
+				// adding to todo list
+				categories.add(categorie);
+			} while (c.moveToNext());
+		}
+
+		return categories;
+	}
+	
+	// ------------------------ "MARQUE_CATEGORIE" table methods ----------------//
+
+		public long createMarqueCategorie(MarqueCategorie categorie) {
+			SQLiteDatabase db = this.getWritableDatabase();
+
+			ContentValues values = new ContentValues();
+			values.put(KEY_MARQUE_ID, categorie.getMarqueId());
+			values.put(KEY_CATEGORIE_ID, categorie.getCategorieId());
+
+			// insert row
+			long id = db.insert(TABLE_MARQUE_CATEGORIE, null, values);
+
+			return id;
+		}
+
+		public MarqueCategorie getMarqueCategorie(String marque_id, String categorie_id) {
+			SQLiteDatabase db = this.getReadableDatabase();
+
+			String selectQuery = "SELECT  * FROM " + TABLE_MARQUE_CATEGORIE + " WHERE "
+					+ KEY_MARQUE_ID + " = '" + marque_id + "' AND"
+					+ KEY_CATEGORIE_ID + " = '" + categorie_id + "'";
+
+			Log.e(LOG, selectQuery);
+
+			Cursor c = db.rawQuery(selectQuery, null);
+
+			if (c != null)
+				c.moveToFirst();
+			MarqueCategorie marque_categorie = new MarqueCategorie();
+			marque_categorie.setMarqueId((c.getString(c.getColumnIndex(KEY_MARQUE_ID))));
+			marque_categorie.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
+
+			return marque_categorie;
+		}
+
+		public List<MarqueCategorie> getAllMarquesCategories() {
+			List<MarqueCategorie> marques_categories = new ArrayList<MarqueCategorie>();
+			String selectQuery = "SELECT  * FROM " + TABLE_MARQUE_CATEGORIE;
+
+			Log.e(LOG, selectQuery);
+
+			SQLiteDatabase db = this.getReadableDatabase();
+			Cursor c = db.rawQuery(selectQuery, null);
+
+			// looping through all rows and adding to list
+			if (c.moveToFirst()) {
+				do {
+					MarqueCategorie marque_categorie = new MarqueCategorie();
+					marque_categorie.setMarqueId((c.getString(c.getColumnIndex(KEY_MARQUE_ID))));
+					marque_categorie.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
+					marques_categories.add(marque_categorie);
+				} while (c.moveToNext());
+			}
+
+			return marques_categories;
+		}
 
 	// ------------------------ "pdv" table methods ----------------//
 
@@ -838,6 +1062,9 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	public void purgeServerFeedData() {
 		this.getWritableDatabase().delete(TABLE_CADEAU, null, null);
 		this.getWritableDatabase().delete(TABLE_MARQUE, null, null);
+		this.getWritableDatabase().delete(TABLE_PRODUIT, null, null);
+		this.getWritableDatabase().delete(TABLE_CATEGORIE, null, null);
+		this.getWritableDatabase().delete(TABLE_MARQUE_CATEGORIE, null, null);
 		this.getWritableDatabase().delete(TABLE_PDV, null, null);
 		this.getWritableDatabase().delete(TABLE_SUPERVISEUR, null, null);
 		this.getWritableDatabase().delete(TABLE_RAISONACHAT, null, null);

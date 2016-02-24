@@ -10,9 +10,11 @@ import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
 import com.bse.daisybuzz.helper.Utils;
 import com.bse.daizybuzz.model.Cadeau;
+import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.Produit;
 import com.bse.daizybuzz.model.RaisonAchat;
 import com.bse.daizybuzz.model.RaisonRefus;
 import com.bse.daizybuzz.model.Rapport;
@@ -70,6 +72,8 @@ public class Fragment2 extends Fragment {
 	List<Marque> marquesList;
 	List<Cadeau> cadeauxList;
 	List<RaisonAchat> raisonsAchatList;
+	List<Produit> produitsList;
+	List<Categorie> categoriesList;
 	List<RaisonRefus> raisonsRefusList;
 	List<TrancheAge> tranchesAgeList;
 	View view;
@@ -172,8 +176,8 @@ public class Fragment2 extends Fragment {
 		db = new SqliteDatabaseHelper(this.getActivity()
 				.getApplicationContext());
 		marquesList = db.getAllMarques();
+		produitsList = db.getAllProduits();
 		cadeauxList = db.getAllCadeaux();
-		
 		raisonsAchatList = db.getAllRaisonsAchat();
 		raisonsRefusList = db.getAllRaisonsRefus();
 		tranchesAgeList = db.getAllTranchesAge();
@@ -204,8 +208,8 @@ public class Fragment2 extends Fragment {
 		// ##### raisonsAchat
 		List<String> raisonsAchatArray = new ArrayList<String>();
 
-		for (RaisonAchat raisonAchat : raisonsAchatList) {
-			raisonsAchatArray.add(raisonAchat.getLibelle());
+		for (Produit produit : produitsList) {
+			raisonsAchatArray.add(produit.getSku());
 		}
 
 		adapter = new ArrayAdapter<String>(this.getActivity(),
