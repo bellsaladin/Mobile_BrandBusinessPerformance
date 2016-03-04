@@ -40,8 +40,11 @@ import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.MarqueCategorie;
-import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.Pdv;
+import com.bse.daizybuzz.model.PdvPoi;
+import com.bse.daizybuzz.model.Poi;
 import com.bse.daizybuzz.model.Produit;
+import com.bse.daizybuzz.model.QuestionnaireShelfShare;
 import com.bse.daizybuzz.model.RaisonAchat;
 import com.bse.daizybuzz.model.RaisonRefus;
 import com.bse.daizybuzz.model.Rapport;
@@ -188,7 +191,7 @@ public class Common {
 						"CATEGORIE : " + db.getRecordsCount("categorie")
 								+ " records existing at sqllite database");
 				
-				// INSERTING CATEGORIES
+				// INSERTING MARQUES_CATEGORIES
 				// ###################################################
 				rows = json_data.getJSONArray("marques_categories");
 				Log.d("Rows", rows.toString());
@@ -208,6 +211,44 @@ public class Common {
 								+ " records existing at sqllite database");
 				
 				
+				// INSERTING POIS
+				// ###################################################
+				rows = json_data.getJSONArray("pois");
+				Log.d("Rows", rows.toString());
+				for (int i = 0; i < rows.length(); i++) {
+					JSONObject jsonas = rows.getJSONObject(i);
+					int id = jsonas.getInt("id");
+					String libelle = jsonas.getString("libelle");
+					// Creating marque
+					Poi poi = new Poi(id, libelle);
+					// Inserting marque in db
+					long poi_id = db.createPoi(poi);
+				}
+				Log.e("Synchronization", "POI : " + rows.length()
+						+ " records added to sqllite database");
+				Log.e("Synchronization",
+						"POI : " + db.getRecordsCount("poi")
+								+ " records existing at sqllite database");
+				
+				// INSERTING PDVS_POIS
+				// ###################################################
+				rows = json_data.getJSONArray("pdvs_pois");
+				Log.d("Rows", rows.toString());
+				for (int i = 0; i < rows.length(); i++) {
+					JSONObject jsonas = rows.getJSONObject(i);
+					String pdvId = jsonas.getString("pdv_id");
+					String poiId = jsonas.getString("poi_id");
+					// Creating marque
+					PdvPoi pdv_poi = new PdvPoi(pdvId, poiId);
+					// Inserting marque in db
+					long pdv_poi_id = db.createPdvPoi(pdv_poi);
+				}
+				Log.e("Synchronization", "PDV_POI : " + rows.length()
+						+ " records added to sqllite database");
+				Log.e("Synchronization",
+						"PDV_POI : " + db.getRecordsCount("pdv_poi")
+								+ " records existing at sqllite database");
+				
 				// INSERTING PDVS
 				// ###################################################
 				rows = json_data.getJSONArray("pdvs");
@@ -216,11 +257,11 @@ public class Common {
 					JSONObject jsonas = rows.getJSONObject(i);
 					int id = jsonas.getInt("id");
 					String nom = jsonas.getString("nom");
-					int licence = jsonas.getInt("licence");
+					String licence = jsonas.getString("licence");
 					String ville = jsonas.getString("ville");
 					String secteur = jsonas.getString("secteur");
 					// Creating pdv
-					PDV pdv = new PDV(id, nom, licence, ville, secteur);
+					Pdv pdv = new Pdv(id, nom, licence, ville, secteur);
 					// Inserting pdv in db
 					long pdv_id = db.createPDV(pdv);
 				}
@@ -406,17 +447,17 @@ public class Common {
 						// server
 			}
 
-			List<Rapport> rapportsList = db.getAllRapports();
-			// send all the rapports related to the current localisation to
+			List<QuestionnaireShelfShare> questionnairesList = db.getAllQuestionnaireShelfShares();
+			// send all the questionnaires related to the current localisation to
 			// server
-			for (final Rapport rapport : rapportsList) {
-				if (rapport.getLocalisationId().equals(
+			for (final QuestionnaireShelfShare questionnaire : questionnairesList) {
+				if (questionnaire.getLocalisationId().equals(
 						String.valueOf(localisation.getId()))) {
 					// update localisationId of rapport by the last inserted one
-					rapport.setLocalisationId(String
+					questionnaire.setLocalisationId(String
 							.valueOf(insertedLocalisationId));
 					// try send it to the server
-					if (!sendRapportToServer(rapport, webserviceRootUrl, db,
+					if (!sendQuestionnaireShelfShareToServer(questionnaire, webserviceRootUrl, db,
 							activity)) {
 						prgDialog.hide();
 						Toast.makeText(
@@ -427,7 +468,7 @@ public class Common {
 								// any the reports are still not saved on the
 								// server
 					}
-					db.deleteRapport(rapport);
+					db.deleteQuestionnaireShelfShare(questionnaire);
 				}
 
 			}
@@ -450,7 +491,6 @@ public class Common {
 	public static int sendLocalisationToServer(final Localisation localisation,
 			String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
 		RequestParams params = new RequestParams();
-		
 		params.put("sfoId", localisation
 				.getSfoId());
 		params.put("superviseurId", localisation
@@ -543,52 +583,27 @@ public class Common {
 
 	}
 
-	public static boolean sendRapportToServer(final Rapport rapport,
+	public static boolean sendQuestionnaireShelfShareToServer(final QuestionnaireShelfShare questionnaire,
 			String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
 		RequestParams params = new RequestParams();		
 
-		params
-				.put("achete", rapport.getAchete());
-		params.put("trancheAgeId", rapport
-				.getTrancheAgeId());
-		params.put("sexe", rapport.getSexe());
-		params.put("raisonAchatId", rapport
-				.getRaisonAchatId());
-		params.put("raisonRefusId", rapport
-				.getRaisonRefusId());
-		params.put("fidelite", rapport
-				.getFidelite());
-		params.put("marqueHabituelleId", rapport
-				.getMarqueHabituelleId());
-		params.put("marqueHabituelleQte",
-				rapport.getMarqueHabituelleQte());
-		params.put("marqueAcheteeId", rapport
-				.getMarqueAcheteeId());
-		params.put("marqueAcheteeQte", rapport
-				.getMarqueAcheteeQte());
-		params.put("cadeauxIds", rapport
-				.getCadeauId());
-		params.put("tombola", rapport
-				.getTombola());
-		params.put("commentaire", rapport
-				.getCommentaire());
-		params.put("localisationId", rapport
-				.getLocalisationId());
+		params.put("quantitiesData", questionnaire.getQuantitiesData());
+
+		params.put("localisationId", questionnaire.getLocalisationId());
 		
-		params.put("dateCreation", rapport
-				.getDateCreation());
+		params.put("dateCreation", questionnaire.getDateCreation());
 
 		try {
 			
 			AsyncHttpClient client = new AsyncHttpClient();
 			client.setTimeout(3000000); // 30 seconds
-			client.post(Constants.DEFAULT_WEBSERVICE_URL_ROOT + "/save_rapport.php", params,
+			client.post(Constants.DEFAULT_WEBSERVICE_URL_ROOT + "/save_questionnaire_shelfshare.php", params,
 					new AsyncHttpResponseHandler() {
 						// When the response returned by REST has Http
 						// response code '200'
 						@Override
 						public void onSuccess(String response) {
-							SynchronizerAlarmManagerBroadcastReceiver.db.deleteRapport(rapport);
+							SynchronizerAlarmManagerBroadcastReceiver.db.deleteQuestionnaireShelfShare(questionnaire);
 							Log.i("Send rapport ", response);
 						}
 

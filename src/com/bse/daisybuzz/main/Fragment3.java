@@ -5,7 +5,7 @@ import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Marque;
-import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.Pdv;
 import com.bse.daizybuzz.model.Superviseur;
 import com.loopj.android.http.RequestParams;
 

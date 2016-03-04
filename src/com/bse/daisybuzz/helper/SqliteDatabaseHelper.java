@@ -5,8 +5,11 @@ import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.MarqueCategorie;
-import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.Pdv;
+import com.bse.daizybuzz.model.PdvPoi;
+import com.bse.daizybuzz.model.Poi;
 import com.bse.daizybuzz.model.Produit;
+import com.bse.daizybuzz.model.QuestionnaireShelfShare;
 import com.bse.daizybuzz.model.RaisonAchat;
 import com.bse.daizybuzz.model.RaisonRefus;
 import com.bse.daizybuzz.model.Rapport;
@@ -51,6 +54,10 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String TABLE_TRANCHEAGE = "trancheage";
 	private static final String TABLE_LOCALISATION = "localisation";
 	private static final String TABLE_RAPPORT = "rapport";
+	private static final String TABLE_POI = "poi";
+	private static final String TABLE_PDV_POI = "pdv_poi";
+	
+	private static final String TABLE_QUESTIONNAIRE_SHELFSHARE = "questionnaireshelfshare";
 
 	// Common column names
 	private static final String KEY_ID = "id";
@@ -104,7 +111,11 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_TOMBOLA = "tombola";
 	private static final String KEY_COMMENTAIRE = "commentaire";
 	private static final String KEY_LOCALISATION_ID = "localisation_id";
-
+	
+	private static final String KEY_POI_ID = "poi_id";
+	
+	private static final String KEY_QUANTITIES_DATA = "quantitiesData";
+	
 	// Table Create Statements
 	// Marque table create statement
 	private static final String CREATE_TABLE_MARQUE = "CREATE TABLE "
@@ -150,7 +161,6 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String CREATE_TABLE_TRANCHEAGE = "CREATE TABLE "
 			+ TABLE_TRANCHEAGE + "(" + KEY_ID + " INTEGER," + KEY_LIBELLE
 			+ " TEXT )";
-
 	// Localisation table create statement
 	private static final String CREATE_TABLE_LOCALISATION = "CREATE TABLE "
 			+ TABLE_LOCALISATION + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
@@ -170,6 +180,20 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 			+ KEY_MARQUEACHETEE_QTE + " TEXT ," + KEY_CADEAUX_IDS + " TEXT,"
 			+ KEY_COMMENTAIRE + " TEXT ," + KEY_TOMBOLA + " TEXT ," + KEY_LOCALISATION_ID + " TEXT," + KEY_DATE_CREATION +" TEXT)";
 
+	// Pdv_Poi table create statement
+	private static final String CREATE_TABLE_PDV_POI = "CREATE TABLE "
+							+ TABLE_PDV_POI + "(" + KEY_PDV_ID + " TEXT, " + KEY_POI_ID + " TEXT )";
+	
+	// Poi table create statement
+	private static final String CREATE_TABLE_POI = "CREATE TABLE "
+				+ TABLE_POI + "(" + KEY_ID + " INTEGER," + KEY_LIBELLE
+				+ " TEXT )";
+	
+	// Questionnaire table create statement
+	private static final String CREATE_TABLE_QUESTIONNAIRE_SHELFSHARE = "CREATE TABLE "
+				+ TABLE_QUESTIONNAIRE_SHELFSHARE + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
+				+ KEY_QUANTITIES_DATA + " TEXT," + KEY_LOCALISATION_ID + " TEXT," + KEY_DATE_CREATION +" TEXT)";
+		
 	public SqliteDatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
@@ -189,6 +213,9 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_TABLE_TRANCHEAGE);
 		db.execSQL(CREATE_TABLE_LOCALISATION);
 		db.execSQL(CREATE_TABLE_RAPPORT);
+		db.execSQL(CREATE_TABLE_PDV_POI);
+		db.execSQL(CREATE_TABLE_POI);
+		db.execSQL(CREATE_TABLE_QUESTIONNAIRE_SHELFSHARE);
 		// db.execSQL(CREATE_TABLE_TODO_TAG);
 	}
 
@@ -342,6 +369,65 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 		return marques;
 	}
+	
+	// ------------------------ "marque" table methods ----------------//
+
+	public long createPoi(Poi poi) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_ID, poi.getId());
+		values.put(KEY_LIBELLE, poi.getLibelle());
+
+		// insert row
+		long pdv_id = db.insert(TABLE_POI, null, values);
+
+		return pdv_id;
+	}
+
+	public Poi getPoi(long poi_id) {
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		String selectQuery = "SELECT  * FROM " + TABLE_POI + " WHERE "
+				+ KEY_ID + " = " + poi_id;
+
+		Log.e(LOG, selectQuery);
+
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		if (c != null)
+			c.moveToFirst();
+
+		Poi poi = new Poi();
+		poi.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+		poi.setLibelle((c.getString(c.getColumnIndex(KEY_LIBELLE))));
+
+		return poi;
+	}
+
+	public List<Poi> getAllPois() {
+		List<Poi> pois = new ArrayList<Poi>();
+		String selectQuery = "SELECT  * FROM " + TABLE_POI;
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				Poi poi = new Poi();
+				poi.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				poi.setLibelle((c.getString(c.getColumnIndex(KEY_LIBELLE))));
+
+				// adding to todo list
+				pois.add(poi);
+			} while (c.moveToNext());
+		}
+
+		return pois;
+	}
+	
 	
 	// ------------------------ "PRODUIT" table methods ----------------//
 
@@ -505,65 +591,120 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		return categories;
 	}
 	
+	// ------------------------ "PDV_POI" table methods ----------------//
+
+	public long createPdvPoi(PdvPoi pdv_poi) {
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_PDV_ID, pdv_poi.getPdvId());
+		values.put(KEY_POI_ID, pdv_poi.getPoiId());
+
+		// insert row
+		long id = db.insert(TABLE_PDV_POI, null, values);
+
+		return id;
+	}
+
+	public PdvPoi getPdvPoi(String pdv_id, String poi_id) {
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		String selectQuery = "SELECT  * FROM " + TABLE_PDV_POI + " WHERE "
+				+ KEY_PDV_ID + " = '" + pdv_id + "' AND"
+				+ KEY_POI_ID + " = '" + poi_id + "'";
+
+		Log.e(LOG, selectQuery);
+
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		if (c != null)
+			c.moveToFirst();
+		PdvPoi pdv_poi = new PdvPoi();
+		pdv_poi.setPdvId((c.getString(c.getColumnIndex(KEY_PDV_ID))));
+		pdv_poi.setPoiId((c.getString(c.getColumnIndex(KEY_POI_ID))));
+
+		return pdv_poi;
+	}
+
+	public List<PdvPoi> getAllPdvsPois() {
+		List<PdvPoi> pdvs_pois = new ArrayList<PdvPoi>();
+		String selectQuery = "SELECT  * FROM " + TABLE_PDV_POI;
+		Log.e(LOG, selectQuery);
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				PdvPoi pdv_poi = new PdvPoi();
+				pdv_poi.setPdvId((c.getString(c.getColumnIndex(KEY_PDV_ID))));
+				pdv_poi.setPoiId((c.getString(c.getColumnIndex(KEY_POI_ID))));
+				pdvs_pois.add(pdv_poi);
+			} while (c.moveToNext());
+		}
+
+		return pdvs_pois;
+	}
+		
 	
 	// ------------------------ "MARQUE_CATEGORIE" table methods ----------------//
 
-		public long createMarqueCategorie(MarqueCategorie categorie) {
-			SQLiteDatabase db = this.getWritableDatabase();
+	public long createMarqueCategorie(MarqueCategorie categorie) {
+		SQLiteDatabase db = this.getWritableDatabase();
 
-			ContentValues values = new ContentValues();
-			values.put(KEY_MARQUE_ID, categorie.getMarqueId());
-			values.put(KEY_CATEGORIE_ID, categorie.getCategorieId());
+		ContentValues values = new ContentValues();
+		values.put(KEY_MARQUE_ID, categorie.getMarqueId());
+		values.put(KEY_CATEGORIE_ID, categorie.getCategorieId());
 
-			// insert row
-			long id = db.insert(TABLE_MARQUE_CATEGORIE, null, values);
+		// insert row
+		long id = db.insert(TABLE_MARQUE_CATEGORIE, null, values);
 
-			return id;
+		return id;
+	}
+
+	public MarqueCategorie getMarqueCategorie(String marque_id, String categorie_id) {
+		SQLiteDatabase db = this.getReadableDatabase();
+
+		String selectQuery = "SELECT  * FROM " + TABLE_MARQUE_CATEGORIE + " WHERE "
+				+ KEY_MARQUE_ID + " = '" + marque_id + "' AND"
+				+ KEY_CATEGORIE_ID + " = '" + categorie_id + "'";
+
+		Log.e(LOG, selectQuery);
+
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		if (c != null)
+			c.moveToFirst();
+		MarqueCategorie marque_categorie = new MarqueCategorie();
+		marque_categorie.setMarqueId((c.getString(c.getColumnIndex(KEY_MARQUE_ID))));
+		marque_categorie.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
+
+		return marque_categorie;
+	}
+
+	public List<MarqueCategorie> getAllMarquesCategories() {
+		List<MarqueCategorie> marques_categories = new ArrayList<MarqueCategorie>();
+		String selectQuery = "SELECT  * FROM " + TABLE_MARQUE_CATEGORIE;
+		Log.e(LOG, selectQuery);
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				MarqueCategorie marque_categorie = new MarqueCategorie();
+				marque_categorie.setMarqueId((c.getString(c.getColumnIndex(KEY_MARQUE_ID))));
+				marque_categorie.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
+				marques_categories.add(marque_categorie);
+			} while (c.moveToNext());
 		}
 
-		public MarqueCategorie getMarqueCategorie(String marque_id, String categorie_id) {
-			SQLiteDatabase db = this.getReadableDatabase();
-
-			String selectQuery = "SELECT  * FROM " + TABLE_MARQUE_CATEGORIE + " WHERE "
-					+ KEY_MARQUE_ID + " = '" + marque_id + "' AND"
-					+ KEY_CATEGORIE_ID + " = '" + categorie_id + "'";
-
-			Log.e(LOG, selectQuery);
-
-			Cursor c = db.rawQuery(selectQuery, null);
-
-			if (c != null)
-				c.moveToFirst();
-			MarqueCategorie marque_categorie = new MarqueCategorie();
-			marque_categorie.setMarqueId((c.getString(c.getColumnIndex(KEY_MARQUE_ID))));
-			marque_categorie.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
-
-			return marque_categorie;
-		}
-
-		public List<MarqueCategorie> getAllMarquesCategories() {
-			List<MarqueCategorie> marques_categories = new ArrayList<MarqueCategorie>();
-			String selectQuery = "SELECT  * FROM " + TABLE_MARQUE_CATEGORIE;
-			Log.e(LOG, selectQuery);
-			SQLiteDatabase db = this.getReadableDatabase();
-			Cursor c = db.rawQuery(selectQuery, null);
-
-			// looping through all rows and adding to list
-			if (c.moveToFirst()) {
-				do {
-					MarqueCategorie marque_categorie = new MarqueCategorie();
-					marque_categorie.setMarqueId((c.getString(c.getColumnIndex(KEY_MARQUE_ID))));
-					marque_categorie.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
-					marques_categories.add(marque_categorie);
-				} while (c.moveToNext());
-			}
-
-			return marques_categories;
-		}
+		return marques_categories;
+	}
 
 	// ------------------------ "pdv" table methods ----------------//
 
-	public long createPDV(PDV pdv) {
+	public long createPDV(Pdv pdv) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
@@ -579,7 +720,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		return pdv_id;
 	}
 
-	public PDV getPDV(long pdv_id) {
+	public Pdv getPDV(long pdv_id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 
 		String selectQuery = "SELECT  * FROM " + TABLE_PDV + " WHERE " + KEY_ID
@@ -592,18 +733,18 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		if (c != null)
 			c.moveToFirst();
 
-		PDV pdv = new PDV();
+		Pdv pdv = new Pdv();
 		pdv.setId(c.getInt(c.getColumnIndex(KEY_ID)));
 		pdv.setNom((c.getString(c.getColumnIndex(KEY_NOM))));
-		pdv.setLicence((c.getInt(c.getColumnIndex(KEY_LICENCE))));
+		pdv.setLicence((c.getString(c.getColumnIndex(KEY_LICENCE))));
 		pdv.setVille((c.getString(c.getColumnIndex(KEY_VILLE))));
 		pdv.setSecteur((c.getString(c.getColumnIndex(KEY_SECTEUR))));
 
 		return pdv;
 	}
 
-	public List<PDV> getAllPDV() {
-		List<PDV> pdvs = new ArrayList<PDV>();
+	public List<Pdv> getAllPDV() {
+		List<Pdv> pdvs = new ArrayList<Pdv>();
 		String selectQuery = "SELECT  * FROM " + TABLE_PDV;
 
 		Log.e(LOG, selectQuery);
@@ -614,10 +755,10 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		// looping through all rows and adding to list
 		if (c.moveToFirst()) {
 			do {
-				PDV pdv = new PDV();
+				Pdv pdv = new Pdv();
 				pdv.setId(c.getInt(c.getColumnIndex(KEY_ID)));
 				pdv.setNom((c.getString(c.getColumnIndex(KEY_NOM))));
-				pdv.setLicence((c.getInt(c.getColumnIndex(KEY_LICENCE))));
+				pdv.setLicence((c.getString(c.getColumnIndex(KEY_LICENCE))));
 				pdv.setVille((c.getString(c.getColumnIndex(KEY_VILLE))));
 				pdv.setSecteur((c.getString(c.getColumnIndex(KEY_SECTEUR))));
 				// adding to todo list
@@ -628,10 +769,10 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		return pdvs;
 	}
 
-	public List<PDV> getPDVsBySecteur(String ville, String secteur) {
-		List<PDV> pdvsOfSecteur = new ArrayList<PDV>();
-		List<PDV> pdvs = getAllPDV();
-		for(PDV pdv : pdvs){
+	public List<Pdv> getPDVsBySecteur(String ville, String secteur) {
+		List<Pdv> pdvsOfSecteur = new ArrayList<Pdv>();
+		List<Pdv> pdvs = getAllPDV();
+		for(Pdv pdv : pdvs){
 			if(pdv.getVille().equals(ville) && pdv.getSecteur().equals(secteur)){
 				pdvsOfSecteur.add(pdv);
 			}
@@ -641,8 +782,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 	public List<String> getAllVilles() {
 		List<String> villes = new ArrayList<String>();
-		List<PDV> pdvs = getAllPDV();
-		for(PDV pdv : pdvs){
+		List<Pdv> pdvs = getAllPDV();
+		for(Pdv pdv : pdvs){
 			boolean alreadyAdded = false;
 			for (String ville : villes){
 				if(pdv.getVille().equals(ville) ){
@@ -656,8 +797,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 	public List<String> getAllSecteurs( String ville) {
 		List<String> secteurs = new ArrayList<String>();
-		List<PDV> pdvs = getAllPDV();
-		for(PDV pdv : pdvs){
+		List<Pdv> pdvs = getAllPDV();
+		for(Pdv pdv : pdvs){
 			if(pdv.getVille().equals(ville)){
 				boolean alreadyAdded = false;
 				for (String secteur : secteurs){
@@ -1069,6 +1210,84 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				new String[] { String.valueOf(rapport.getId()) });
 	}
 
+	// ------------------------ "questionnaireShelfshare" table methods ----------------//
+
+	public long createQuestionnaireShelfShare(QuestionnaireShelfShare questionnaire) {
+
+		SQLiteDatabase db = this.getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(KEY_QUANTITIES_DATA, questionnaire.getQuantitiesData());
+		values.put(KEY_LOCALISATION_ID, questionnaire.getLocalisationId());
+		values.put(KEY_DATE_CREATION, questionnaire.getDateCreation());
+		// insert row
+		long id = db.insert(TABLE_QUESTIONNAIRE_SHELFSHARE, null, values);
+
+		return id;
+	}
+
+	public List<QuestionnaireShelfShare> getAllQuestionnaireShelfShares() {
+
+		List<QuestionnaireShelfShare> questionnaires = new ArrayList<QuestionnaireShelfShare>();
+		String selectQuery = "SELECT  * FROM " + TABLE_QUESTIONNAIRE_SHELFSHARE;
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				QuestionnaireShelfShare questionnaire = new QuestionnaireShelfShare();
+				questionnaire.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				questionnaire.setQuantitiesData(c.getString(c.getColumnIndex(KEY_QUANTITIES_DATA)));
+				questionnaire.setLocalisationId(c.getString(c.getColumnIndex(KEY_LOCALISATION_ID)));
+				questionnaire.setDateCreation(c.getString(c.getColumnIndex(KEY_DATE_CREATION)));
+				
+				// adding to questionnaires list
+				questionnaires.add(questionnaire);
+			} while (c.moveToNext());
+		}
+
+		return questionnaires;
+	}
+	
+	public List<QuestionnaireShelfShare> getAllQuestionnaireShelfSharesOfLocalisation(Localisation localisation) {
+
+		List<QuestionnaireShelfShare> questionnaires = new ArrayList<QuestionnaireShelfShare>();
+		String selectQuery = "SELECT  * FROM " + TABLE_QUESTIONNAIRE_SHELFSHARE + " WHERE " + KEY_LOCALISATION_ID + " = ? ";
+
+		Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, new String[]{String.valueOf(localisation.getId())});
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				QuestionnaireShelfShare questionnaire = new QuestionnaireShelfShare();
+				questionnaire.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				questionnaire.setQuantitiesData(c.getString(c.getColumnIndex(KEY_QUANTITIES_DATA)));		
+				questionnaire.setLocalisationId(c.getString(c
+						.getColumnIndex(KEY_LOCALISATION_ID)));
+				questionnaire.setDateCreation(c.getString(c
+						.getColumnIndex(KEY_DATE_CREATION)));
+				
+				// adding to questionnaires list
+				questionnaires.add(questionnaire);
+			} while (c.moveToNext());
+		}
+
+		return questionnaires;
+	}
+	
+	public void deleteQuestionnaireShelfShare(QuestionnaireShelfShare questionnaire) {
+		this.getWritableDatabase().delete(TABLE_QUESTIONNAIRE_SHELFSHARE,
+				new String(KEY_ID + "=?"),
+				new String[] { String.valueOf(questionnaire.getId()) });
+	}
+	
+	
 	/* ************************************************************************************************************
 	 * getting todo count
 	 * *******************************************************
@@ -1116,6 +1335,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		this.getWritableDatabase().delete(TABLE_RAISONACHAT, null, null);
 		this.getWritableDatabase().delete(TABLE_RAISONREFUS, null, null);
 		this.getWritableDatabase().delete(TABLE_TRANCHEAGE, null, null);
-
+		this.getWritableDatabase().delete(TABLE_POI, null, null);
+		this.getWritableDatabase().delete(TABLE_PDV_POI, null, null);
+		this.getWritableDatabase().delete(TABLE_QUESTIONNAIRE_SHELFSHARE, null, null);
 	}	
 }

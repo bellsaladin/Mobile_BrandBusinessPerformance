@@ -14,7 +14,7 @@ import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Marque;
-import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.Pdv;
 import com.bse.daizybuzz.model.Produit;
 import com.bse.daizybuzz.model.RaisonAchat;
 import com.bse.daizybuzz.model.RaisonRefus;

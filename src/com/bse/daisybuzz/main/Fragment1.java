@@ -13,7 +13,7 @@ import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
 import com.bse.daisybuzz.helper.Utils;
 import com.bse.daizybuzz.model.Localisation;
-import com.bse.daizybuzz.model.PDV;
+import com.bse.daizybuzz.model.Pdv;
 import com.bse.daizybuzz.model.Superviseur;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -91,7 +91,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 	
 	List<Superviseur> superviseursList;
 	List<String> villesList, secteursList;
-	List<PDV> pdvsList;
+	List<Pdv> pdvsList;
 
 	private String imageRealPath;
 
@@ -190,7 +190,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 				pdvsList = db.getPDVsBySecteur(ville,secteur);
 
 				List<String> pdvsArray = new ArrayList<String>();
-				for (PDV pdv : pdvsList) {
+				for (Pdv pdv : pdvsList) {
 					pdvsArray.add(String.valueOf(pdv.getNom()));
 				}
 
@@ -300,7 +300,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		}
 		List<String> pdvsArray = new ArrayList<String>();
 		if(pdvsList != null && pdvsList.size() >0){
-			for (PDV pdv : pdvsList) {
+			for (Pdv pdv : pdvsList) {
 				pdvsArray.add(String.valueOf(pdv.getLicence()));
 			}
 		}		
@@ -435,13 +435,13 @@ public class Fragment1 extends Fragment implements LocationListener {
 		}
 
 		// valdiation
-		if (superviseursList.size() == 0){
+		/*if (superviseursList.size() == 0){
 			Toast.makeText(
 					Fragment1.this.getActivity().getApplicationContext(),
 					"Vous devez indiquer un superviseur.",
 					Toast.LENGTH_LONG).show();
 			return;
-		}
+		}*/
 		
 		if (pdvsList.size() == 0){
 			Toast.makeText(
@@ -452,14 +452,14 @@ public class Fragment1 extends Fragment implements LocationListener {
 		}
 
 		// ********* saving
-		Superviseur superviseur = superviseursList.get(spinner_superviseur
-				.getSelectedItemPosition());
-		PDV pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());
+		/*Superviseur superviseur = superviseursList.get(spinner_superviseur
+				.getSelectedItemPosition());*/
+		Pdv pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());
 
 		Preferences preferences = new Preferences(this.getActivity());
 		// setting parameters for HttpRequest
 		String animateurId = preferences.getStringValue("ANIMATEUR_ID");
-		String superviseurId = String.valueOf(superviseur.getId());
+		String superviseurId = "1";
 		String pdvId = String.valueOf(pdv.getId());
 		String longitude = String.valueOf(location.getLongitude());
 		String latitude = String.valueOf(location.getLatitude());

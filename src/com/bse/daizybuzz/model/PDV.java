@@ -1,13 +1,13 @@
 package com.bse.daizybuzz.model;
 
-public class PDV {
+public class Pdv {
 	private int id;
 	private String nom;
 	private String ville;
 	private String secteur;
-	private int licence;
+	private String licence;
 	
-	public PDV(int id, String nom, int licence, String ville, String secteur) {
+	public Pdv(int id, String nom, String licence, String ville, String secteur) {
 		super();		
 		this.id = id;
 		this.nom = nom;
@@ -16,7 +16,7 @@ public class PDV {
 		this.secteur = secteur;
 	}
 	
-	public PDV() {
+	public Pdv() {
 	
 	}
 
@@ -32,10 +32,10 @@ public class PDV {
 	public void setNom(String nom) {
 		this.nom = nom;
 	}
-	public int getLicence() {
+	public String getLicence() {
 		return licence;
 	}
-	public void setLicence(int licence) {
+	public void setLicence(String licence) {
 		this.licence = licence;
 	}
 	public String getVille() {

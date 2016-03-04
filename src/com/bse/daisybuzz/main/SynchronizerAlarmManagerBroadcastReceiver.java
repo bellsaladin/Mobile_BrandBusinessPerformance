@@ -6,6 +6,7 @@ import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.Constants;
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daizybuzz.model.Localisation;
+import com.bse.daizybuzz.model.QuestionnaireShelfShare;
 import com.bse.daizybuzz.model.Rapport;
 
 import android.app.AlarmManager;
@@ -53,7 +54,7 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
      	
          if(localisationsCount > 0){
         	processedLocalisation = db.getAllLocalisations().get(0);        	
-         	List<Rapport> rapportsListOfLocalisation = db.getAllRapportsOfLocalisation(processedLocalisation);
+         	List<QuestionnaireShelfShare> questionnairesOfLocalisation = db.getAllQuestionnaireShelfSharesOfLocalisation(processedLocalisation);
          	
          	// FIXME : DEBUG BLOCK --------------------------------------
         	for(Localisation l : db.getAllLocalisations()){
@@ -62,7 +63,7 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
         	for(Rapport r : db.getAllRapports()){
         		Log.e("Rapport ID " , "" + r.getLocalisationId());
         	}        	
-        	Log.e("Info", "Localisations : " + localisationsCount + ", Rapports of localisation :" + rapportsListOfLocalisation.size() + ", ID of current localisation : " + processedLocalisation.getId() + ", All Rapports : " + rapportsCount);
+        	Log.e("Info", "Localisations : " + localisationsCount + ", Rapports of localisation :" + questionnairesOfLocalisation.size() + ", ID of current localisation : " + processedLocalisation.getId() + ", All Rapports : " + rapportsCount);
         	// FIXME : DEBUG BLOCK --------------------------------------        	        	
         	
         	int insertedLocalisationId = -1;
@@ -74,25 +75,25 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
     			insertedLocalisationId = Integer.valueOf(processedLocalisation.getInsertedInServerWithId());
     		}
     		
-        	for(Rapport rapport : rapportsListOfLocalisation){
+        	for(QuestionnaireShelfShare questionnaire : questionnairesOfLocalisation){
         		
         		if(insertedLocalisationId != -1){ // if not error        			
-        			rapport.setLocalisationId(String.valueOf(insertedLocalisationId));
+        			questionnaire.setLocalisationId(String.valueOf(insertedLocalisationId));
 					// try send it to the server
         			MainActivity.showSynchronizationIndicator("Envoi des données au serveur ...",false);
-					Common.sendRapportToServer(rapport,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance());
+					Common.sendQuestionnaireShelfShareToServer(questionnaire,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance());
 					
 					return; // FIXME : OPTIMIZATION STORE ONE ENTITY AT ONCE
         		}        		        			
         	}
         	
-        	if(localisationsCount > 1 && rapportsListOfLocalisation.size() <= 0){
+        	if(localisationsCount > 1 && questionnairesOfLocalisation.size() <= 0){
     			// we do not remove that last localisation because the user might still add rapport on int
     			db.deleteLocalisation(processedLocalisation);
     			return;
     		}
         	
-        	if(!processedLocalisation.getInsertedInServerWithId().isEmpty() && rapportsListOfLocalisation.size() == 0){
+        	if(!processedLocalisation.getInsertedInServerWithId().isEmpty() && questionnairesOfLocalisation.size() == 0){
           		MainActivity.showSynchronizationIndicator("Vos données sont synchronisées",false);
           		return;
        	    }

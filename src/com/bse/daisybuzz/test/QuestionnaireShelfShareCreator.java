@@ -4,14 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
+import com.bse.daisybuzz.helper.Statics;
+import com.bse.daisybuzz.helper.Utils;
+import com.bse.daisybuzz.main.Fragment2;
+import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Marque;
+import com.bse.daizybuzz.model.Poi;
+import com.bse.daizybuzz.model.QuestionnaireShelfShare;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -33,34 +41,36 @@ import android.widget.TextView;
 public class QuestionnaireShelfShareCreator {
 	TableLayout _tableLayout;
 	List<Marque> _marquesList;
+	List<Poi> _poisList;
 	List<Categorie> _categoriesProduitsList;
 	List<Categorie> _segmentsOfSelectedCategorieProduitsList;
 	
-	private Activity targetActivity;
-	private EditText[][] editTextsArray;
-	private SqliteDatabaseHelper db;
+	private Activity _targetActivity;
+	private int[][][][] _quantitiesArray;
+	private EditText[][] _editTextsArray;
+	private SqliteDatabaseHelper _db;
+	
+	Spinner _cb_poi;
+	Spinner _cb_categorie;
+	
+	public QuestionnaireShelfShare _questionnaire;
 	
 	public void init(final Activity activity, LinearLayout containerLayout){
-		this.targetActivity = activity;
+		this._targetActivity = activity;
 		
-		db = new SqliteDatabaseHelper(this.targetActivity.getApplicationContext());
+		_db = new SqliteDatabaseHelper(this._targetActivity.getApplicationContext());
 				
-		_categoriesProduitsList = db.getAllCategoriesOfProduits(); 
+		_categoriesProduitsList = _db.getAllCategoriesOfProduits(); 
+		_poisList = _db.getAllPois();
 		
-		
-		/*_segmentsList = new ArrayList<Categorie>();
-		_segmentsList.add(new Categorie(1, "Frontal","",""));
-		_segmentsList.add(new Categorie(2, "Automatic","",""));
-		_segmentsList.add(new Categorie(3, "Semi-Auto","",""));
-		_segmentsList.add(new Categorie());*/
-		//_categoriesProduitsList.add(new Categorie()); // important : ajouter un element vide sinon une colonne ne s'affiche pas
-		
-		_marquesList = db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(0));
-		_segmentsOfSelectedCategorieProduitsList = db.getSegmentsOfCategorie(_categoriesProduitsList.get(0));
+		_marquesList = _db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(0));
+		_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(_categoriesProduitsList.get(0));
 		_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
-
+		initQuantitiesArray();
 		
-		createSpinner(this.targetActivity, containerLayout);
+		
+		createCategorieProduitsSpinner(this._targetActivity, containerLayout);
+		createPoiSpinner(this._targetActivity, containerLayout);
 		/*columns = new String[4];
 		columns[0] = "Segment 1";
 		columns[1] = "Segment 2";
@@ -77,32 +87,14 @@ public class QuestionnaireShelfShareCreator {
 	    
 	    hsv.addView(linearLayout);
 
-		createTableLayout(this.targetActivity, linearLayout);
+		createTableLayout(this._targetActivity, linearLayout);
 	    
 		Button saveButton = new Button(activity);
 	    saveButton.setText("Enregistrer");
 	    saveButton.setOnClickListener(new View.OnClickListener() {
 	        @Override
-	        public void onClick(View v) {
-	        	
-	        	for (int i = 0; i < _marquesList.size(); i++) {
-	        		TableRow row = (TableRow)_tableLayout.getChildAt(i);
-	        		row.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-	    			for (int j = 1; j <= _segmentsOfSelectedCategorieProduitsList.size() - 1; j++) {
-	    				View child = row.getChildAt(j);
-	    		        if (child instanceof EditText) {
-	    		        	AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(activity);
-		    				dlgAlert.setMessage("EditText[" + i + "]["+j+"].value : " + ((EditText)child).getText());
-		    				dlgAlert.setTitle("App Title");
-		    				dlgAlert.setPositiveButton("OK", null);
-		    				dlgAlert.setCancelable(true);
-		    				dlgAlert.create().show();
-			        	    Log.d("----", "Button index: " + (i+j) +  ((EditText)child).getText());
-	    		        } else if (child instanceof TextView) {
-	    		            //validate RadioButton
-	    		        }
-	    			}
-	        	}
+	        public void onClick(View v) {	
+	        	storeDataOnLocalStorage();
 	        }
 	    });
 	    
@@ -112,9 +104,45 @@ public class QuestionnaireShelfShareCreator {
 		containerLayout.addView(sv);
 
 	}
+	
+	private void storeDataOnLocalStorage() {
+		_questionnaire = new QuestionnaireShelfShare();
+		String quantitiesData = getSerializedQuantitiesData();
+		_questionnaire.setQuantitiesData(quantitiesData);
+		_questionnaire.setLocalisationId(String.valueOf(Statics.lastLocalisationId));
+		_questionnaire.setDateCreation(Utils.now());
+		_db.createQuestionnaireShelfShare(_questionnaire);
+
+		Toast.makeText(
+				_targetActivity.getApplicationContext(),
+				"Questionnaire enregistré !", Toast.LENGTH_SHORT)
+				.show();
+	}
+
+	private String getSerializedQuantitiesData() {
+		String data = "";
+		for(int i  = 0; i < _poisList.size(); i++){
+			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
+				List<Marque> marquesOperatingInCategoryList = _db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j));
+				//for(int k  = 0; k < db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j)).size(); k++){
+				for(int k  = 0; k < marquesOperatingInCategoryList.size(); k++){
+					List<Categorie> segmentsOfCategory = _db.getSegmentsOfCategorie(_categoriesProduitsList.get(j));
+					for(int l  = 0; l < segmentsOfCategory.size(); l++){
+						int poiId = _poisList.get(i).getId();
+						int marqueId = marquesOperatingInCategoryList.get(k).getId();
+						int categorieId = segmentsOfCategory.get(l).getId();
+						int qty = _quantitiesArray[i][j][k][l];
+						data += poiId +";" + categorieId +";" + marqueId + ";" +qty + "||";
+					}
+				}
+			}
+		}
+		if(data.length() > 0) data = data.substring(0, data.length()-2);
+		return data;
+	}
 
 	private void createTableLayout(Activity activity, LinearLayout containerLayout) {
-		_tableLayout = new TableLayout(this.targetActivity);
+		_tableLayout = new TableLayout(this._targetActivity);
 		_tableLayout = fillTableLayout();
 		_tableLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		containerLayout.addView(_tableLayout);
@@ -145,7 +173,7 @@ public class QuestionnaireShelfShareCreator {
 	}
 
 	private TableLayout fillTableLayout() {
-		editTextsArray = new EditText[_marquesList.size()][_segmentsOfSelectedCategorieProduitsList.size()];
+		_editTextsArray = new EditText[_marquesList.size()][_segmentsOfSelectedCategorieProduitsList.size()];
 		
 		_tableLayout.removeAllViews();
 		
@@ -167,7 +195,7 @@ public class QuestionnaireShelfShareCreator {
 
 		for (int i = 0; i < rowCount; i++) {
 			// 3) create tableRow
-			TableRow tableRow = new TableRow(this.targetActivity);
+			TableRow tableRow = new TableRow(this._targetActivity);
 			tableRow.setBackgroundColor(Color.parseColor("#eeeeee"));
 
 			for (int j = 0; j < columnCount; j++) {
@@ -178,12 +206,12 @@ public class QuestionnaireShelfShareCreator {
 				int id = Integer.parseInt(s3);
 				Log.d("TAG", "-___>" + id);
 				if (i == 0 && j == 0) {
-					TextView textView = new TextView(this.targetActivity);
+					TextView textView = new TextView(this._targetActivity);
 					textView.setText("");
 					tableRow.addView(textView, tableRowParams);
 				} else if (i == 0) {
 					Log.d("TAAG", "set Column Headers");
-					TextView textView = new TextView(this.targetActivity);
+					TextView textView = new TextView(this._targetActivity);
 					textView.setTextSize(18);
 					textView.setText(columns.get(j - 1).toString());
 					textView.setTextColor(Color.DKGRAY);
@@ -192,7 +220,7 @@ public class QuestionnaireShelfShareCreator {
 					tableRow.addView(textView, tableRowParams);
 				} else if (j == 0) {
 					Log.d("TAAG", "Set Row Headers");
-					TextView textView = new TextView(this.targetActivity);
+					TextView textView = new TextView(this._targetActivity);
 					textView.setTextSize(16);
 					textView.setText(rows.get(i - 1).toString());
 					textView.setTextColor(Color.RED);
@@ -200,20 +228,45 @@ public class QuestionnaireShelfShareCreator {
 					tableRow.addView(textView, tableRowParams);
 				} else {
 					
-					editTextsArray[i][j] = new EditText(this.targetActivity);
+					_editTextsArray[i][j] = new EditText(this._targetActivity);
 					// textView.setText(String.valueOf(j));
 					//editTextsArray[i][j].setBackgroundColor(Color.WHITE);
 					//editTextsArray[i][j].getLayoutParams().width = 50;
-					editTextsArray[i][j].setGravity(Gravity.CENTER);
-					editTextsArray[i][j].setInputType(InputType.TYPE_CLASS_NUMBER);
-					editTextsArray[i][j].setText("0");
+					_editTextsArray[i][j].setGravity(Gravity.CENTER);
+					_editTextsArray[i][j].setInputType(InputType.TYPE_CLASS_NUMBER);
+					
+					final int marqueIdx = i - 1;
+					final int segmentCategoryIdx = j - 1;
+					
+					int qty = _quantitiesArray[_cb_poi.getSelectedItemPosition()][_cb_categorie.getSelectedItemPosition()][marqueIdx][segmentCategoryIdx];
+					_editTextsArray[i][j].setText(String.valueOf(qty));
+					
+					TextWatcher generalTextWatcher = new TextWatcher() {
+
+				          public void afterTextChanged(Editable editable) {
+				        	  if(editable.toString().isEmpty())
+				        		  return;
+				        	  int qty = Integer.valueOf(editable.toString());
+				        	  Categorie selectedCategorieProduits = _categoriesProduitsList.get(
+										_cb_categorie.getSelectedItemPosition());
+				        	  Poi selectedPoi = _poisList.get( _cb_poi.getSelectedItemPosition() );
+				        	  
+				        	  _quantitiesArray[_cb_poi.getSelectedItemPosition()]
+				        			  		 [_cb_categorie.getSelectedItemPosition()]
+				        			  		 [marqueIdx]
+				        			  		 [segmentCategoryIdx] = qty;
+				          }
+				          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+				          public void onTextChanged(CharSequence s, int start, int before, int count) {}
+				    };
+				    _editTextsArray[i][j].addTextChangedListener(generalTextWatcher);
+					
 					//editTextsArray[i][j] = editText; // save editText to the array to make it easy to get back it's value when needed
 					
-					tableRow.addView(editTextsArray[i][j], tableRowParams);			
+					tableRow.addView(_editTextsArray[i][j], tableRowParams);			
 				}
-
 			}
-
 			// 6) add tableRow to tableLayout
 			_tableLayout.addView(tableRow, tableLayoutParams);
 		}
@@ -221,27 +274,26 @@ public class QuestionnaireShelfShareCreator {
 		return _tableLayout;
 	}
 	
-	public void createSpinner(Activity activity, LinearLayout containerLayout){
-		final Spinner cb_categorie = new Spinner(activity);
+	private void createCategorieProduitsSpinner(Activity activity, LinearLayout containerLayout){
+		_cb_categorie = new Spinner(activity);
 	    List<String> dataArray = new ArrayList<String>();
 	    for(Categorie categorie : _categoriesProduitsList){
 	    	if(categorie.getNom() != null)
 	    		dataArray.add(categorie.toString());
 	    }
 	    ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_dropdown_item, dataArray);
-	    cb_categorie.setAdapter(spinnerArrayAdapter);
-	    containerLayout.addView(cb_categorie);
+	    _cb_categorie.setAdapter(spinnerArrayAdapter);
+	    containerLayout.addView(_cb_categorie);
 	    
-	    cb_categorie.setOnItemSelectedListener(new OnItemSelectedListener() {
+	    _cb_categorie.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
-			public void onItemSelected(AdapterView<?> parentView,
-					View selectedItemView, int position, long id) {
+			public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
 				Categorie selectedCategorieProduits = _categoriesProduitsList.get(
-						cb_categorie.getSelectedItemPosition());
-				_marquesList = db.getAllMarquesOperatingInCategory(selectedCategorieProduits);
+						_cb_categorie.getSelectedItemPosition());
+				_marquesList = _db.getAllMarquesOperatingInCategory(selectedCategorieProduits);
 				_marquesList.add(new Marque()); // FIXME : ajouter un element vide sinon la marque ne s'affiche pas
 				
-				_segmentsOfSelectedCategorieProduitsList = db.getSegmentsOfCategorie(selectedCategorieProduits);
+				_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(selectedCategorieProduits);
 				_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
 				
 				QuestionnaireShelfShareCreator.this.fillTableLayout();
@@ -260,4 +312,55 @@ public class QuestionnaireShelfShareCreator {
 
 		});
 	}
+	
+	private void createPoiSpinner(Activity activity, LinearLayout containerLayout){
+		_cb_poi = new Spinner(activity);
+	    List<String> dataArray = new ArrayList<String>();
+	    for(Poi poi : _poisList){
+	    	if(poi.getLibelle() != null)
+	    		dataArray.add(poi.toString());
+	    }	 
+	    ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_dropdown_item, dataArray);
+	    _cb_poi.setAdapter(spinnerArrayAdapter);
+	    containerLayout.addView(_cb_poi);
+	    
+	    _cb_poi.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+				QuestionnaireShelfShareCreator.this.fillTableLayout();
+			}
+			@Override
+			public void onNothingSelected(AdapterView<?> parentView) {
+				
+			}
+		});
+	}
+	
+	private void initQuantitiesArray(){
+		// FIXME : enlever les valeurs spécifiés en dur lors de la création du tableau des quantités
+		_quantitiesArray = new int[_poisList.size()][_categoriesProduitsList.size()][40][20];
+		for(int i  = 0; i < _poisList.size(); i++){
+			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
+				for(int k  = 0; k < 20; k++){
+					for(int l = 0; l < 20; l++){
+						_quantitiesArray[i][j][k][l] = -1;
+					}
+				}
+			}
+		}
+		
+		for(int i  = 0; i < _poisList.size(); i++){
+			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
+				List<Marque> marquesOperatingInCategoryList = _db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j));
+				//for(int k  = 0; k < db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j)).size(); k++){
+				for(int k  = 0; k < marquesOperatingInCategoryList.size(); k++){
+					List<Categorie> segmentsOfCategory = _db.getSegmentsOfCategorie(_categoriesProduitsList.get(j));
+					for(int l  = 0; l < segmentsOfCategory.size(); l++){
+						_quantitiesArray[i][j][k][l] = 0;
+					}
+				}
+			}
+		}
+	}
+	
 }
