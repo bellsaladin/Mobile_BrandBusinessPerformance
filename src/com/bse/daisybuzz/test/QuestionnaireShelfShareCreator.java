@@ -29,6 +29,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.LinearLayout.LayoutParams;
@@ -129,10 +130,11 @@ public class QuestionnaireShelfShareCreator {
 					List<Categorie> segmentsOfCategory = _db.getSegmentsOfCategorie(_categoriesProduitsList.get(j));
 					for(int l  = 0; l < segmentsOfCategory.size(); l++){
 						int poiId = _poisList.get(i).getId();
+						int categorieProduits_id = _categoriesProduitsList.get(j).getId();
 						int marqueId = marquesOperatingInCategoryList.get(k).getId();
 						int categorieId = segmentsOfCategory.get(l).getId();
 						int qty = _quantitiesArray[i][j][k][l];
-						data += poiId +";" + categorieId +";" + marqueId + ";" +qty + "||";
+						data += poiId +";" +categorieProduits_id + ";" + categorieId +";" + marqueId + ";" +qty + "||";
 					}
 				}
 			}
@@ -230,8 +232,8 @@ public class QuestionnaireShelfShareCreator {
 					
 					_editTextsArray[i][j] = new EditText(this._targetActivity);
 					// textView.setText(String.valueOf(j));
-					//editTextsArray[i][j].setBackgroundColor(Color.WHITE);
-					//editTextsArray[i][j].getLayoutParams().width = 50;
+					//_editTextsArray[i][j].setBackgroundColor(Color.WHITE);
+					//_editTextsArray[i][j].getLayoutParams().width = 50;
 					_editTextsArray[i][j].setGravity(Gravity.CENTER);
 					_editTextsArray[i][j].setInputType(InputType.TYPE_CLASS_NUMBER);
 					
@@ -240,8 +242,24 @@ public class QuestionnaireShelfShareCreator {
 					
 					int qty = _quantitiesArray[_cb_poi.getSelectedItemPosition()][_cb_categorie.getSelectedItemPosition()][marqueIdx][segmentCategoryIdx];
 					_editTextsArray[i][j].setText(String.valueOf(qty));
+					/*_editTextsArray[i][j].setOnValueChangedListener(
+							new NumberPicker.OnValueChangeListener() {
+							    @Override
+							    public void onValueChange(NumberPicker numberPicker, int oldVal, int newVal) {
+							    	int qty = newVal;
+						        	  Categorie selectedCategorieProduits = _categoriesProduitsList.get(
+												_cb_categorie.getSelectedItemPosition());
+						        	  Poi selectedPoi = _poisList.get( _cb_poi.getSelectedItemPosition() );
+						        	  
+						        	  _quantitiesArray[_cb_poi.getSelectedItemPosition()]
+						        			  		 [_cb_categorie.getSelectedItemPosition()]
+						        			  		 [marqueIdx]
+						        			  		 [segmentCategoryIdx] = qty;
+							    }
+							}
+					);*/
 					
-					TextWatcher generalTextWatcher = new TextWatcher() {
+					TextWatcher editTextWatcher = new TextWatcher() {
 
 				          public void afterTextChanged(Editable editable) {
 				        	  if(editable.toString().isEmpty())
@@ -260,7 +278,7 @@ public class QuestionnaireShelfShareCreator {
 
 				          public void onTextChanged(CharSequence s, int start, int before, int count) {}
 				    };
-				    _editTextsArray[i][j].addTextChangedListener(generalTextWatcher);
+				    _editTextsArray[i][j].addTextChangedListener(editTextWatcher);
 					
 					//editTextsArray[i][j] = editText; // save editText to the array to make it easy to get back it's value when needed
 					
