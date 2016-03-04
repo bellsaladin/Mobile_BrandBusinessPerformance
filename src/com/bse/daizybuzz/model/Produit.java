@@ -49,5 +49,11 @@ public class Produit {
 	public void setCategorieId(String categorieId) {
 		this.categorieId = categorieId;
 	}
+
+	@Override
+	public String toString() {
+		return sku;
+	}
+	
 	
 }

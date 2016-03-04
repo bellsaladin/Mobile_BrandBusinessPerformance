@@ -28,7 +28,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.EditText;
 
 public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
@@ -265,11 +264,13 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 		if (c != null)
 			c.moveToFirst();
-
+		
 		Cadeau cadeau = new Cadeau();
 		cadeau.setId(c.getInt(c.getColumnIndex(KEY_ID)));
 		cadeau.setLibelle((c.getString(c.getColumnIndex(KEY_LIBELLE))));
-
+		
+		c.close();
+		
 		return cadeau;
 	}
 
@@ -294,6 +295,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 			} while (c.moveToNext());
 		}
 
+		c.close();
 		return cadeaux;
 	}
 
@@ -352,7 +354,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				marques.add(marque);
 			} while (c.moveToNext());
 		}
-
+		c.close();
+		
 		return marques;
 	}
 	
@@ -424,7 +427,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				pois.add(poi);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return pois;
 	}
 	
@@ -464,7 +467,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		produit.setLibelle((c.getString(c.getColumnIndex(KEY_LIBELLE))));
 		produit.setSku((c.getString(c.getColumnIndex(KEY_SKU))));
 		produit.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
-
+		c.close();
 		return produit;
 	}
 
@@ -490,7 +493,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				produits.add(produit);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return produits;
 	}
 	
@@ -529,7 +532,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		categorie.setContext((c.getString(c.getColumnIndex(KEY_CONTEXT))));
 		categorie.setNom((c.getString(c.getColumnIndex(KEY_NOM))));
 		categorie.setParentId((c.getString(c.getColumnIndex(KEY_PARENT_ID))));
-
+		c.close();
 		return categorie;
 	}
 
@@ -555,7 +558,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				categories.add(categorie);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return categories;
 	}
 	
@@ -622,7 +625,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		PdvPoi pdv_poi = new PdvPoi();
 		pdv_poi.setPdvId((c.getString(c.getColumnIndex(KEY_PDV_ID))));
 		pdv_poi.setPoiId((c.getString(c.getColumnIndex(KEY_POI_ID))));
-
+		c.close();
 		return pdv_poi;
 	}
 
@@ -642,7 +645,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				pdvs_pois.add(pdv_poi);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return pdvs_pois;
 	}
 		
@@ -678,7 +681,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		MarqueCategorie marque_categorie = new MarqueCategorie();
 		marque_categorie.setMarqueId((c.getString(c.getColumnIndex(KEY_MARQUE_ID))));
 		marque_categorie.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
-
+		c.close();
 		return marque_categorie;
 	}
 
@@ -698,7 +701,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				marques_categories.add(marque_categorie);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return marques_categories;
 	}
 
@@ -739,7 +742,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		pdv.setLicence((c.getString(c.getColumnIndex(KEY_LICENCE))));
 		pdv.setVille((c.getString(c.getColumnIndex(KEY_VILLE))));
 		pdv.setSecteur((c.getString(c.getColumnIndex(KEY_SECTEUR))));
-
+		c.close();
 		return pdv;
 	}
 
@@ -765,7 +768,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				pdvs.add(pdv);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return pdvs;
 	}
 
@@ -845,7 +848,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		Superviseur.setId(c.getInt(c.getColumnIndex(KEY_ID)));
 		Superviseur.setNom((c.getString(c.getColumnIndex(KEY_NOM))));
 		Superviseur.setNom((c.getString(c.getColumnIndex(KEY_PRENOM))));
-
+		c.close();
 		return Superviseur;
 	}
 
@@ -871,7 +874,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				Superviseurs.add(Superviseur);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return Superviseurs;
 	}
 
@@ -911,7 +914,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				raisonsAchat.add(raisonAchat);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return raisonsAchat;
 	}
 
@@ -951,7 +954,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				raisonsRefu.add(raisonRefu);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return raisonsRefu;
 	}
 
@@ -991,7 +994,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				tranchesAge.add(trancheAge);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return tranchesAge;
 	}
 
@@ -1069,7 +1072,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				localisations.add(localisation);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return localisations;
 	}
 
@@ -1152,7 +1155,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				rapports.add(rapport);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return rapports;
 	}
 	
@@ -1200,7 +1203,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				rapports.add(rapport);
 			} while (c.moveToNext());
 		}
-
+		c.close();
+		
 		return rapports;
 	}
 	
@@ -1249,7 +1253,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				questionnaires.add(questionnaire);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return questionnaires;
 	}
 	
@@ -1277,7 +1281,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				questionnaires.add(questionnaire);
 			} while (c.moveToNext());
 		}
-
+		c.close();
 		return questionnaires;
 	}
 	

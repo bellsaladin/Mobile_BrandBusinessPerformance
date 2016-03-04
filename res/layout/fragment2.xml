@@ -1,19 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:paddingTop="10dp" >
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" >
-
+		
+		    
         <LinearLayout
 	            android:layout_width="match_parent"
 	            android:layout_height="match_parent"
 	            android:orientation="vertical" >
-            
+            <LinearLayout android:id="@+id/footer"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="horizontal"
+		        android:layout_alignParentBottom="true"
+		        style="@android:style/ButtonBar"
+		        android:background="#cccccc">
+		        <Button android:id="@+id/btn_showQuestionnaire1"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_weight="1"
+		            android:text="Shelf Share"
+		            android:background="#dddddd" />
+		
+		        <Button android:id="@+id/btn_showQuestionnaire2"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:layout_weight="1"
+		            android:text="Disponibilité"
+		            android:background="#dddddd" 
+		            android:textColor="#999999"/>
+	   		 </LinearLayout>
+	    
         	<LinearLayout
                 android:id="@+id/layout_questionnaire_shelfShare"
                 android:layout_width="match_parent"
@@ -51,305 +73,6 @@
 			            android:textColor="#156FA9" />
             </LinearLayout>
             
-            
-            <!-- BELOW IS OLD FORM USED IN PREVIOUS DEVELOPPED APP BRAND-SURVERY -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:visibility="gone" >
-
-                <Spinner
-                    android:id="@+id/spinner_achete"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginTop="10dp"
-                    android:entries="@array/str_array_achete" />
-
-                <TextView
-                    android:id="@+id/textView0"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:text="AGE"
-                    android:textColor="#ccc" />
-
-                <Spinner
-                    android:id="@+id/spinner_ageClient"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:entries="@array/str_array_age" />
-
-                <TextView
-                    android:id="@+id/textView1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:text="SEXE"
-                    android:textColor="#ccc" />
-
-                <Spinner
-                    android:id="@+id/spinner_sexe"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:entries="@array/str_array_sexe" />
-
-                <LinearLayout
-                    android:id="@+id/layout_1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginTop="10dp"
-                    android:orientation="vertical" >
-
-                    <TextView
-                        android:id="@+id/textView2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginTop="10dp"
-                        android:text="RAISON D&apos;ACHAT"
-                        android:textColor="#ccc" />
-
-                    <Spinner
-                        android:id="@+id/spinner_raisonAchat"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="5dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginTop="5dp"
-                        android:text="FIDELITE"
-                        android:textColor="#ccc" />
-
-                    <Spinner
-                        android:id="@+id/spinner_fidelite"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:entries="@array/str_array_fidelite" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="5dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginTop="5dp"
-                        android:text="MARQUE HABITUELLE"
-                        android:textColor="#ccc" />
-
-                    <TableLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginTop="10dp" >
-
-                        <TableRow
-                            android:id="@+id/tableRow1"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content" >
-
-                            <Spinner
-                                android:id="@+id/spinner_marqueHabituelle"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_column="1" />
-
-                            <EditText
-                                android:id="@+id/txt_marqueHabituelleQte"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_column="2"
-                                android:ems="10"
-                                android:hint="Qte marque habituelle"
-                                android:inputType="number"
-                                android:text="0" />
-                        </TableRow>
-                    </TableLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="5dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginTop="5dp"
-                        android:text="MARQUE ACHETEE"
-                        android:textColor="#ccc" />
-
-                    <TableLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginTop="10dp" >
-
-                        <TableRow
-                            android:id="@+id/tableRow2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content" >
-
-                            <Spinner
-                                android:id="@+id/spinner_marqueAchetee"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_column="1" />
-
-                            <EditText
-                                android:id="@+id/txt_marqueAcheteeQte"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_column="2"
-                                android:ems="10"
-                                android:hint="Qte marque achetée"
-                                android:inputType="number"
-                                android:text="0" />
-                        </TableRow>
-                    </TableLayout>
-
-                    <Button
-                        android:id="@+id/btn_choixCadeaux"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginTop="25dp"
-                        android:background="@drawable/buttonshape_gray"
-                        android:text="Choix des cadeaux"
-                        android:textColor="#FFFFFF"
-                        android:textSize="17dp" />
-
-                    <EditText
-                        android:id="@+id/txt_cadeaux_ids"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:enabled="false"
-                        android:text=""
-                        android:visibility="gone" />
-
-                    <CheckBox
-                        android:id="@+id/cb_tombola"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:text="Tombola" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/layout_2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" >
-
-                    <TextView
-                        android:id="@+id/textView4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginTop="10dp"
-                        android:text="RAISON DU REFUS"
-                        android:textColor="#ccc" />
-
-                    <Spinner
-                        android:id="@+id/spinner_raisonRefus"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginTop="10dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="5dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginTop="5dp"
-                        android:text="MARQUE HABITUELLE"
-                        android:textColor="#ccc" />
-
-                    <Spinner
-                        android:id="@+id/spinner_marqueHabituelle2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginTop="10dp" />
-
-                    <EditText
-                        android:id="@+id/txt_marqueHabituelleQte2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginTop="10dp"
-                        android:ems="10"
-                        android:hint="Qte marque habituelle"
-                        android:inputType="number"
-                        android:text="0" />
-
-                    <EditText
-                        android:id="@+id/txt_commentaire"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_marginTop="10dp"
-                        android:layout_weight="0.57"
-                        android:ems="10"
-                        android:hint="commentaire"
-                        android:inputType="textMultiLine" />
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/btn_rapport_save"
-                    android:layout_width="200dp"
-                    android:layout_height="40dp"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="25dp"
-                    android:layout_marginTop="25dp"
-                    android:background="@drawable/buttonshape_blue"
-                    android:text="Enregistrer"
-                    android:textColor="#FFFFFF"
-                    android:textSize="17dp" />
-            </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
-</LinearLayout>
+</RelativeLayout>
