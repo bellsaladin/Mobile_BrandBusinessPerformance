@@ -6,7 +6,7 @@ import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.Constants;
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daizybuzz.model.Localisation;
-import com.bse.daizybuzz.model.QuestionnaireShelfShare;
+import com.bse.daizybuzz.model.Questionnaire;
 import com.bse.daizybuzz.model.Rapport;
 
 import android.app.AlarmManager;
@@ -54,7 +54,7 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
      	
          if(localisationsCount > 0){
         	processedLocalisation = db.getAllLocalisations().get(0);        	
-         	List<QuestionnaireShelfShare> questionnairesOfLocalisation = db.getAllQuestionnaireShelfSharesOfLocalisation(processedLocalisation);
+         	List<Questionnaire> questionnairesOfLocalisation = db.getAllQuestionnairesOfLocalisation(processedLocalisation);
          	
          	// FIXME : DEBUG BLOCK --------------------------------------
         	for(Localisation l : db.getAllLocalisations()){
@@ -75,13 +75,13 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
     			insertedLocalisationId = Integer.valueOf(processedLocalisation.getInsertedInServerWithId());
     		}
     		
-        	for(QuestionnaireShelfShare questionnaire : questionnairesOfLocalisation){
+        	for(Questionnaire questionnaire : questionnairesOfLocalisation){
         		
         		if(insertedLocalisationId != -1){ // if not error        			
         			questionnaire.setLocalisationId(String.valueOf(insertedLocalisationId));
 					// try send it to the server
         			MainActivity.showSynchronizationIndicator("Envoi des données au serveur ...",false);
-					Common.sendQuestionnaireShelfShareToServer(questionnaire,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance());
+					Common.sendQuestionnaireToServer(questionnaire,Constants.DEFAULT_WEBSERVICE_URL_ROOT, db, MainActivity.getInstance());
 					
 					return; // FIXME : OPTIMIZATION STORE ONE ENTITY AT ONCE
         		}        		        			

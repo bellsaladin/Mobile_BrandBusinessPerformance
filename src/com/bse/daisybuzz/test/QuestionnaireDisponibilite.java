@@ -12,7 +12,7 @@ import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.Poi;
 import com.bse.daizybuzz.model.Produit;
-import com.bse.daizybuzz.model.QuestionnaireShelfShare;
+import com.bse.daizybuzz.model.Questionnaire;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -57,7 +57,7 @@ public class QuestionnaireDisponibilite {
 	Spinner _cb_poi;
 	
 	
-	public QuestionnaireShelfShare _questionnaire;
+	public Questionnaire _questionnaire;
 	
 	public void init(final Activity activity, LinearLayout containerLayout){
 		this._targetActivity = activity;
@@ -111,12 +111,13 @@ public class QuestionnaireDisponibilite {
 	}
 	
 	private void storeDataOnLocalStorage() {
-		_questionnaire = new QuestionnaireShelfShare();
+		_questionnaire = new Questionnaire();
+		_questionnaire.setType(Questionnaire.TYPE_DISPONIBILITE);
 		String quantitiesData = getSerializedQuantitiesData();
 		_questionnaire.setQuantitiesData(quantitiesData);
 		_questionnaire.setLocalisationId(String.valueOf(Statics.lastLocalisationId));
 		_questionnaire.setDateCreation(Utils.now());
-		_db.createQuestionnaireShelfShare(_questionnaire);
+		_db.createQuestionnaire(_questionnaire);
 
 		Toast.makeText(
 				_targetActivity.getApplicationContext(),
@@ -127,16 +128,14 @@ public class QuestionnaireDisponibilite {
 	private String getSerializedQuantitiesData() {
 		String data = "";
 		for(int i  = 0; i < _poisList.size(); i++){
-			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
-				List<Marque> marquesOperatingInCategoryList = _db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j));
-				//for(int k  = 0; k < db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j)).size(); k++){
-				for(int k  = 0; k < marquesOperatingInCategoryList.size(); k++){
+			for(int j  = 0; j < _categoriesProduitsList.size(); j++){				//for(int k  = 0; k < db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j)).size(); k++){
+				for(int k  = 0; k < _produitsList.size(); k++){
 					
 						int poiId = _poisList.get(i).getId();
 						int categorieProduits_id = _categoriesProduitsList.get(j).getId();
-						int marqueId = marquesOperatingInCategoryList.get(k).getId();
+						int produitId = _produitsList.get(k).getId();
 						int qty = _quantitiesArray[i][j][k];
-						data += poiId +";" +categorieProduits_id +";" + marqueId + ";" +qty + "||";
+						data += poiId +";" +categorieProduits_id +";" + produitId + ";" +qty + "||";
 				}
 			}
 		}
@@ -242,10 +241,10 @@ public class QuestionnaireDisponibilite {
 			
 			tableRow.addView(_editTextsArray[i], tableRowParams);			
 				
-			
-			// 6) add tableRow to tableLayout
+			// add tableRow to tableLayout
 			_tableLayout.addView(tableRow, tableLayoutParams);
 		}
+		
 		_tableLayout.refreshDrawableState();
 		return _tableLayout;
 	}
@@ -267,7 +266,7 @@ public class QuestionnaireDisponibilite {
 				Categorie selectedCategorieProduits = _categoriesProduitsList.get(
 						_cb_categorie.getSelectedItemPosition());
 				_produitsList = _db.getAllProduits();
-				_produitsList.add(new Produit()); // FIXME : ajouter un element vide sinon la marque ne s'affiche pas
+				//_produitsList.add(new Produit()); // FIXME : ajouter un element vide sinon la marque ne s'affiche pas
 				
 				_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(selectedCategorieProduits);
 				_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
@@ -301,7 +300,7 @@ public class QuestionnaireDisponibilite {
 				Categorie selectedCategorieProduits = _categoriesProduitsList.get(
 						_cb_categorie.getSelectedItemPosition());
 				_produitsList = _db.getAllProduits();
-				_produitsList.add(new Produit()); // FIXME : ajouter un element vide sinon la marque ne s'affiche pas
+				//_produitsList.add(new Produit()); // FIXME : ajouter un element vide sinon la marque ne s'affiche pas
 				
 				_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(selectedCategorieProduits);
 				_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas

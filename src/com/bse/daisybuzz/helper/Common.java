@@ -44,7 +44,7 @@ import com.bse.daizybuzz.model.Pdv;
 import com.bse.daizybuzz.model.PdvPoi;
 import com.bse.daizybuzz.model.Poi;
 import com.bse.daizybuzz.model.Produit;
-import com.bse.daizybuzz.model.QuestionnaireShelfShare;
+import com.bse.daizybuzz.model.Questionnaire;
 import com.bse.daizybuzz.model.RaisonAchat;
 import com.bse.daizybuzz.model.RaisonRefus;
 import com.bse.daizybuzz.model.Rapport;
@@ -447,17 +447,17 @@ public class Common {
 						// server
 			}
 
-			List<QuestionnaireShelfShare> questionnairesList = db.getAllQuestionnaireShelfShares();
+			List<Questionnaire> questionnairesList = db.getAllQuestionnaires();
 			// send all the questionnaires related to the current localisation to
 			// server
-			for (final QuestionnaireShelfShare questionnaire : questionnairesList) {
+			for (final Questionnaire questionnaire : questionnairesList) {
 				if (questionnaire.getLocalisationId().equals(
 						String.valueOf(localisation.getId()))) {
 					// update localisationId of rapport by the last inserted one
 					questionnaire.setLocalisationId(String
 							.valueOf(insertedLocalisationId));
 					// try send it to the server
-					if (!sendQuestionnaireShelfShareToServer(questionnaire, webserviceRootUrl, db,
+					if (!sendQuestionnaireToServer(questionnaire, webserviceRootUrl, db,
 							activity)) {
 						prgDialog.hide();
 						Toast.makeText(
@@ -468,7 +468,7 @@ public class Common {
 								// any the reports are still not saved on the
 								// server
 					}
-					db.deleteQuestionnaireShelfShare(questionnaire);
+					db.deleteQuestionnaire(questionnaire);
 				}
 
 			}
@@ -583,27 +583,26 @@ public class Common {
 
 	}
 
-	public static boolean sendQuestionnaireShelfShareToServer(final QuestionnaireShelfShare questionnaire,
+	public static boolean sendQuestionnaireToServer(final Questionnaire questionnaire,
 			String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
 		RequestParams params = new RequestParams();		
-
-		params.put("quantitiesData", questionnaire.getQuantitiesData());
-
-		params.put("localisationId", questionnaire.getLocalisationId());
 		
+		params.put("type", questionnaire.getType());
+		params.put("quantitiesData", questionnaire.getQuantitiesData());
+		params.put("localisationId", questionnaire.getLocalisationId());
 		params.put("dateCreation", questionnaire.getDateCreation());
 
 		try {
 			
 			AsyncHttpClient client = new AsyncHttpClient();
 			client.setTimeout(3000000); // 30 seconds
-			client.post(Constants.DEFAULT_WEBSERVICE_URL_ROOT + "/save_questionnaire_shelfshare.php", params,
+			client.post(Constants.DEFAULT_WEBSERVICE_URL_ROOT + "/save_questionnaire.php", params,
 					new AsyncHttpResponseHandler() {
 						// When the response returned by REST has Http
 						// response code '200'
 						@Override
 						public void onSuccess(String response) {
-							SynchronizerAlarmManagerBroadcastReceiver.db.deleteQuestionnaireShelfShare(questionnaire);
+							SynchronizerAlarmManagerBroadcastReceiver.db.deleteQuestionnaire(questionnaire);
 							Log.i("Send rapport ", response);
 						}
 
@@ -613,7 +612,7 @@ public class Common {
 						@Override
 						public void onFailure(int statusCode, Throwable error,
 								String content) {
-							Log.e("Error Send rapport ", content);
+							Log.e("Error Send Questionnaire ", content);
 
 						}
 					}

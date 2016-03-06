@@ -1,16 +1,21 @@
 package com.bse.daizybuzz.model;
 
-public class QuestionnaireShelfShare {
+public class Questionnaire {
+	
+	public static final String TYPE_SHELFSHARE = "SHELFSHARE";
+	public static final String TYPE_DISPONIBILITE = "DISPONIBILITE";
+	
 	private int id;
+	private String type;
 	private String quantitiesData;
 	private String localisationId;	
 	private String dateCreation;
 	
-	public QuestionnaireShelfShare() {
+	public Questionnaire() {
 	
 	}
 	
-	public QuestionnaireShelfShare( String quantitiesData, String localisationId, String dateCreation) {			
+	public Questionnaire( String type, String quantitiesData, String localisationId, String dateCreation) {			
 		this.localisationId = localisationId;
 		this.setDateCreation(dateCreation);
 	}
@@ -23,6 +28,14 @@ public class QuestionnaireShelfShare {
 		this.id = id;
 	}
 	
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	public String getQuantitiesData() {
 		return quantitiesData;
 	}
@@ -46,5 +59,5 @@ public class QuestionnaireShelfShare {
 	public void setDateCreation(String dateCreation) {
 		this.dateCreation = dateCreation;
 	}
-	
+		
 }

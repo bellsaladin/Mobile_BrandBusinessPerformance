@@ -9,7 +9,7 @@ import com.bse.daizybuzz.model.Pdv;
 import com.bse.daizybuzz.model.PdvPoi;
 import com.bse.daizybuzz.model.Poi;
 import com.bse.daizybuzz.model.Produit;
-import com.bse.daizybuzz.model.QuestionnaireShelfShare;
+import com.bse.daizybuzz.model.Questionnaire;
 import com.bse.daizybuzz.model.RaisonAchat;
 import com.bse.daizybuzz.model.RaisonRefus;
 import com.bse.daizybuzz.model.Rapport;
@@ -56,7 +56,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String TABLE_POI = "poi";
 	private static final String TABLE_PDV_POI = "pdv_poi";
 	
-	private static final String TABLE_QUESTIONNAIRE_SHELFSHARE = "questionnaireshelfshare";
+	private static final String TABLE_QUESTIONNAIRE = "questionnaire";
 
 	// Common column names
 	private static final String KEY_ID = "id";
@@ -114,6 +114,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_POI_ID = "poi_id";
 	
 	private static final String KEY_QUANTITIES_DATA = "quantitiesData";
+	private static final String KEY_TYPE = "type";
 	
 	// Table Create Statements
 	// Marque table create statement
@@ -189,9 +190,9 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				+ " TEXT )";
 	
 	// Questionnaire table create statement
-	private static final String CREATE_TABLE_QUESTIONNAIRE_SHELFSHARE = "CREATE TABLE "
-				+ TABLE_QUESTIONNAIRE_SHELFSHARE + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
-				+ KEY_QUANTITIES_DATA + " TEXT," + KEY_LOCALISATION_ID + " TEXT," + KEY_DATE_CREATION +" TEXT)";
+	private static final String CREATE_TABLE_QUESTIONNAIRE = "CREATE TABLE "
+				+ TABLE_QUESTIONNAIRE + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
+				+ KEY_TYPE + " TEXT," + KEY_QUANTITIES_DATA + " TEXT," + KEY_LOCALISATION_ID + " TEXT," + KEY_DATE_CREATION +" TEXT)";
 		
 	public SqliteDatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -214,7 +215,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(CREATE_TABLE_RAPPORT);
 		db.execSQL(CREATE_TABLE_PDV_POI);
 		db.execSQL(CREATE_TABLE_POI);
-		db.execSQL(CREATE_TABLE_QUESTIONNAIRE_SHELFSHARE);
+		db.execSQL(CREATE_TABLE_QUESTIONNAIRE);
 		// db.execSQL(CREATE_TABLE_TODO_TAG);
 	}
 
@@ -576,22 +577,46 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	}
 	
 	public List<Categorie> getSegmentsOfCategorie(Categorie categorieProduits) {
-		List<Categorie> categories = new ArrayList<Categorie>();
-		for(Categorie categorie : getAllCategories()){
+		return getSegmentsOfCategorie(categorieProduits, new ArrayList<Categorie>());
+	}
+	
+	public List<Categorie> getSegmentsOfCategorie(Categorie categorieProduits, List<Categorie> resultOfLastExecution) {
+		List<Categorie> categoriesList = getAllCategories();
+		List<Categorie> result = new ArrayList<Categorie>();
+		if(resultOfLastExecution!= null){
+			result.addAll(resultOfLastExecution);
+		}
+		
+		for(Categorie categorie : categoriesList){
 			Log.d("getSegmentsOfCategorie", categorie.getNom() + ", "  +categorie.getParentId() + "," + categorieProduits.getId());
-			if(categorie.getParentId() != null && !categorie.getParentId().equals("null") && !categorie.getParentId().isEmpty() && categorieProduits != null){
+			if(categorie.getParentId() != null && !categorie.getParentId().equals("null")
+					&& !categorie.getParentId().isEmpty() && categorieProduits != null){
 				if(Integer.valueOf(categorie.getParentId()) == categorieProduits.getId()){
-					categories.add(categorie);
-					Log.d("getSegmentsOfCategorie", categorie.getNom());
-					//getSegmentsOfCategorie(categorie);
+					if(getChildren(categorie, categoriesList).size() >0)
+						result.addAll(getSegmentsOfCategorie(categorie, result));
+					else
+						result.add(categorie);
 				}
 			}
 		}
 		// si la catégorie de produits n'a pas de segments alors elle est considérée comme segment
-		if(categories.size() <= 0){
-			categories.add(categorieProduits);
+		if(result.size() <= 0){
+			result.add(categorieProduits);
 		}
-		return categories;
+		return result;
+	}
+	
+	public List<Categorie> getChildren(Categorie parentCategorie, List<Categorie> categories) {
+		List<Categorie> children = new ArrayList<Categorie>();
+		for(Categorie categorie : categories){
+			if(categorie.getParentId() != null && !categorie.getParentId().equals("null")
+			   && !categorie.getParentId().isEmpty() && parentCategorie != null){
+				if(Integer.valueOf(categorie.getParentId()) == parentCategorie.getId()){
+					children.add(categorie);
+				}
+			}
+		}
+		return children;
 	}
 	
 	// ------------------------ "PDV_POI" table methods ----------------//
@@ -1214,26 +1239,27 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				new String[] { String.valueOf(rapport.getId()) });
 	}
 
-	// ------------------------ "questionnaireShelfshare" table methods ----------------//
+	// ------------------------ "questionnaire" table methods ----------------//
 
-	public long createQuestionnaireShelfShare(QuestionnaireShelfShare questionnaire) {
+	public long createQuestionnaire(Questionnaire questionnaire) {
 
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
+		values.put(KEY_TYPE, questionnaire.getType());
 		values.put(KEY_QUANTITIES_DATA, questionnaire.getQuantitiesData());
 		values.put(KEY_LOCALISATION_ID, questionnaire.getLocalisationId());
 		values.put(KEY_DATE_CREATION, questionnaire.getDateCreation());
 		// insert row
-		long id = db.insert(TABLE_QUESTIONNAIRE_SHELFSHARE, null, values);
+		long id = db.insert(TABLE_QUESTIONNAIRE, null, values);
 
 		return id;
 	}
 
-	public List<QuestionnaireShelfShare> getAllQuestionnaireShelfShares() {
+	public List<Questionnaire> getAllQuestionnaires() {
 
-		List<QuestionnaireShelfShare> questionnaires = new ArrayList<QuestionnaireShelfShare>();
-		String selectQuery = "SELECT  * FROM " + TABLE_QUESTIONNAIRE_SHELFSHARE;
+		List<Questionnaire> questionnaires = new ArrayList<Questionnaire>();
+		String selectQuery = "SELECT  * FROM " + TABLE_QUESTIONNAIRE;
 
 		Log.e(LOG, selectQuery);
 
@@ -1243,8 +1269,9 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		// looping through all rows and adding to list
 		if (c.moveToFirst()) {
 			do {
-				QuestionnaireShelfShare questionnaire = new QuestionnaireShelfShare();
+				Questionnaire questionnaire = new Questionnaire();
 				questionnaire.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				questionnaire.setType(c.getString(c.getColumnIndex(KEY_TYPE)));
 				questionnaire.setQuantitiesData(c.getString(c.getColumnIndex(KEY_QUANTITIES_DATA)));
 				questionnaire.setLocalisationId(c.getString(c.getColumnIndex(KEY_LOCALISATION_ID)));
 				questionnaire.setDateCreation(c.getString(c.getColumnIndex(KEY_DATE_CREATION)));
@@ -1257,10 +1284,10 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		return questionnaires;
 	}
 	
-	public List<QuestionnaireShelfShare> getAllQuestionnaireShelfSharesOfLocalisation(Localisation localisation) {
+	public List<Questionnaire> getAllQuestionnairesOfLocalisation(Localisation localisation) {
 
-		List<QuestionnaireShelfShare> questionnaires = new ArrayList<QuestionnaireShelfShare>();
-		String selectQuery = "SELECT  * FROM " + TABLE_QUESTIONNAIRE_SHELFSHARE + " WHERE " + KEY_LOCALISATION_ID + " = ? ";
+		List<Questionnaire> questionnaires = new ArrayList<Questionnaire>();
+		String selectQuery = "SELECT  * FROM " + TABLE_QUESTIONNAIRE + " WHERE " + KEY_LOCALISATION_ID + " = ? ";
 
 		Log.e(LOG, selectQuery);
 
@@ -1269,8 +1296,9 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		// looping through all rows and adding to list
 		if (c.moveToFirst()) {
 			do {
-				QuestionnaireShelfShare questionnaire = new QuestionnaireShelfShare();
+				Questionnaire questionnaire = new Questionnaire();
 				questionnaire.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				questionnaire.setType(c.getString(c.getColumnIndex(KEY_TYPE)));
 				questionnaire.setQuantitiesData(c.getString(c.getColumnIndex(KEY_QUANTITIES_DATA)));		
 				questionnaire.setLocalisationId(c.getString(c
 						.getColumnIndex(KEY_LOCALISATION_ID)));
@@ -1285,8 +1313,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		return questionnaires;
 	}
 	
-	public void deleteQuestionnaireShelfShare(QuestionnaireShelfShare questionnaire) {
-		this.getWritableDatabase().delete(TABLE_QUESTIONNAIRE_SHELFSHARE,
+	public void deleteQuestionnaire(Questionnaire questionnaire) {
+		this.getWritableDatabase().delete(TABLE_QUESTIONNAIRE,
 				new String(KEY_ID + "=?"),
 				new String[] { String.valueOf(questionnaire.getId()) });
 	}
@@ -1341,6 +1369,6 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		this.getWritableDatabase().delete(TABLE_TRANCHEAGE, null, null);
 		this.getWritableDatabase().delete(TABLE_POI, null, null);
 		this.getWritableDatabase().delete(TABLE_PDV_POI, null, null);
-		this.getWritableDatabase().delete(TABLE_QUESTIONNAIRE_SHELFSHARE, null, null);
+		this.getWritableDatabase().delete(TABLE_QUESTIONNAIRE, null, null);
 	}	
 }

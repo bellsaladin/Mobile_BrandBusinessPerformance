@@ -11,7 +11,7 @@ import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.Poi;
-import com.bse.daizybuzz.model.QuestionnaireShelfShare;
+import com.bse.daizybuzz.model.Questionnaire;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -54,7 +54,7 @@ public class QuestionnaireShelfShareCreator {
 	Spinner _cb_poi;
 	Spinner _cb_categorie;
 	
-	public QuestionnaireShelfShare _questionnaire;
+	public Questionnaire _questionnaire;
 	
 	public void init(final Activity activity, LinearLayout containerLayout){
 		this._targetActivity = activity;
@@ -107,12 +107,13 @@ public class QuestionnaireShelfShareCreator {
 	}
 	
 	private void storeDataOnLocalStorage() {
-		_questionnaire = new QuestionnaireShelfShare();
+		_questionnaire = new Questionnaire();
 		String quantitiesData = getSerializedQuantitiesData();
+		_questionnaire.setType(Questionnaire.TYPE_SHELFSHARE);
 		_questionnaire.setQuantitiesData(quantitiesData);
 		_questionnaire.setLocalisationId(String.valueOf(Statics.lastLocalisationId));
 		_questionnaire.setDateCreation(Utils.now());
-		_db.createQuestionnaireShelfShare(_questionnaire);
+		_db.createQuestionnaire(_questionnaire);
 
 		Toast.makeText(
 				_targetActivity.getApplicationContext(),
