@@ -10,14 +10,12 @@ public class Questionnaire {
 	private String quantitiesData;
 	private String localisationId;	
 	private String dateCreation;
+	private int nbrLignesTraitees;
+	private float tempsRemplissage;
 	
 	public Questionnaire() {
-	
-	}
-	
-	public Questionnaire( String type, String quantitiesData, String localisationId, String dateCreation) {			
-		this.localisationId = localisationId;
-		this.setDateCreation(dateCreation);
+		nbrLignesTraitees = 0;
+		tempsRemplissage = 0;
 	}
 	
 
@@ -58,6 +56,22 @@ public class Questionnaire {
 
 	public void setDateCreation(String dateCreation) {
 		this.dateCreation = dateCreation;
+	}
+
+	public int getNbrLignesTraitees() {
+		return nbrLignesTraitees;
+	}
+
+	public void setNbrLignesTraitees(int nbrLignesTraitees) {
+		this.nbrLignesTraitees = nbrLignesTraitees;
+	}
+
+	public float getTempsRemplissage() {
+		return tempsRemplissage;
+	}
+
+	public void setTempsRemplissage(float tempsRemplissage) {
+		this.tempsRemplissage = tempsRemplissage;
 	}
 		
 }

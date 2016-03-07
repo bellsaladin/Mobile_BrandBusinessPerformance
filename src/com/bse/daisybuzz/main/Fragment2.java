@@ -10,7 +10,7 @@ import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
 import com.bse.daisybuzz.helper.Utils;
 import com.bse.daisybuzz.test.QuestionnaireDisponibilite;
-import com.bse.daisybuzz.test.QuestionnaireShelfShareCreator;
+import com.bse.daisybuzz.test.QuestionnaireShelfShare;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Localisation;
@@ -115,7 +115,7 @@ public class Fragment2 extends Fragment {
 		
 		// create questionnaires forms *************************
 		
-		QuestionnaireShelfShareCreator questionnaireShelfShareCreator = new QuestionnaireShelfShareCreator();
+		QuestionnaireShelfShare questionnaireShelfShareCreator = new QuestionnaireShelfShare();
 		questionnaireShelfShareCreator.init(this.getActivity(), layout_questionnaire_shelfShare);
 		
 		QuestionnaireDisponibilite questionnaireDisponibiliteCreator = new QuestionnaireDisponibilite();

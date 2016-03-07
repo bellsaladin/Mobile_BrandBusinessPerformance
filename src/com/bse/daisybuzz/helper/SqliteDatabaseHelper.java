@@ -116,6 +116,10 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	private static final String KEY_QUANTITIES_DATA = "quantitiesData";
 	private static final String KEY_TYPE = "type";
 	
+	private static final String KEY_NBR_LIGNES_TRAITEES = "nbrLignesTraitees";;
+
+	private static final String KEY_TEMPS_REMILSSAGE    = "tempsReplmissage";
+	
 	// Table Create Statements
 	// Marque table create statement
 	private static final String CREATE_TABLE_MARQUE = "CREATE TABLE "
@@ -192,7 +196,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	// Questionnaire table create statement
 	private static final String CREATE_TABLE_QUESTIONNAIRE = "CREATE TABLE "
 				+ TABLE_QUESTIONNAIRE + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
-				+ KEY_TYPE + " TEXT," + KEY_QUANTITIES_DATA + " TEXT," + KEY_LOCALISATION_ID + " TEXT," + KEY_DATE_CREATION +" TEXT)";
+				+ KEY_TYPE + " TEXT," + KEY_QUANTITIES_DATA + " TEXT," + KEY_LOCALISATION_ID + " TEXT," + KEY_DATE_CREATION +" TEXT, " 
+				+ KEY_NBR_LIGNES_TRAITEES + " INTEGER," + KEY_TEMPS_REMILSSAGE + " FLOAT)";
 		
 	public SqliteDatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -259,7 +264,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		String selectQuery = "SELECT  * FROM " + TABLE_CADEAU + " WHERE "
 				+ KEY_ID + " = " + cadeau_id;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -279,7 +284,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<Cadeau> cadeaux = new ArrayList<Cadeau>();
 		String selectQuery = "SELECT  * FROM " + TABLE_CADEAU;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -321,7 +326,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		String selectQuery = "SELECT  * FROM " + TABLE_MARQUE + " WHERE "
 				+ KEY_ID + " = " + marque_id;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -339,7 +344,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<Marque> marques = new ArrayList<Marque>();
 		String selectQuery = "SELECT  * FROM " + TABLE_MARQUE;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -395,7 +400,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		String selectQuery = "SELECT  * FROM " + TABLE_POI + " WHERE "
 				+ KEY_ID + " = " + poi_id;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -412,7 +417,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	public List<Poi> getAllPois() {
 		List<Poi> pois = new ArrayList<Poi>();
 		String selectQuery = "SELECT  * FROM " + TABLE_POI;
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -456,7 +461,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		String selectQuery = "SELECT  * FROM " + TABLE_PRODUIT + " WHERE "
 				+ KEY_ID + " = " + produit_id;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -476,7 +481,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<Produit> produits = new ArrayList<Produit>();
 		String selectQuery = "SELECT  * FROM " + TABLE_PRODUIT;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -521,7 +526,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		String selectQuery = "SELECT  * FROM " + TABLE_CATEGORIE + " WHERE "
 				+ KEY_ID + " = " + categorie_id;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -541,7 +546,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<Categorie> categories = new ArrayList<Categorie>();
 		String selectQuery = "SELECT  * FROM " + TABLE_CATEGORIE;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -588,7 +593,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		}
 		
 		for(Categorie categorie : categoriesList){
-			Log.d("getSegmentsOfCategorie", categorie.getNom() + ", "  +categorie.getParentId() + "," + categorieProduits.getId());
+			//Log.d("getSegmentsOfCategorie", categorie.getNom() + ", "  +categorie.getParentId() + "," + categorieProduits.getId());
 			if(categorie.getParentId() != null && !categorie.getParentId().equals("null")
 					&& !categorie.getParentId().isEmpty() && categorieProduits != null){
 				if(Integer.valueOf(categorie.getParentId()) == categorieProduits.getId()){
@@ -641,7 +646,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				+ KEY_PDV_ID + " = '" + pdv_id + "' AND"
 				+ KEY_POI_ID + " = '" + poi_id + "'";
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -657,7 +662,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	public List<PdvPoi> getAllPdvsPois() {
 		List<PdvPoi> pdvs_pois = new ArrayList<PdvPoi>();
 		String selectQuery = "SELECT  * FROM " + TABLE_PDV_POI;
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -697,7 +702,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				+ KEY_MARQUE_ID + " = '" + marque_id + "' AND"
 				+ KEY_CATEGORIE_ID + " = '" + categorie_id + "'";
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -713,7 +718,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	public List<MarqueCategorie> getAllMarquesCategories() {
 		List<MarqueCategorie> marques_categories = new ArrayList<MarqueCategorie>();
 		String selectQuery = "SELECT  * FROM " + TABLE_MARQUE_CATEGORIE;
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -754,7 +759,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		String selectQuery = "SELECT  * FROM " + TABLE_PDV + " WHERE " + KEY_ID
 				+ " = " + pdv_id;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -775,7 +780,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<Pdv> pdvs = new ArrayList<Pdv>();
 		String selectQuery = "SELECT  * FROM " + TABLE_PDV;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -862,7 +867,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		String selectQuery = "SELECT  * FROM " + TABLE_SUPERVISEUR + " WHERE "
 				+ KEY_ID + " = " + Superviseur_id;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		Cursor c = db.rawQuery(selectQuery, null);
 
@@ -881,7 +886,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<Superviseur> Superviseurs = new ArrayList<Superviseur>();
 		String selectQuery = "SELECT  * FROM " + TABLE_SUPERVISEUR;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -922,7 +927,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<RaisonAchat> raisonsAchat = new ArrayList<RaisonAchat>();
 		String selectQuery = "SELECT  * FROM " + TABLE_RAISONACHAT;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -962,7 +967,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<RaisonRefus> raisonsRefu = new ArrayList<RaisonRefus>();
 		String selectQuery = "SELECT  * FROM " + TABLE_RAISONREFUS;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -1002,7 +1007,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<TrancheAge> tranchesAge = new ArrayList<TrancheAge>();
 		String selectQuery = "SELECT  * FROM " + TABLE_TRANCHEAGE;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -1064,7 +1069,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<Localisation> localisations = new ArrayList<Localisation>();
 		String selectQuery = "SELECT  * FROM " + TABLE_LOCALISATION;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -1140,7 +1145,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<Rapport> rapports = new ArrayList<Rapport>();
 		String selectQuery = "SELECT  * FROM " + TABLE_RAPPORT;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -1189,7 +1194,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<Rapport> rapports = new ArrayList<Rapport>();
 		String selectQuery = "SELECT  * FROM " + TABLE_RAPPORT + " WHERE " + KEY_LOCALISATION_ID + " = ? ";
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, new String[]{String.valueOf(localisation.getId())});
@@ -1250,6 +1255,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_QUANTITIES_DATA, questionnaire.getQuantitiesData());
 		values.put(KEY_LOCALISATION_ID, questionnaire.getLocalisationId());
 		values.put(KEY_DATE_CREATION, questionnaire.getDateCreation());
+		values.put(KEY_NBR_LIGNES_TRAITEES, questionnaire.getNbrLignesTraitees());
+		values.put(KEY_TEMPS_REMILSSAGE, questionnaire.getTempsRemplissage());
 		// insert row
 		long id = db.insert(TABLE_QUESTIONNAIRE, null, values);
 
@@ -1261,7 +1268,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<Questionnaire> questionnaires = new ArrayList<Questionnaire>();
 		String selectQuery = "SELECT  * FROM " + TABLE_QUESTIONNAIRE;
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, null);
@@ -1275,6 +1282,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				questionnaire.setQuantitiesData(c.getString(c.getColumnIndex(KEY_QUANTITIES_DATA)));
 				questionnaire.setLocalisationId(c.getString(c.getColumnIndex(KEY_LOCALISATION_ID)));
 				questionnaire.setDateCreation(c.getString(c.getColumnIndex(KEY_DATE_CREATION)));
+				questionnaire.setNbrLignesTraitees(c.getInt(c.getColumnIndex(KEY_NBR_LIGNES_TRAITEES)));
+				questionnaire.setTempsRemplissage(c.getFloat(c.getColumnIndex(KEY_TEMPS_REMILSSAGE)));
 				
 				// adding to questionnaires list
 				questionnaires.add(questionnaire);
@@ -1289,7 +1298,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		List<Questionnaire> questionnaires = new ArrayList<Questionnaire>();
 		String selectQuery = "SELECT  * FROM " + TABLE_QUESTIONNAIRE + " WHERE " + KEY_LOCALISATION_ID + " = ? ";
 
-		Log.e(LOG, selectQuery);
+		//Log.e(LOG, selectQuery);
 
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor c = db.rawQuery(selectQuery, new String[]{String.valueOf(localisation.getId())});
@@ -1304,7 +1313,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 						.getColumnIndex(KEY_LOCALISATION_ID)));
 				questionnaire.setDateCreation(c.getString(c
 						.getColumnIndex(KEY_DATE_CREATION)));
-				
+				questionnaire.setNbrLignesTraitees(c.getInt(c.getColumnIndex(KEY_NBR_LIGNES_TRAITEES)));
+				questionnaire.setTempsRemplissage(c.getFloat(c.getColumnIndex(KEY_TEMPS_REMILSSAGE)));
 				// adding to questionnaires list
 				questionnaires.add(questionnaire);
 			} while (c.moveToNext());

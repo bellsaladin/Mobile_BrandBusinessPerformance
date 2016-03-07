@@ -39,7 +39,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-public class QuestionnaireShelfShareCreator {
+public class QuestionnaireShelfShare {
 	TableLayout _tableLayout;
 	List<Marque> _marquesList;
 	List<Poi> _poisList;
@@ -53,8 +53,10 @@ public class QuestionnaireShelfShareCreator {
 	
 	Spinner _cb_poi;
 	Spinner _cb_categorie;
-	
 	public Questionnaire _questionnaire;
+	private int _nbrLignesTraitees = 0;
+	private float _tempsRemplissage = 0;
+	
 	
 	public void init(final Activity activity, LinearLayout containerLayout){
 		this._targetActivity = activity;
@@ -113,6 +115,8 @@ public class QuestionnaireShelfShareCreator {
 		_questionnaire.setQuantitiesData(quantitiesData);
 		_questionnaire.setLocalisationId(String.valueOf(Statics.lastLocalisationId));
 		_questionnaire.setDateCreation(Utils.now());
+		_questionnaire.setNbrLignesTraitees(_nbrLignesTraitees);
+		_questionnaire.setTempsRemplissage(_tempsRemplissage);
 		_db.createQuestionnaire(_questionnaire);
 
 		Toast.makeText(
@@ -135,6 +139,7 @@ public class QuestionnaireShelfShareCreator {
 						int marqueId = marquesOperatingInCategoryList.get(k).getId();
 						int categorieId = segmentsOfCategory.get(l).getId();
 						int qty = _quantitiesArray[i][j][k][l];
+						if(qty >0) _nbrLignesTraitees++;
 						data += poiId +";" +categorieProduits_id + ";" + categorieId +";" + marqueId + ";" +qty + "||";
 					}
 				}
@@ -298,7 +303,7 @@ public class QuestionnaireShelfShareCreator {
 				_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(selectedCategorieProduits);
 				_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
 				
-				QuestionnaireShelfShareCreator.this.fillTableLayout();
+				QuestionnaireShelfShare.this.fillTableLayout();
 				//_tableLayout = new TableLayout(QuestionnaireShelfShareCreator.this.targetActivity);
 				//_tableLayout.removeAllViews();
 //				Toast.makeText(
@@ -329,7 +334,7 @@ public class QuestionnaireShelfShareCreator {
 	    _cb_poi.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-				QuestionnaireShelfShareCreator.this.fillTableLayout();
+				QuestionnaireShelfShare.this.fillTableLayout();
 			}
 			@Override
 			public void onNothingSelected(AdapterView<?> parentView) {
@@ -340,18 +345,20 @@ public class QuestionnaireShelfShareCreator {
 	
 	private void initQuantitiesArray(){
 		// FIXME : enlever les valeurs spécifiés en dur lors de la création du tableau des quantités
-		_quantitiesArray = new int[_poisList.size()][_categoriesProduitsList.size()][40][20];
+		int MAX_NBR_OF_MARQUES = 40;
+		int MAX_NBR_OF_SEGMENTS = 10;
+		_quantitiesArray = new int[_poisList.size()][_categoriesProduitsList.size()][MAX_NBR_OF_MARQUES][MAX_NBR_OF_SEGMENTS];
 		for(int i  = 0; i < _poisList.size(); i++){
 			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
-				for(int k  = 0; k < 20; k++){
-					for(int l = 0; l < 20; l++){
-						_quantitiesArray[i][j][k][l] = -1;
+				for(int k  = 0; k < MAX_NBR_OF_MARQUES; k++){
+					for(int l = 0; l < MAX_NBR_OF_SEGMENTS; l++){
+						_quantitiesArray[i][j][k][l] = 0;
 					}
 				}
 			}
 		}
 		
-		for(int i  = 0; i < _poisList.size(); i++){
+		/*for(int i  = 0; i < _poisList.size(); i++){
 			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
 				List<Marque> marquesOperatingInCategoryList = _db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j));
 				//for(int k  = 0; k < db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j)).size(); k++){
@@ -362,7 +369,7 @@ public class QuestionnaireShelfShareCreator {
 					}
 				}
 			}
-		}
+		}*/
 	}
 	
 }

@@ -58,6 +58,8 @@ public class QuestionnaireDisponibilite {
 	
 	
 	public Questionnaire _questionnaire;
+	private int _nbrLignesTraitees = 0;
+	private float _tempsRemplissage = 0;
 	
 	public void init(final Activity activity, LinearLayout containerLayout){
 		this._targetActivity = activity;
@@ -117,6 +119,8 @@ public class QuestionnaireDisponibilite {
 		_questionnaire.setQuantitiesData(quantitiesData);
 		_questionnaire.setLocalisationId(String.valueOf(Statics.lastLocalisationId));
 		_questionnaire.setDateCreation(Utils.now());
+		_questionnaire.setNbrLignesTraitees(_nbrLignesTraitees);
+		_questionnaire.setTempsRemplissage(_tempsRemplissage);
 		_db.createQuestionnaire(_questionnaire);
 
 		Toast.makeText(
@@ -135,6 +139,7 @@ public class QuestionnaireDisponibilite {
 						int categorieProduits_id = _categoriesProduitsList.get(j).getId();
 						int produitId = _produitsList.get(k).getId();
 						int qty = _quantitiesArray[i][j][k];
+						if(qty >0) _nbrLignesTraitees++;
 						data += poiId +";" +categorieProduits_id +";" + produitId + ";" +qty + "||";
 				}
 			}
@@ -301,7 +306,6 @@ public class QuestionnaireDisponibilite {
 						_cb_categorie.getSelectedItemPosition());
 				_produitsList = _db.getAllProduits();
 				//_produitsList.add(new Produit()); // FIXME : ajouter un element vide sinon la marque ne s'affiche pas
-				
 				_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(selectedCategorieProduits);
 				_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
 				
@@ -342,23 +346,24 @@ public class QuestionnaireDisponibilite {
 	
 	private void initQuantitiesArray(){
 		// FIXME : enlever les valeurs spécifiés en dur lors de la création du tableau des quantités
-		_quantitiesArray = new int[_poisList.size()][_categoriesProduitsList.size()][50];
+		int MAX_NBR_OF_PRODUCTS = 50;
+		_quantitiesArray = new int[_poisList.size()][_categoriesProduitsList.size()][MAX_NBR_OF_PRODUCTS];
 		for(int i  = 0; i < _poisList.size(); i++){
 			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
 				for(int k  = 0; k < 50; k++){
-						_quantitiesArray[i][j][k] = -1;
+						_quantitiesArray[i][j][k] = 0;
 				}
 			}
 		}
 		
-		for(int i  = 0; i < _poisList.size(); i++){
+		/*for(int i  = 0; i < _poisList.size(); i++){
 			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
 				//for(int k  = 0; k < db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j)).size(); k++){
 				for(int k  = 0; k < _produitsList.size(); k++){
 					_quantitiesArray[i][j][k] = 0;
 				}
 			}
-		}
+		}*/
 	}
 	
 }

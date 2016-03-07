@@ -590,6 +590,8 @@ public class Common {
 		params.put("type", questionnaire.getType());
 		params.put("quantitiesData", questionnaire.getQuantitiesData());
 		params.put("localisationId", questionnaire.getLocalisationId());
+		params.put("nbrLignesTraitees", String.valueOf(questionnaire.getNbrLignesTraitees()));
+		params.put("tempsRemplissage", String.valueOf(questionnaire.getTempsRemplissage()));
 		params.put("dateCreation", questionnaire.getDateCreation());
 
 		try {
