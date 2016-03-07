@@ -56,7 +56,7 @@ public class QuestionnaireShelfShare {
 	public Questionnaire _questionnaire;
 	private int _nbrLignesTraitees = 0;
 	private float _tempsRemplissage = 0;
-	
+	private long _lastSysTimeMillis = 0; // used to help calculate _tempsRemplissage
 	
 	public void init(final Activity activity, LinearLayout containerLayout){
 		this._targetActivity = activity;
@@ -109,6 +109,8 @@ public class QuestionnaireShelfShare {
 	}
 	
 	private void storeDataOnLocalStorage() {
+		stopTempsRemplissageCount();
+		
 		_questionnaire = new Questionnaire();
 		String quantitiesData = getSerializedQuantitiesData();
 		_questionnaire.setType(Questionnaire.TYPE_SHELFSHARE);
@@ -372,4 +374,14 @@ public class QuestionnaireShelfShare {
 		}*/
 	}
 	
+	public void stopTempsRemplissageCount(){
+		long millis = System.currentTimeMillis() - _lastSysTimeMillis;
+        int seconds = (int) (millis / 1000);
+        _tempsRemplissage += seconds;
+        Log.d("TEMPSREMPLISSAGE","" + _tempsRemplissage);
+	}
+	
+	public void startTempsRemlissageCount(){
+		_lastSysTimeMillis = System.currentTimeMillis();
+	}
 }

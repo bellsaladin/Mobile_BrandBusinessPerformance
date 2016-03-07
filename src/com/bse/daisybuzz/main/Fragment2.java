@@ -80,7 +80,10 @@ public class Fragment2 extends Fragment {
 	List<TrancheAge> tranchesAgeList;
 	View view;
 	LinearLayout layout_questionnaire_shelfShare, layout_questionnaire_disponibilite;	
-
+	
+	QuestionnaireShelfShare questionnaireShelfShareCreator;
+	QuestionnaireDisponibilite questionnaireDisponibiliteCreator;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -100,6 +103,10 @@ public class Fragment2 extends Fragment {
 		    	layout_questionnaire_disponibilite.setVisibility(LinearLayout.GONE);
 		    	btn_showQuestionnaire1.setTextColor(Color.parseColor("#000000"));
 		    	btn_showQuestionnaire2.setTextColor(Color.parseColor("#999999"));
+		    	
+		    	// start / stop time count elapsed on each of the forms (Questionnaires)
+		    	questionnaireShelfShareCreator.startTempsRemlissageCount();
+		    	questionnaireDisponibiliteCreator.stopTempsRemplissageCount();
 		    }
 		});
 		
@@ -110,15 +117,19 @@ public class Fragment2 extends Fragment {
 		    	layout_questionnaire_shelfShare.setVisibility(LinearLayout.GONE);
 		    	btn_showQuestionnaire2.setTextColor(Color.parseColor("#000000"));
 		    	btn_showQuestionnaire1.setTextColor(Color.parseColor("#999999"));
+		    	
+		    	// start / stop time count elapsed on each of the forms (Questionnaires) 
+		    	questionnaireDisponibiliteCreator.startTempsRemlissageCount();
+		    	questionnaireShelfShareCreator.stopTempsRemplissageCount();
 		    }
 		});
 		
 		// create questionnaires forms *************************
 		
-		QuestionnaireShelfShare questionnaireShelfShareCreator = new QuestionnaireShelfShare();
+		questionnaireShelfShareCreator = new QuestionnaireShelfShare();
 		questionnaireShelfShareCreator.init(this.getActivity(), layout_questionnaire_shelfShare);
-		
-		QuestionnaireDisponibilite questionnaireDisponibiliteCreator = new QuestionnaireDisponibilite();
+		questionnaireShelfShareCreator.startTempsRemlissageCount();
+		questionnaireDisponibiliteCreator = new QuestionnaireDisponibilite();
 		questionnaireDisponibiliteCreator.init(this.getActivity(), layout_questionnaire_disponibilite);
 		
 		return view;

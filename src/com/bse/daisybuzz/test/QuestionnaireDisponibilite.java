@@ -60,15 +60,13 @@ public class QuestionnaireDisponibilite {
 	public Questionnaire _questionnaire;
 	private int _nbrLignesTraitees = 0;
 	private float _tempsRemplissage = 0;
+	private long _lastSysTimeMillis = 0; // used to help calculate _tempsRemplissage
 	
 	public void init(final Activity activity, LinearLayout containerLayout){
 		this._targetActivity = activity;
-		
 		_db = new SqliteDatabaseHelper(this._targetActivity.getApplicationContext());
-				
 		_categoriesProduitsList = _db.getAllCategoriesOfProduits(); 
 		_poisList = _db.getAllPois();
-		
 		_produitsList = _db.getAllProduits();
 		_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(_categoriesProduitsList.get(0));
 		_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
@@ -113,6 +111,7 @@ public class QuestionnaireDisponibilite {
 	}
 	
 	private void storeDataOnLocalStorage() {
+		stopTempsRemplissageCount();
 		_questionnaire = new Questionnaire();
 		_questionnaire.setType(Questionnaire.TYPE_DISPONIBILITE);
 		String quantitiesData = getSerializedQuantitiesData();
@@ -134,7 +133,6 @@ public class QuestionnaireDisponibilite {
 		for(int i  = 0; i < _poisList.size(); i++){
 			for(int j  = 0; j < _categoriesProduitsList.size(); j++){				//for(int k  = 0; k < db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j)).size(); k++){
 				for(int k  = 0; k < _produitsList.size(); k++){
-					
 						int poiId = _poisList.get(i).getId();
 						int categorieProduits_id = _categoriesProduitsList.get(j).getId();
 						int produitId = _produitsList.get(k).getId();
@@ -364,6 +362,16 @@ public class QuestionnaireDisponibilite {
 				}
 			}
 		}*/
+	}
+	
+	public void stopTempsRemplissageCount(){
+		long millis = System.currentTimeMillis() - _lastSysTimeMillis;
+        int seconds = (int) (millis / 1000);
+        _tempsRemplissage += seconds;
+	}
+	
+	public void startTempsRemlissageCount(){
+		_lastSysTimeMillis = System.currentTimeMillis();
 	}
 	
 }
