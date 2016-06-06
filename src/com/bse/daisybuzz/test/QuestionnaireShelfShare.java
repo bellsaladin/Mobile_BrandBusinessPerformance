@@ -23,13 +23,14 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.NumberPicker;
+//import android.widget.NumberPicker;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.LinearLayout.LayoutParams;
@@ -49,6 +50,8 @@ public class QuestionnaireShelfShare {
 	private Activity _targetActivity;
 	private int[][][][] _quantitiesArray;
 	private EditText[][] _editTextsArray;
+	
+	
 	private SqliteDatabaseHelper _db;
 	
 	Spinner _cb_poi;
@@ -239,11 +242,14 @@ public class QuestionnaireShelfShare {
 				} else {
 					
 					_editTextsArray[i][j] = new EditText(this._targetActivity);
+					
+
 					// textView.setText(String.valueOf(j));
 					//_editTextsArray[i][j].setBackgroundColor(Color.WHITE);
 					//_editTextsArray[i][j].getLayoutParams().width = 50;
 					_editTextsArray[i][j].setGravity(Gravity.CENTER);
-					_editTextsArray[i][j].setInputType(InputType.TYPE_CLASS_NUMBER);
+					//_editTextsArray[i][j].setInputType(InputType.TYPE_CLASS_NUMBER);
+					_editTextsArray[i][j].setInputType(InputType.TYPE_NULL);
 					
 					final int marqueIdx = i - 1;
 					final int segmentCategoryIdx = j - 1;
@@ -270,7 +276,16 @@ public class QuestionnaireShelfShare {
 				          public void onTextChanged(CharSequence s, int start, int before, int count) {}
 				    };
 				    _editTextsArray[i][j].addTextChangedListener(editTextWatcher);
-					
+				    final EditText editText = _editTextsArray[i][j]; 
+				    _editTextsArray[i][j].setOnFocusChangeListener(new OnFocusChangeListener() {
+
+				        @Override
+				        public void onFocusChange(View v, boolean hasFocus) {
+				            if (hasFocus) {
+				            	Fragment2._currentlySelectedEditText = editText;
+				            }
+				        }
+				    });
 					//editTextsArray[i][j] = editText; // save editText to the array to make it easy to get back it's value when needed
 					
 					tableRow.addView(_editTextsArray[i][j], tableRowParams);			

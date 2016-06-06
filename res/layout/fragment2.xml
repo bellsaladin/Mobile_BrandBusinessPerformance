@@ -4,75 +4,100 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+   
 		
 		    
         <LinearLayout
 	            android:layout_width="match_parent"
 	            android:layout_height="match_parent"
 	            android:orientation="vertical" >
-            <LinearLayout android:id="@+id/footer"
-		        android:layout_width="fill_parent"
-		        android:layout_height="wrap_content"
-		        android:orientation="horizontal"
-		        android:layout_alignParentBottom="true"
-		        style="@android:style/ButtonBar"
-		        android:background="#cccccc">
-		        <Button android:id="@+id/btn_showQuestionnaire1"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_weight="1"
-		            android:text="Shelf Share"
-		            android:background="#dddddd" />
-		
-		        <Button android:id="@+id/btn_showQuestionnaire2"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_weight="1"
-		            android:text="Disponibilité"
-		            android:background="#dddddd" 
-		            android:textColor="#999999"/>
-	   		 </LinearLayout>
-	    
-        	<LinearLayout
-                android:id="@+id/layout_questionnaire_shelfShare"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingLeft="10dp"
-              	android:paddingRight="10dp"
-                android:orientation="vertical">
-                <TextView
-		            android:layout_width="match_parent"
-		            android:layout_height="wrap_content"
-		            android:layout_marginTop="20dp"
-		            android:layout_marginBottom="10dp"
-		            android:gravity="left"
-		            android:text="1. Questionnaire Shelf Share"
-		            android:textAppearance="?android:attr/textAppearanceLarge"
-		            android:textColor="#156FA9" />
-            </LinearLayout>
-                
-            <LinearLayout
-                android:id="@+id/layout_questionnaire_disponibility"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingLeft="10dp"
-              	android:paddingRight="10dp"
-                android:orientation="vertical"
-                android:visibility="gone">
-                <TextView
-			            android:layout_width="match_parent"
-			            android:layout_height="wrap_content"
-			            android:layout_marginTop="20dp"
-			            android:layout_marginBottom="10dp"
-			            android:gravity="left"
-			            android:text="2. Questionnaire de disponibilité"
-			            android:textAppearance="?android:attr/textAppearanceLarge"
-			            android:textColor="#156FA9" />
-            </LinearLayout>
-            
+	        <ScrollView
+			        android:layout_width="fill_parent"
+			        android:layout_height="wrap_content" >
+				<LinearLayout android:layout_width="fill_parent"
+			        android:layout_height="wrap_content"
+			        android:orientation="vertical">
+		            <LinearLayout android:id="@+id/footer"
+				        android:layout_width="fill_parent"
+				        android:layout_height="wrap_content"
+				        android:orientation="horizontal"
+				        android:layout_alignParentBottom="true"
+				        style="@android:style/ButtonBar"
+				        android:background="#cccccc">
+				        <Button android:id="@+id/btn_showQuestionnaire1"
+				            android:layout_width="wrap_content"
+				            android:layout_height="wrap_content"
+				            android:layout_weight="1"
+				            android:text="Shelf Share"
+				            android:background="#dddddd" />
+				
+				        <Button android:id="@+id/btn_showQuestionnaire2"
+				            android:layout_width="wrap_content"
+				            android:layout_height="wrap_content"
+				            android:layout_weight="1"
+				            android:text="Disponibilité"
+				            android:background="#dddddd" 
+				            android:textColor="#999999"/>
+			   		 </LinearLayout>
+		        	<LinearLayout
+		                android:id="@+id/layout_questionnaire_shelfShare"
+		                android:layout_width="match_parent"
+		                android:layout_height="match_parent"
+		                android:paddingLeft="10dp"
+		              	android:paddingRight="10dp"
+		                android:orientation="vertical">
+		                <TextView
+				            android:layout_width="match_parent"
+				            android:layout_height="wrap_content"
+				            android:layout_marginTop="20dp"
+				            android:layout_marginBottom="10dp"
+				            android:gravity="left"
+				            android:text="1. Questionnaire Shelf Share"
+				            android:textAppearance="?android:attr/textAppearanceLarge"
+				            android:textColor="#156FA9" />
+		            </LinearLayout>
+		                
+		            <LinearLayout
+		                android:id="@+id/layout_questionnaire_disponibility"
+		                android:layout_width="match_parent"
+		                android:layout_height="match_parent"
+		                android:paddingLeft="10dp"
+		              	android:paddingRight="10dp"
+		                android:orientation="vertical"
+		                android:visibility="gone">
+		                <TextView
+					            android:layout_width="match_parent"
+					            android:layout_height="wrap_content"
+					            android:layout_marginTop="20dp"
+					            android:layout_marginBottom="10dp"
+					            android:gravity="left"
+					            android:text="2. Questionnaire de disponibilité"
+					            android:textAppearance="?android:attr/textAppearanceLarge"
+					            android:textColor="#156FA9" />
+		            </LinearLayout>
+          	  	</LinearLayout>
+            </ScrollView>
         </LinearLayout>
-    </ScrollView>
+    
+    <LinearLayout android:id="@+id/controlButtons"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+      		android:layout_alignParentBottom="true"
+        style="@android:style/ButtonBar"
+        android:background="#cccccc">
+        <Button android:id="@+id/btn_increment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="+"
+            android:background="#dddddd" />
+
+        <Button android:id="@+id/btn_decrement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="-"
+            android:background="#dddddd" />
+  	</LinearLayout>
 </RelativeLayout>

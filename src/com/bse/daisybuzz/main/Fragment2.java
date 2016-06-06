@@ -70,7 +70,8 @@ public class Fragment2 extends Fragment {
 	LinearLayout linearLayout2;
 	CheckBox cb_tombola;
 	private Button btn_showQuestionnaire1, btn_showQuestionnaire2;
-
+	private Button btn_increment, btn_decrement;
+	public static EditText _currentlySelectedEditText;
 	List<Marque> marquesList;
 	List<Cadeau> cadeauxList;
 	List<RaisonAchat> raisonsAchatList;
@@ -95,6 +96,9 @@ public class Fragment2 extends Fragment {
 		
 		btn_showQuestionnaire1 =  (Button) view.findViewById(R.id.btn_showQuestionnaire1);
 		btn_showQuestionnaire2 =  (Button) view.findViewById(R.id.btn_showQuestionnaire2);
+		
+		btn_increment =  (Button) view.findViewById(R.id.btn_increment);
+		btn_decrement =  (Button) view.findViewById(R.id.btn_decrement);
 		
 		btn_showQuestionnaire1.setOnClickListener(new View.OnClickListener() {
 		    @Override
@@ -121,6 +125,24 @@ public class Fragment2 extends Fragment {
 		    	// start / stop time count elapsed on each of the forms (Questionnaires) 
 		    	questionnaireDisponibiliteCreator.startTempsRemlissageCount();
 		    	questionnaireShelfShareCreator.stopTempsRemplissageCount();
+		    }
+		});
+		
+		btn_increment.setOnClickListener(new View.OnClickListener() {
+		    @Override
+		    public void onClick(View v) {
+		    	if(_currentlySelectedEditText == null) return;
+		    	int value = Integer.parseInt(_currentlySelectedEditText.getText().toString());
+		    	_currentlySelectedEditText.setText(String.valueOf(value+1));
+		    }
+		});
+		
+		btn_decrement.setOnClickListener(new View.OnClickListener() {
+		    @Override
+		    public void onClick(View v) {
+		    	if(_currentlySelectedEditText == null) return;
+		    	int value = Integer.parseInt(_currentlySelectedEditText.getText().toString());
+		    	_currentlySelectedEditText.setText(String.valueOf(value-1));
 		    }
 		});
 		

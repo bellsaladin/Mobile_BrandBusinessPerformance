@@ -24,13 +24,14 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.NumberPicker;
+//import android.widget.NumberPicker;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.LinearLayout.LayoutParams;
@@ -213,7 +214,8 @@ public class QuestionnaireDisponibilite {
 			//_editTextsArray[i][j].setBackgroundColor(Color.WHITE);
 			//_editTextsArray[i][j].getLayoutParams().width = 50;
 			_editTextsArray[i].setGravity(Gravity.CENTER);
-			_editTextsArray[i].setInputType(InputType.TYPE_CLASS_NUMBER);
+			//_editTextsArray[i].setInputType(InputType.TYPE_CLASS_NUMBER);
+			_editTextsArray[i].setInputType(InputType.TYPE_NULL);
 			
 			final int produitIdx = i;
 			
@@ -240,6 +242,17 @@ public class QuestionnaireDisponibilite {
 		    };
 		    _editTextsArray[i].addTextChangedListener(editTextWatcher);
 			
+		    final EditText editText = _editTextsArray[i]; 
+		    _editTextsArray[i].setOnFocusChangeListener(new OnFocusChangeListener() {
+
+		        @Override
+		        public void onFocusChange(View v, boolean hasFocus) {
+		            if (hasFocus) {
+		            	Fragment2._currentlySelectedEditText = editText;
+		            }
+		        }
+		    });
+		    
 			//editTextsArray[i][j] = editText; // save editText to the array to make it easy to get back it's value when needed
 			
 			tableRow.addView(_editTextsArray[i], tableRowParams);			
