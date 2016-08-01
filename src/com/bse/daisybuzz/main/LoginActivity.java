@@ -206,7 +206,7 @@ public class LoginActivity extends ActionBarActivity {
 			}
 			inputStream.close();
 			result = sb.toString();
-			Log.e("DEBUG", result);
+			Log.e("DEBUG AAAAA", result);
 			int animateurId = Integer.valueOf(result.trim());
 			Log.e("DEBUG", String.valueOf(animateurId));
 			if(animateurId > 0){
@@ -219,7 +219,7 @@ public class LoginActivity extends ActionBarActivity {
 			
 			return animateurId;
 		} catch (Exception e) {
-			Log.e("Fail 1", e.toString());			
+			Log.e("Fail Login", e.toString());			
 			
 			return -1; // error
 		}

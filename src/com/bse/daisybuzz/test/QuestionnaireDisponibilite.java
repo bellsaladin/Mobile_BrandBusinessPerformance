@@ -2,18 +2,14 @@ package com.bse.daisybuzz.test;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Statics;
 import com.bse.daisybuzz.helper.Utils;
 import com.bse.daisybuzz.main.Fragment2;
-import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Categorie;
-import com.bse.daizybuzz.model.Marque;
 import com.bse.daizybuzz.model.Poi;
 import com.bse.daizybuzz.model.Produit;
 import com.bse.daizybuzz.model.Questionnaire;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.graphics.Color;
@@ -31,7 +27,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-//import android.widget.NumberPicker;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.LinearLayout.LayoutParams;
@@ -40,6 +35,7 @@ import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.content.DialogInterface;
 
 public class QuestionnaireDisponibilite {
 	TableLayout _tableLayout;
@@ -50,13 +46,12 @@ public class QuestionnaireDisponibilite {
 	
 	private Activity _targetActivity;
 	private int[][][] _quantitiesArray;
-	private EditText[] _editTextsArray;
+	private ArrayList<EditText> _editTextsArray;
 	private SqliteDatabaseHelper _db;
 	
 	Spinner _cb_categorie;
 	Spinner _cb_segment;
 	Spinner _cb_poi;
-	
 	
 	public Questionnaire _questionnaire;
 	private int _nbrLignesTraitees = 0;
@@ -94,6 +89,72 @@ public class QuestionnaireDisponibilite {
 
 		createTableLayout(this._targetActivity, linearLayout);
 	    
+		Button addProductReferenceButton = new Button(activity);
+		addProductReferenceButton.setText("AJOUTER REFERENCE");
+		addProductReferenceButton.setBackgroundColor(Color.parseColor("#ffffff"));
+		addProductReferenceButton.setTextColor(Color.parseColor("#3366ff"));
+		addProductReferenceButton.setOnClickListener(new View.OnClickListener() {
+	        @Override
+	        public void onClick(View v) {	
+	        	
+	        	AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+	        	builder.setTitle("Nouvelle reference");
+	            LinearLayout dialogLayout = new LinearLayout(activity);
+	            dialogLayout.setOrientation(LinearLayout.VERTICAL);
+
+	            LayoutParams LLParams = new LayoutParams(LayoutParams.MATCH_PARENT,400);
+
+	            dialogLayout.setLayoutParams(LLParams);
+
+	        	final EditText skuInput = new EditText(activity);
+	        	skuInput.setLayoutParams( new LayoutParams(LayoutParams.MATCH_PARENT,120));
+	        	// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+	        	skuInput.setInputType(InputType.TYPE_CLASS_TEXT);
+	        	
+	        	String[] strings={"REF","WM","CTV","AC"};
+	            final Spinner typeSpinner = new Spinner(activity);
+	            typeSpinner.setAdapter(new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_dropdown_item,strings));
+	            typeSpinner.setLayoutParams( new LayoutParams(LayoutParams.MATCH_PARENT,120));
+	        	
+	        	dialogLayout.addView(typeSpinner);
+	        	dialogLayout.addView(skuInput);
+
+	        	builder.setView(dialogLayout);
+	        	
+	        	builder.setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+	        	});
+	        	
+	        	builder.setPositiveButton("Valider", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						int produitId = _db.getRecordsCount("produit") + 1;
+						String sku = skuInput.getText().toString();
+						String type = typeSpinner.getSelectedItem().toString();
+						
+						// create new 'produit' locally
+			        	Produit produit = new Produit(produitId, sku, sku, "");;
+			        	
+			        	produit.setAddedLocaly(1); // important : for synchronisation conflict handling
+			        	produit.setType(type);
+			        	_db.createProduit(produit);
+			        	
+			        	Log.e("Debug QD", " > " + _db.getRecordsCount("produit") );
+			        	// refill tableLayout
+			        	fillTableLayout();
+					}
+	        	});
+
+	        	builder.show();
+	        	
+	        }
+	    });
+	    
+	    linearLayout.addView(addProductReferenceButton);
+	    
+		
 		Button saveButton = new Button(activity);
 	    saveButton.setText("Enregistrer");
 	    saveButton.setBackgroundColor(Color.parseColor("#cccccc"));
@@ -134,12 +195,16 @@ public class QuestionnaireDisponibilite {
 		for(int i  = 0; i < _poisList.size(); i++){
 			for(int j  = 0; j < _categoriesProduitsList.size(); j++){				//for(int k  = 0; k < db.getAllMarquesOperatingInCategory(_categoriesProduitsList.get(j)).size(); k++){
 				for(int k  = 0; k < _produitsList.size(); k++){
-						int poiId = _poisList.get(i).getId();
-						int categorieProduits_id = _categoriesProduitsList.get(j).getId();
-						int produitId = _produitsList.get(k).getId();
+						int newProduit = (_produitsList.get(k).isAddedLocaly())?1:0;
+						String type = _produitsList.get(k).getType();
+						String poiId = String.valueOf(_poisList.get(i).getId());
+						String categorieProduits_id =String.valueOf(_categoriesProduitsList.get(j).getId());
+						String produitId = String.valueOf(_produitsList.get(k).getId());
+						if(_produitsList.get(k).isAddedLocaly())
+							produitId = _produitsList.get(k).getSku();
 						int qty = _quantitiesArray[i][j][k];
 						if(qty >0) _nbrLignesTraitees++;
-						data += poiId +";" +categorieProduits_id +";" + produitId + ";" +qty + "||";
+						data += newProduit + ";" + type + ";" + poiId +";" +categorieProduits_id +";" + produitId + ";" +qty + "||";
 				}
 			}
 		}
@@ -179,11 +244,10 @@ public class QuestionnaireDisponibilite {
 	}
 
 	private TableLayout fillTableLayout() {
-		_editTextsArray = new EditText[_produitsList.size()];
-		
+		_editTextsArray = new ArrayList<EditText>();
 		_tableLayout.removeAllViews();
 		
-		
+		_produitsList = _db.getAllProduits();
 		List rows = _produitsList;
 		int rowCount = rows.size();
 		
@@ -201,26 +265,26 @@ public class QuestionnaireDisponibilite {
 			TableRow tableRow = new TableRow(this._targetActivity);
 			tableRow.setBackgroundColor(Color.parseColor("#eeeeee"));
 
-			
 			TextView textView = new TextView(this._targetActivity);
 			textView.setTextSize(16);
 			textView.setText(rows.get(i).toString());
 			textView.setTextColor(Color.RED);
 			textView.setTypeface(null, Typeface.BOLD);
 			tableRow.addView(textView, tableRowParams);	
-					
-			_editTextsArray[i] = new EditText(this._targetActivity);
+			EditText productQtyEditText =	new EditText(this._targetActivity);	
+			
 			// textView.setText(String.valueOf(j));
 			//_editTextsArray[i][j].setBackgroundColor(Color.WHITE);
 			//_editTextsArray[i][j].getLayoutParams().width = 50;
-			_editTextsArray[i].setGravity(Gravity.CENTER);
+			productQtyEditText.setGravity(Gravity.CENTER);
 			//_editTextsArray[i].setInputType(InputType.TYPE_CLASS_NUMBER);
-			_editTextsArray[i].setInputType(InputType.TYPE_NULL);
+			productQtyEditText.setInputType(InputType.TYPE_NULL);
+			productQtyEditText.setWidth(100);
 			
 			final int produitIdx = i;
 			
 			int qty = _quantitiesArray[_cb_poi.getSelectedItemPosition()][_cb_categorie.getSelectedItemPosition()][produitIdx];
-			_editTextsArray[i].setText(String.valueOf(qty));
+			productQtyEditText.setText(String.valueOf(qty));
 			TextWatcher editTextWatcher = new TextWatcher() {
 
 		          public void afterTextChanged(Editable editable) {
@@ -240,22 +304,23 @@ public class QuestionnaireDisponibilite {
 
 		          public void onTextChanged(CharSequence s, int start, int before, int count) {}
 		    };
-		    _editTextsArray[i].addTextChangedListener(editTextWatcher);
-			
-		    final EditText editText = _editTextsArray[i]; 
-		    _editTextsArray[i].setOnFocusChangeListener(new OnFocusChangeListener() {
+		    productQtyEditText.addTextChangedListener(editTextWatcher);
+		    
+		    final EditText finalEditText = productQtyEditText; 
+		    productQtyEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
 
 		        @Override
 		        public void onFocusChange(View v, boolean hasFocus) {
 		            if (hasFocus) {
-		            	Fragment2._currentlySelectedEditText = editText;
+		            	Fragment2._currentlySelectedEditText = finalEditText;
+		            	Fragment2.layout_bottomControls.setVisibility(LinearLayout.VISIBLE);
 		            }
 		        }
 		    });
-		    
+		    _editTextsArray.add(productQtyEditText);
 			//editTextsArray[i][j] = editText; // save editText to the array to make it easy to get back it's value when needed
 			
-			tableRow.addView(_editTextsArray[i], tableRowParams);			
+			tableRow.addView(productQtyEditText, tableRowParams);			
 				
 			// add tableRow to tableLayout
 			_tableLayout.addView(tableRow, tableLayoutParams);
@@ -265,7 +330,7 @@ public class QuestionnaireDisponibilite {
 		return _tableLayout;
 	}
 	
-	private void createCategorieProduitsSpinner(Activity activity, LinearLayout containerLayout){
+	private void createCategorieProduitsSpinner(final Activity activity, LinearLayout containerLayout){
 		_cb_categorie = new Spinner(activity);
 	    List<String> dataArray = new ArrayList<String>();
 	    for(Categorie categorie : _categoriesProduitsList){
@@ -283,9 +348,18 @@ public class QuestionnaireDisponibilite {
 						_cb_categorie.getSelectedItemPosition());
 				_produitsList = _db.getAllProduits();
 				//_produitsList.add(new Produit()); // FIXME : ajouter un element vide sinon la marque ne s'affiche pas
-				
 				_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(selectedCategorieProduits);
 				_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
+				
+				List<String> dataArray = new ArrayList<String>();
+			    for(Categorie categorie : _segmentsOfSelectedCategorieProduitsList){
+			    	if(categorie.getNom() != null)
+			    		dataArray.add(categorie.toString());
+			    }
+			    
+			    ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_dropdown_item, dataArray);
+			    _cb_segment.setAdapter(spinnerArrayAdapter);
+				
 				
 				QuestionnaireDisponibilite.this.fillTableLayout();
 
@@ -300,17 +374,17 @@ public class QuestionnaireDisponibilite {
 	}
 	
 	private void createSegmentSpinner(Activity activity, LinearLayout containerLayout){
-		_cb_categorie = new Spinner(activity);
+		_cb_segment = new Spinner(activity);
 	    List<String> dataArray = new ArrayList<String>();
 	    for(Categorie categorie : _segmentsOfSelectedCategorieProduitsList){
 	    	if(categorie.getNom() != null)
 	    		dataArray.add(categorie.toString());
 	    }
 	    ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(activity, android.R.layout.simple_spinner_dropdown_item, dataArray);
-	    _cb_categorie.setAdapter(spinnerArrayAdapter);
-	    containerLayout.addView(_cb_categorie);
+	    _cb_segment.setAdapter(spinnerArrayAdapter);
+	    containerLayout.addView(_cb_segment);
 	    
-	    _cb_categorie.setOnItemSelectedListener(new OnItemSelectedListener() {
+	    _cb_segment.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
 				Categorie selectedCategorieProduits = _categoriesProduitsList.get(
@@ -318,7 +392,7 @@ public class QuestionnaireDisponibilite {
 				_produitsList = _db.getAllProduits();
 				//_produitsList.add(new Produit()); // FIXME : ajouter un element vide sinon la marque ne s'affiche pas
 				_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(selectedCategorieProduits);
-				_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
+				//_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
 				
 				QuestionnaireDisponibilite.this.fillTableLayout();
 		
@@ -357,11 +431,11 @@ public class QuestionnaireDisponibilite {
 	
 	private void initQuantitiesArray(){
 		// FIXME : enlever les valeurs spécifiés en dur lors de la création du tableau des quantités
-		int MAX_NBR_OF_PRODUCTS = 50;
+		int MAX_NBR_OF_PRODUCTS = 500;
 		_quantitiesArray = new int[_poisList.size()][_categoriesProduitsList.size()][MAX_NBR_OF_PRODUCTS];
 		for(int i  = 0; i < _poisList.size(); i++){
 			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
-				for(int k  = 0; k < 50; k++){
+				for(int k  = 0; k < MAX_NBR_OF_PRODUCTS; k++){
 						_quantitiesArray[i][j][k] = 0;
 				}
 			}

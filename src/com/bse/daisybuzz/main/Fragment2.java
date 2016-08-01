@@ -70,6 +70,7 @@ public class Fragment2 extends Fragment {
 	LinearLayout linearLayout2;
 	CheckBox cb_tombola;
 	private Button btn_showQuestionnaire1, btn_showQuestionnaire2;
+	public static LinearLayout layout_bottomControls;
 	private Button btn_increment, btn_decrement;
 	public static EditText _currentlySelectedEditText;
 	List<Marque> marquesList;
@@ -93,7 +94,7 @@ public class Fragment2 extends Fragment {
 		
 		layout_questionnaire_shelfShare = (LinearLayout) view.findViewById(R.id.layout_questionnaire_shelfShare);
 		layout_questionnaire_disponibilite = (LinearLayout) view.findViewById(R.id.layout_questionnaire_disponibility);
-		
+		layout_bottomControls =  (LinearLayout) view.findViewById(R.id.layout_bottomControls);
 		btn_showQuestionnaire1 =  (Button) view.findViewById(R.id.btn_showQuestionnaire1);
 		btn_showQuestionnaire2 =  (Button) view.findViewById(R.id.btn_showQuestionnaire2);
 		
@@ -142,6 +143,7 @@ public class Fragment2 extends Fragment {
 		    public void onClick(View v) {
 		    	if(_currentlySelectedEditText == null) return;
 		    	int value = Integer.parseInt(_currentlySelectedEditText.getText().toString());
+		    	if(value == 0) return;
 		    	_currentlySelectedEditText.setText(String.valueOf(value-1));
 		    }
 		});

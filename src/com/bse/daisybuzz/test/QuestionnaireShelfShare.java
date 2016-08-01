@@ -283,6 +283,7 @@ public class QuestionnaireShelfShare {
 				        public void onFocusChange(View v, boolean hasFocus) {
 				            if (hasFocus) {
 				            	Fragment2._currentlySelectedEditText = editText;
+				            	Fragment2.layout_bottomControls.setVisibility(LinearLayout.VISIBLE);
 				            }
 				        }
 				    });

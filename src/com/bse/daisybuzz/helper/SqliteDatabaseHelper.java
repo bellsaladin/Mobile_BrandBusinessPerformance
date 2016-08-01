@@ -70,6 +70,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	// PRODUIT Table - column names
 	private static final String KEY_SKU = "sku";
 	private static final String KEY_CATEGORIE_ID = "categorie_id";
+	private static final String KEY_ADDED_LOCALY = "isAddedLocaly";
 
 	// CATEGORIE Table - column names
 	private static final String KEY_CONTEXT = "context";
@@ -129,7 +130,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 	// Produit table create statement
 	private static final String CREATE_TABLE_PRODUIT = "CREATE TABLE "
 				+ TABLE_PRODUIT + "(" + KEY_ID + " INTEGER," + KEY_SKU
-				+ " TEXT," + KEY_LIBELLE+ " TEXT," + KEY_CATEGORIE_ID+ " TEXT )";
+				+ " TEXT," + KEY_LIBELLE+ " TEXT," + KEY_CATEGORIE_ID+ " TEXT, " + KEY_TYPE + " TEXT, " + KEY_ADDED_LOCALY + " INTEGER )";
 	// Categorie table create statement
 	private static final String CREATE_TABLE_CATEGORIE = "CREATE TABLE "
 					+ TABLE_CATEGORIE + "(" + KEY_ID + " INTEGER," + KEY_NOM
@@ -448,7 +449,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		values.put(KEY_SKU, produit.getSku());
 		values.put(KEY_LIBELLE, produit.getLibelle());
 		values.put(KEY_CATEGORIE_ID, produit.getCategorieId());
-
+		values.put(KEY_ADDED_LOCALY, (produit.isAddedLocaly())?1:0);
+		values.put(KEY_TYPE, produit.getType());
 		// insert row
 		long id = db.insert(TABLE_PRODUIT, null, values);
 
@@ -473,6 +475,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		produit.setLibelle((c.getString(c.getColumnIndex(KEY_LIBELLE))));
 		produit.setSku((c.getString(c.getColumnIndex(KEY_SKU))));
 		produit.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
+		produit.setAddedLocaly((c.getInt(c.getColumnIndex(KEY_ADDED_LOCALY))));
+		produit.setType((c.getString(c.getColumnIndex(KEY_TYPE))));
 		c.close();
 		return produit;
 	}
@@ -494,7 +498,8 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 				produit.setLibelle((c.getString(c.getColumnIndex(KEY_LIBELLE))));
 				produit.setSku((c.getString(c.getColumnIndex(KEY_SKU))));
 				produit.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
-
+				produit.setAddedLocaly((c.getInt(c.getColumnIndex(KEY_ADDED_LOCALY))));
+				produit.setType((c.getString(c.getColumnIndex(KEY_TYPE))));
 				// adding to todo list
 				produits.add(produit);
 			} while (c.moveToNext());

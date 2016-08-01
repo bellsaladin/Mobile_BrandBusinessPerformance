@@ -93,7 +93,7 @@ public class Common {
 			HttpResponse response = httpclient.execute(httppost);
 			HttpEntity entity = response.getEntity();
 			inputStream = entity.getContent();
-			Log.e("pass 1", "connection success ");
+			Log.e("pass 1", "get data success ");
 		} catch (Exception e) {
 			Log.e("Fail 1", e.toString());
 			Toast.makeText(
@@ -112,7 +112,7 @@ public class Common {
 			}
 			inputStream.close();
 			result = sb.toString();
-			Log.e("pass 2", "connection success ");
+			Log.e("pass 2", "synchronisation webservice sollicitation success ");
 		} catch (Exception e) {
 			Log.e("Fail 2", e.toString());
 		}
@@ -125,7 +125,13 @@ public class Common {
 		try {
 			Log.e("DEBUG", result);
 			JSONObject json_data = new JSONObject(result);
-
+			// get 'produit' created locally to keep them from deletion after the purge
+			List<Produit> produitsCreatedLocally = new ArrayList<Produit>(); 
+			for(Produit produit : db.getAllProduits()){
+				if(produit.isAddedLocaly())
+					produitsCreatedLocally.add(produit);
+			}
+			
 			try {
 				db.purgeServerFeedData(); // FIXME : I should make sure to have
 											// no problem before purging the bd
@@ -164,6 +170,11 @@ public class Common {
 					// Inserting marque in db
 					long produit_id = db.createProduit(produit);
 				}
+				// create also 'produits' created localy
+				for(Produit produit: produitsCreatedLocally){
+					long produit_id = db.createProduit(produit);
+				}
+				
 				Log.e("Synchronization", "PRODUIT : " + rows.length()
 						+ " records added to sqllite database");
 				Log.e("Synchronization",
