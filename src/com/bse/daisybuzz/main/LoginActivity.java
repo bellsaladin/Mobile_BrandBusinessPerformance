@@ -231,7 +231,7 @@ public class LoginActivity extends ActionBarActivity {
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 		alert.setTitle("Première utilisation");
-		alert.setMessage("Vous devez lié l'application à un webservice : Ex : http://192.168.1.29/_testZone/webservice/");
+		alert.setMessage("Vous devez lier l'application à un webservice : Ex : http://192.168.1.29/_testZone/webservice/");
 
 		// Set an EditText view to get user input
 		final EditText input = new EditText(this);

@@ -153,6 +153,25 @@ public class MainActivity extends ActionBarActivity {
 		}
 	}
 	
+	static void removeRapportTab(){
+		Statics.localisationDone = false; // to force to pass through a new new localisaiton
+		if(mActionbar.getTabCount() ==3){
+			tab_drawable_icons[1] = R.drawable.icon_options;		
+			tab_drawable_icons_selected[1] = R.drawable.icon_options_selected;
+			
+			// more stable 
+			mActionbar.removeAllTabs();
+			mActionbar.addTab(tab1);
+			//mActionbar.addTab(tab2);
+			mActionbar.addTab(tab3);
+			MyFragmentPagerAdapter fragmentPagerAdapter = new MyFragmentPagerAdapter(
+					fm);
+			mPager.setAdapter(fragmentPagerAdapter);
+			//mPager.setCurrentItem(1); // show "Rapport" page
+			mActionbar.setSelectedNavigationItem(0);
+		}
+	}
+	
 	static void showSynchronizationIndicator(String message, boolean error){
 		layout_synchronizationIndicator.setVisibility(LinearLayout.VISIBLE);
 		txt_synchronizationIndicator.setText(message);

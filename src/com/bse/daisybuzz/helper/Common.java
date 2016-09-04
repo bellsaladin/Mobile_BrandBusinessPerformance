@@ -164,7 +164,7 @@ public class Common {
 					int id = jsonas.getInt("id");
 					String sku = jsonas.getString("sku");
 					String libelle = jsonas.getString("libelle");
-					String categorieId = jsonas.getString("libelle");
+					String categorieId = jsonas.getString("categorie_id");
 					// Creating marque
 					Produit produit = new Produit(id, sku, libelle, categorieId);
 					// Inserting marque in db

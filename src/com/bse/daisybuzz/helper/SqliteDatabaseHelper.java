@@ -508,6 +508,39 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		return produits;
 	}
 	
+	public List<Produit> getAllProduits(String[] segmentsIds) {
+		List<Produit> produits = new ArrayList<Produit>();
+		String selectQuery = "SELECT  * FROM " + TABLE_PRODUIT;
+
+		//Log.e(LOG, selectQuery);
+
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor c = db.rawQuery(selectQuery, null);
+
+		// looping through all rows and adding to list
+		if (c.moveToFirst()) {
+			do {
+				Produit produit = new Produit();
+				produit.setId(c.getInt(c.getColumnIndex(KEY_ID)));
+				produit.setLibelle((c.getString(c.getColumnIndex(KEY_LIBELLE))));
+				produit.setSku((c.getString(c.getColumnIndex(KEY_SKU))));
+				produit.setCategorieId((c.getString(c.getColumnIndex(KEY_CATEGORIE_ID))));
+				produit.setAddedLocaly((c.getInt(c.getColumnIndex(KEY_ADDED_LOCALY))));
+				produit.setType((c.getString(c.getColumnIndex(KEY_TYPE))));
+				
+				for(String segmentId : segmentsIds){
+					if(produit.getCategorieId().equals(segmentId)){
+						// adding to todo list
+						produits.add(produit);
+						break;
+					}
+				}
+			} while (c.moveToNext());
+		}
+		c.close();
+		return produits;
+	}
+	
 	// ------------------------ "CATEGORIE" table methods ----------------//
 
 	public long createCategorie(Categorie categorie) {

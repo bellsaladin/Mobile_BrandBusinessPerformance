@@ -7,6 +7,7 @@ import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Statics;
 import com.bse.daisybuzz.helper.Utils;
 import com.bse.daisybuzz.main.Fragment2;
+import com.bse.daisybuzz.main.QuestionnaireSummaryPopup;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Marque;
@@ -41,25 +42,27 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 public class QuestionnaireShelfShare {
+	static int MAX_NBR_OF_SEGMENTS = 10;
+	
 	TableLayout _tableLayout;
 	List<Marque> _marquesList;
-	List<Poi> _poisList;
-	List<Categorie> _categoriesProduitsList;
+	static List<Poi> _poisList;
+	static List<Categorie> _categoriesProduitsList;
 	List<Categorie> _segmentsOfSelectedCategorieProduitsList;
 	
-	private Activity _targetActivity;
-	private int[][][][] _quantitiesArray;
+	private static Activity _targetActivity;
+	private static int[][][][] _quantitiesArray;
 	private EditText[][] _editTextsArray;
 	
 	
-	private SqliteDatabaseHelper _db;
+	private static SqliteDatabaseHelper _db;
 	
 	Spinner _cb_poi;
 	Spinner _cb_categorie;
-	public Questionnaire _questionnaire;
-	private int _nbrLignesTraitees = 0;
-	private float _tempsRemplissage = 0;
-	private long _lastSysTimeMillis = 0; // used to help calculate _tempsRemplissage
+	public static Questionnaire _questionnaire;
+	private static  int _nbrLignesTraitees = 0;
+	private static float _tempsRemplissage = 0;
+	private static long _lastSysTimeMillis = 0; // used to help calculate _tempsRemplissage
 	
 	public void init(final Activity activity, LinearLayout containerLayout){
 		this._targetActivity = activity;
@@ -96,12 +99,15 @@ public class QuestionnaireShelfShare {
 		createTableLayout(this._targetActivity, linearLayout);
 	    
 		Button saveButton = new Button(activity);
+		
+		QuestionnaireSummaryPopup.setup(activity, saveButton);
 	    saveButton.setText("Enregistrer");
 	    saveButton.setBackgroundColor(Color.parseColor("#cccccc"));
 	    saveButton.setOnClickListener(new View.OnClickListener() {
 	        @Override
 	        public void onClick(View v) {	
-	        	storeDataOnLocalStorage();
+	        	//storeDataOnLocalStorage();
+	        	QuestionnaireSummaryPopup.show();
 	        }
 	    });
 	    
@@ -111,7 +117,7 @@ public class QuestionnaireShelfShare {
 		containerLayout.addView(sv);
 	}
 	
-	private void storeDataOnLocalStorage() {
+	public static void storeDataOnLocalStorage() {
 		stopTempsRemplissageCount();
 		
 		_questionnaire = new Questionnaire();
@@ -129,8 +135,12 @@ public class QuestionnaireShelfShare {
 				"Questionnaire enregistré !", Toast.LENGTH_SHORT)
 				.show();
 	}
+	
+	private static void resetForm(){
 
-	private String getSerializedQuantitiesData() {
+	}
+
+	private static String getSerializedQuantitiesData() {
 		String data = "";
 		for(int i  = 0; i < _poisList.size(); i++){
 			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
@@ -363,12 +373,10 @@ public class QuestionnaireShelfShare {
 	
 	private void initQuantitiesArray(){
 		// FIXME : enlever les valeurs spécifiés en dur lors de la création du tableau des quantités
-		int MAX_NBR_OF_MARQUES = 40;
-		int MAX_NBR_OF_SEGMENTS = 10;
-		_quantitiesArray = new int[_poisList.size()][_categoriesProduitsList.size()][MAX_NBR_OF_MARQUES][MAX_NBR_OF_SEGMENTS];
+		_quantitiesArray = new int[_poisList.size()][_categoriesProduitsList.size()][_db.getAllMarques().size()][MAX_NBR_OF_SEGMENTS];
 		for(int i  = 0; i < _poisList.size(); i++){
 			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
-				for(int k  = 0; k < MAX_NBR_OF_MARQUES; k++){
+				for(int k  = 0; k < _db.getAllMarques().size(); k++){
 					for(int l = 0; l < MAX_NBR_OF_SEGMENTS; l++){
 						_quantitiesArray[i][j][k][l] = 0;
 					}
@@ -390,7 +398,7 @@ public class QuestionnaireShelfShare {
 		}*/
 	}
 	
-	public void stopTempsRemplissageCount(){
+	public static void stopTempsRemplissageCount(){
 		long millis = System.currentTimeMillis() - _lastSysTimeMillis;
         int seconds = (int) (millis / 1000);
         _tempsRemplissage += seconds;
@@ -399,5 +407,39 @@ public class QuestionnaireShelfShare {
 	
 	public void startTempsRemlissageCount(){
 		_lastSysTimeMillis = System.currentTimeMillis();
+	}
+
+	public static String getInputSummary() {
+		int poiDoneCount = 0;
+		List<String> poiNotFilled = new ArrayList<String>(); 
+		for(int i  = 0; i < _poisList.size(); i++){
+			boolean poiDataWasFilled = false;
+			for(int j  = 0; j < _categoriesProduitsList.size(); j++){
+				for(int k  = 0; k < _db.getAllMarques().size(); k++){
+					for(int l = 0; l < MAX_NBR_OF_SEGMENTS; l++){
+						if(_quantitiesArray[i][j][k][l]  != 0){
+							poiDataWasFilled = true;
+							poiDoneCount++;
+						}
+					}
+				}
+			}
+			
+			if(!poiDataWasFilled)
+				poiNotFilled.add(_poisList.get(i).getLibelle());
+		}
+		
+		String content = "";
+		content += "<h4>Questionnaire Shelf Share</h4>";
+		if(poiNotFilled.size() == 0){
+			content += "<font color='green'><br/> Point d'intérêts réalisés <b>" + poiDoneCount +" /7</font></b><br/>";
+		}else{
+			content += "<font color='red'><br/> Point d'intérêts réalisés <b>" + poiDoneCount +" /7</font></b><br/>";
+			content += "<p>Les POI non réalisés : </p>";
+			for(String poi : poiNotFilled){
+				content += "<p>  - " + poi + "<p>";
+			}
+		}
+		return content;
 	}
 }
