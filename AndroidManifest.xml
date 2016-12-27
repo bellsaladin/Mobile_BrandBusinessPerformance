@@ -46,6 +46,12 @@
             android:screenOrientation="portrait">           
         </activity>
         
+        <activity
+            android:name=".CameraActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+        </activity>
+        
         <!-- Broadcast receiver -->
         <!-- <receiver   android:name=".SynchronizerAlarmManagerBroadcastReceiver"></receiver>-->
         <service android:enabled="true"   android:name=".SynchronizerService"/>

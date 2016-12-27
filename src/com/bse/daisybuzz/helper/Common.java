@@ -433,7 +433,6 @@ public class Common {
 				.getDateCreation());
 		
 		// ******************* ENCODING IMAGE ********************** //
-
 		Bitmap bitmap = Utils.getBitmapUsingRealPath(localisation
 				.getCheminImage());
 		BitmapFactory.Options options = null;

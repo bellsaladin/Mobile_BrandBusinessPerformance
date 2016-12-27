@@ -191,11 +191,6 @@ public class QuestionnaireDisponibilite {
 		_questionnaire.setNbrLignesTraitees(_nbrLignesTraitees);
 		_questionnaire.setTempsRemplissage(_tempsRemplissage);
 		_db.createQuestionnaire(_questionnaire);
-
-		Toast.makeText(
-				_targetActivity.getApplicationContext(),
-				"Questionnaire enregistré !", Toast.LENGTH_SHORT)
-				.show();
 	}
 
 	private static String getSerializedQuantitiesData() {

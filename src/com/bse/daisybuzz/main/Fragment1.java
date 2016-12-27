@@ -51,14 +51,15 @@ public class Fragment1 extends Fragment implements LocationListener {
 	String provider;
 
 	private TextView txt_GPSLocationGathering;
-	private ImageView imageView;
+	static ImageView imageView;
 	private Button btn_takePhoto, btn_save;
 	private EditText txt_licenceProgramme, txt_licenceRemplacee, txt_motif;
 	private Spinner spinner_pdv, spinner_superviseur, spinner_ville, spinner_secteur;
 
 	ProgressDialog prgDialog;
 	String encodedString;
-	String imgPath = null, imageFileName = null;
+	static String imgPath = null;
+	static Bitmap imageBitmap = null;
 	Bitmap bitmap;
 	private static int RESULT_LOAD_IMG = 1;
 	View view;
@@ -339,7 +340,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 		return view;
 	}
 
-	@Override
+	/*@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		if (requestCode == CAMERA_REQUEST) {
 
@@ -371,11 +372,7 @@ public class Fragment1 extends Fragment implements LocationListener {
 				Uri uri = intent.getData();
 				imageRealPath = Utils.getRealPathFromURI(this.getActivity()
 						.getApplicationContext(), uri);
-				/*
-				 * Toast.makeText(this.getActivity(),
-				 * Utils.getRealPathFromURI(this.getActivity()
-				 * .getApplicationContext(), uri), Toast.LENGTH_LONG).show();
-				 */
+
 			} else {
 				Toast.makeText(this.getActivity(),
 						"Vous n'avez pas pris de photo", Toast.LENGTH_LONG)
@@ -383,12 +380,14 @@ public class Fragment1 extends Fragment implements LocationListener {
 			}
 
 		}
-	}
+	}*/
 
 	public void takephoto(View v) {
-		Intent cameraIntent = new Intent(
+		/*Intent cameraIntent = new Intent(
 				android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-		startActivityForResult(cameraIntent, CAMERA_REQUEST);
+		startActivityForResult(cameraIntent, CAMERA_REQUEST);*/
+		Intent myIntent = new Intent(Fragment1.this.getActivity(), CameraActivity.class);
+		Fragment1.this.getActivity().startActivity(myIntent);
 	}
 
 

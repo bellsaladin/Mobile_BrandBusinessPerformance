@@ -130,10 +130,6 @@ public class QuestionnaireShelfShare {
 		_questionnaire.setTempsRemplissage(_tempsRemplissage);
 		_db.createQuestionnaire(_questionnaire);
 
-		Toast.makeText(
-				_targetActivity.getApplicationContext(),
-				"Questionnaire enregistré !", Toast.LENGTH_SHORT)
-				.show();
 	}
 	
 	private static void resetForm(){
