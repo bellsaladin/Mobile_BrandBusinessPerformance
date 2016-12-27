@@ -1,5 +1,6 @@
 package com.bse.daisybuzz.main;
 
+import com.bse.daisybuzz.helper.Common;
 import com.bse.daisybuzz.helper.Statics;
 
 import android.R.color;
@@ -7,6 +8,7 @@ import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
@@ -18,7 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
-	public static SynchronizerAlarmManagerBroadcastReceiver alarm;
+	//public static SynchronizerAlarmManagerBroadcastReceiver alarm;
+	public static SynchronizerService alarm;
 	
 	static Activity activity;
 	static private ViewPager mPager;
@@ -34,12 +37,27 @@ public class MainActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
+		
+		/*
+		 * IMPORTANT FOR THE
+		 * Webservice request to
+		 * work
+		 */
+		if (android.os.Build.VERSION.SDK_INT > 9) { 
+			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+					.permitAll().build();
+			StrictMode.setThreadPolicy(policy);
+		}
+	
+		Common.synchronizeAll(this);
+		
+		
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_main);
 		activity = this;
 		
-		alarm = new SynchronizerAlarmManagerBroadcastReceiver();
+		alarm = new SynchronizerService();
 		alarm.createSynchronizationAlarmManager(this.getApplicationContext());
 		
 		/** Getting a reference to action bar of this activity */

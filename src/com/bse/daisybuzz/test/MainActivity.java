@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
 		int rl = rows.length;
 		int cl = columns.length;
 
-		Log.d("--", "R-Lenght--" + rl + "   " + "C-Lenght--" + cl);
+		//Log.d("--", "R-Lenght--" + rl + "   " + "C-Lenght--" + cl);
 
 		ScrollView sv = new ScrollView(this);
 		HorizontalScrollView hsv = new HorizontalScrollView(this);
@@ -64,7 +64,7 @@ public class MainActivity extends Activity {
 		    				dlgAlert.setPositiveButton("OK", null);
 		    				dlgAlert.setCancelable(true);
 		    				dlgAlert.create().show();
-			        	    Log.d("----", "Button index: " + (i+j) +  ((EditText)child).getText());
+			        	    //Log.d("----", "Button index: " + (i+j) +  ((EditText)child).getText());
 
 	    		        } else if (child instanceof TextView) {
 	    		            //validate RadioButton
@@ -130,19 +130,19 @@ public class MainActivity extends Activity {
 				String s2 = Integer.toString(j);
 				String s3 = s1 + s2;
 				int id = Integer.parseInt(s3);
-				Log.d("TAG", "-___>" + id);
+				//Log.d("TAG", "-___>" + id);
 				if (i == 0 && j == 0) {
 					TextView textView = new TextView(this);
 					textView.setText("");
 					tableRow.addView(textView, tableRowParams);
 				} else if (i == 0) {
-					Log.d("TAAG", "set Column Headers");
+					//Log.d("TAAG", "set Column Headers");
 					TextView textView = new TextView(this);
 					textView.setTextSize(18);
 					textView.setText(columns[j - 1]);
 					tableRow.addView(textView, tableRowParams);
 				} else if (j == 0) {
-					Log.d("TAAG", "Set Row Headers");
+					//Log.d("TAAG", "Set Row Headers");
 					TextView textView = new TextView(this);
 					textView.setTextSize(16);
 					textView.setText(rows[i - 1]);

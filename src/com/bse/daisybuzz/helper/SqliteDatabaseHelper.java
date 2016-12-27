@@ -337,7 +337,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		Marque marque = new Marque();
 		marque.setId(c.getInt(c.getColumnIndex(KEY_ID)));
 		marque.setLibelle((c.getString(c.getColumnIndex(KEY_LIBELLE))));
-
+		c.close();
 		return marque;
 	}
 
@@ -411,7 +411,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 		Poi poi = new Poi();
 		poi.setId(c.getInt(c.getColumnIndex(KEY_ID)));
 		poi.setLibelle((c.getString(c.getColumnIndex(KEY_LIBELLE))));
-
+		c.close();
 		return poi;
 	}
 
@@ -554,7 +554,7 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 		// insert row
 		long id = db.insert(TABLE_CATEGORIE, null, values);
-
+		
 		return id;
 	}
 
@@ -1380,7 +1380,6 @@ public class SqliteDatabaseHelper extends SQLiteOpenHelper {
 
 		int count = cursor.getCount();
 		cursor.close();
-
 		// return count
 		return count;
 	}

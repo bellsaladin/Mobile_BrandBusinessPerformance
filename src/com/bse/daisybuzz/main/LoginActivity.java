@@ -66,7 +66,7 @@ public class LoginActivity extends ActionBarActivity {
 
 		// for debug
 		// editText_username.setText("animateur1");
-		editText_password.setText("123456");
+		editText_password.setText("");
 
 		/*
 		 * attempts = (TextView)findViewById(R.id.textView5);
@@ -99,22 +99,7 @@ public class LoginActivity extends ActionBarActivity {
 	}
 
 	public void login(View view) {		
-		
-		/*
-		 * if (username.getText().toString().equals("admin") &&
-		 * password.getText().toString().equals("admin")) {
-		 * Toast.makeText(getApplicationContext(), "Redirecting...",
-		 * Toast.LENGTH_SHORT).show(); } else {
-		 * Toast.makeText(getApplicationContext(), "Wrong Credentials",
-		 * Toast.LENGTH_SHORT).show();
-		 * 
-		 * //attempts.setBackgroundColor(Color.RED); counter--;
-		 * //attempts.setText(Integer.toString(counter)); if(counter==0){
-		 * //login.setEnabled(false); }
-		 * 
-		 * }
-		 */
-
+	
 		String inputUsername = editText_username.getText().toString();
 		String inputPassword = editText_password.getText().toString();
 		// fetch the Password form database for respective user name
@@ -130,7 +115,7 @@ public class LoginActivity extends ActionBarActivity {
 				
 				Statics.sfoId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
 				
-				Intent intent = new Intent(this, StartActivity.class);
+				Intent intent = new Intent(this, MainActivity.class);
 				startActivity(intent);
 				finish();
 			} else if (authenticationResult == 0){
@@ -164,7 +149,7 @@ public class LoginActivity extends ActionBarActivity {
 					
 					Statics.sfoId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
 					
-					Intent intent = new Intent(this, StartActivity.class);
+					Intent intent = new Intent(this, MainActivity.class);
 					startActivity(intent);
 					finish();
 				} else {

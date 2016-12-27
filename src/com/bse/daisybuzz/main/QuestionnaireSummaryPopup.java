@@ -49,7 +49,7 @@ public class QuestionnaireSummaryPopup {
 			@Override
 			public void onClick(View v) {
 				
-				// Save the two 'Questionnaires'
+	        	// Save the two 'Questionnaires'
 				QuestionnaireShelfShare.storeDataOnLocalStorage();
 				QuestionnaireDisponibilite.storeDataOnLocalStorage();
 				// remove rapport tab and go back to localisation

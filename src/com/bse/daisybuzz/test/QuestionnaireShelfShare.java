@@ -205,7 +205,7 @@ public class QuestionnaireShelfShare {
 		int rowCount = rows.size();
 		int columnCount = columns.size();
 
-		Log.d("--", "R-Lenght--" + rowCount + "   " + "C-Lenght--" + columnCount);
+		//Log.d("--", "R-Lenght--" + rowCount + "   " + "C-Lenght--" + columnCount);
 		
 		// 1) Create a tableLayout and its params
 		TableLayout.LayoutParams tableLayoutParams = new TableLayout.LayoutParams();
@@ -227,13 +227,13 @@ public class QuestionnaireShelfShare {
 				String s2 = Integer.toString(j);
 				String s3 = s1 + s2;
 				int id = Integer.parseInt(s3);
-				Log.d("TAG", "-___>" + id);
+				//Log.d("TAG", "-___>" + id);
 				if (i == 0 && j == 0) {
 					TextView textView = new TextView(this._targetActivity);
 					textView.setText("");
 					tableRow.addView(textView, tableRowParams);
 				} else if (i == 0) {
-					Log.d("TAAG", "set Column Headers");
+					//Log.d("TAAG", "set Column Headers");
 					TextView textView = new TextView(this._targetActivity);
 					textView.setTextSize(18);
 					textView.setText(columns.get(j - 1).toString());
@@ -242,7 +242,7 @@ public class QuestionnaireShelfShare {
 					//textView.setTextAppearance(android.R.style.TextAppearance_Small);
 					tableRow.addView(textView, tableRowParams);
 				} else if (j == 0) {
-					Log.d("TAAG", "Set Row Headers");
+					//Log.d("TAAG", "Set Row Headers");
 					TextView textView = new TextView(this._targetActivity);
 					textView.setTextSize(16);
 					textView.setText(rows.get(i - 1).toString());
@@ -258,6 +258,7 @@ public class QuestionnaireShelfShare {
 					//_editTextsArray[i][j].setBackgroundColor(Color.WHITE);
 					//_editTextsArray[i][j].getLayoutParams().width = 50;
 					_editTextsArray[i][j].setGravity(Gravity.CENTER);
+					_editTextsArray[i][j].setWidth(100);
 					//_editTextsArray[i][j].setInputType(InputType.TYPE_CLASS_NUMBER);
 					_editTextsArray[i][j].setInputType(InputType.TYPE_NULL);
 					
@@ -267,7 +268,6 @@ public class QuestionnaireShelfShare {
 					int qty = _quantitiesArray[_cb_poi.getSelectedItemPosition()][_cb_categorie.getSelectedItemPosition()][marqueIdx][segmentCategoryIdx];
 					_editTextsArray[i][j].setText(String.valueOf(qty));
 					TextWatcher editTextWatcher = new TextWatcher() {
-
 				          public void afterTextChanged(Editable editable) {
 				        	  if(editable.toString().isEmpty())
 				        		  return;
@@ -402,7 +402,7 @@ public class QuestionnaireShelfShare {
 		long millis = System.currentTimeMillis() - _lastSysTimeMillis;
         int seconds = (int) (millis / 1000);
         _tempsRemplissage += seconds;
-        Log.d("TEMPSREMPLISSAGE","" + _tempsRemplissage);
+        //Log.d("TEMPSREMPLISSAGE","" + _tempsRemplissage);
 	}
 	
 	public void startTempsRemlissageCount(){

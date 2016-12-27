@@ -35,6 +35,7 @@ import android.widget.Toast;
 import com.bse.daisybuzz.main.Fragment2;
 import com.bse.daisybuzz.main.MainActivity;
 import com.bse.daisybuzz.main.SynchronizerAlarmManagerBroadcastReceiver;
+import com.bse.daisybuzz.main.SynchronizerService;
 import com.bse.daizybuzz.model.Cadeau;
 import com.bse.daizybuzz.model.Categorie;
 import com.bse.daizybuzz.model.Localisation;
@@ -408,98 +409,8 @@ public class Common {
 		return true;
 	}
 
-	public static void pushAllDataToServer(final Activity activity,
-			final ProgressDialog prgDialog) {
-		if (!Common.isNetworkAvailable(activity)) {
-			Toast.makeText(activity.getApplicationContext(),
-					"La connexion internet n'est pas disponible !",
-					Toast.LENGTH_SHORT).show();
-			return;
-		}
-		final SqliteDatabaseHelper db = new SqliteDatabaseHelper(
-				activity.getApplicationContext());
-		List<Localisation> localisationsList = db.getAllLocalisations();
-		int localisationsCount = localisationsList.size();
 
-		if (localisationsCount == 0) {
-			Toast.makeText(activity.getApplicationContext(),
-					"Aucune donnée stockée en local à traiter !",
-					Toast.LENGTH_LONG).show();
-			return;
-		}
-
-		int currentLocalisationNum = 1;
-		for (final Localisation localisation : localisationsList) {
-			if (!Common.isNetworkAvailable(activity)) {
-				Toast.makeText(activity.getApplicationContext(),
-						"La connexion internet n'est pas disponible !",
-						Toast.LENGTH_SHORT).show();
-				prgDialog.hide();
-				return;
-			}
-			prgDialog.setMessage("Localisation " + currentLocalisationNum
-					+ "/ " + localisationsCount);
-			prgDialog.show();
-
-			Preferences preferences = new Preferences(activity);
-			String webserviceRootUrl = preferences
-					.getStringValue("PARAM_WEBSERVICE_ROOT_URL");
-
-			// send the current localisation to the server
-			int insertedLocalisationId = sendLocalisationToServer(localisation,
-					webserviceRootUrl, db, activity);
-			if (insertedLocalisationId == -1) {
-				prgDialog.hide();
-				Toast.makeText(
-						activity.getApplicationContext(),
-						"Synchronisation interrompue ! Reéssayez dans quelque instants...",
-						Toast.LENGTH_SHORT).show();
-				return; // stop if problem while send any localisation to the
-						// server
-			}
-
-			List<Questionnaire> questionnairesList = db.getAllQuestionnaires();
-			// send all the questionnaires related to the current localisation to
-			// server
-			for (final Questionnaire questionnaire : questionnairesList) {
-				if (questionnaire.getLocalisationId().equals(
-						String.valueOf(localisation.getId()))) {
-					// update localisationId of rapport by the last inserted one
-					questionnaire.setLocalisationId(String
-							.valueOf(insertedLocalisationId));
-					// try send it to the server
-					if (!sendQuestionnaireToServer(questionnaire, webserviceRootUrl, db,
-							activity)) {
-						prgDialog.hide();
-						Toast.makeText(
-								activity.getApplicationContext(),
-								"Synchronisation interrompue ! Reéssayez dans quelque instants...",
-								Toast.LENGTH_SHORT).show();
-						return; // avoid going to delete this localisation if
-								// any the reports are still not saved on the
-								// server
-					}
-					db.deleteQuestionnaire(questionnaire);
-				}
-
-			}
-			db.deleteLocalisation(localisation);
-
-			/*
-			 * Toast.makeText(activity.getApplicationContext(), "Localisation "
-			 * + currentLocalisationNum + "/" + localisationsCount +
-			 * " envoyée au serveur ...", Toast.LENGTH_SHORT).show();
-			 */
-
-			currentLocalisationNum++;
-		}
-		prgDialog.hide();
-		Toast.makeText(activity.getApplicationContext(),
-				"Synchronisation terminée avec succès !", Toast.LENGTH_SHORT)
-				.show();
-	}
-
-	public static int sendLocalisationToServer(final Localisation localisation,
+	public static void sendLocalisationToServer(final Localisation localisation,
 			String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
 		RequestParams params = new RequestParams();
 		params.put("sfoId", localisation
@@ -550,7 +461,7 @@ public class Common {
 
 		try {			
 			AsyncHttpClient client = new AsyncHttpClient();
-			client.setTimeout(3000000); // 30 seconds
+			client.setTimeout(Constants.HTTP_REQUEST_TIMEOUT);
 			client.post(Constants.DEFAULT_WEBSERVICE_URL_ROOT + "/save_localisation.php", params,
 					new AsyncHttpResponseHandler() {
 						// When the response returned by REST has Http
@@ -561,9 +472,11 @@ public class Common {
 							// Common.result = response;
 							String insertedLocalisationId = response.trim();
 							localisation.setInsertedInServerWithId(insertedLocalisationId);
-							SynchronizerAlarmManagerBroadcastReceiver.db.updateLocalisation(localisation);
-						}
+							//SynchronizerAlarmManagerBroadcastReceiver.db.updateLocalisation(localisation);
+							SynchronizerService.db.updateLocalisation(localisation);
+							Log.e("LOCALISATION","result : " + insertedLocalisationId);
 
+						}
 						// When the response returned by REST has Http
 						// response code other than '200' such as '404',
 						// '500' or '403' etc
@@ -575,13 +488,6 @@ public class Common {
 					}
 			);
 			
-			Log.e("LOCALISATION","result : " + result);
-
-			/*
-			 * Toast.makeText( activity.getApplicationContext(),
-			 * "Localisation envoyée au serveur !", Toast.LENGTH_LONG).show();
-			 */
-			return Integer.valueOf(result.trim());
 		} catch (Exception e) {
 			Log.e("Fail 1", e.toString());
 			/*
@@ -590,11 +496,10 @@ public class Common {
 			 * + e.getMessage(), Toast.LENGTH_LONG).show();
 			 */
 		}
-		return -1;
 
 	}
 
-	public static boolean sendQuestionnaireToServer(final Questionnaire questionnaire,
+	public static void sendQuestionnaireToServer(final Questionnaire questionnaire,
 			String webserviceRootUrl, SqliteDatabaseHelper db, Activity activity) {
 		RequestParams params = new RequestParams();		
 		
@@ -608,14 +513,15 @@ public class Common {
 		try {
 			
 			AsyncHttpClient client = new AsyncHttpClient();
-			client.setTimeout(3000000); // 30 seconds
+			client.setTimeout(Constants.HTTP_REQUEST_TIMEOUT);
 			client.post(Constants.DEFAULT_WEBSERVICE_URL_ROOT + "/save_questionnaire.php", params,
 					new AsyncHttpResponseHandler() {
 						// When the response returned by REST has Http
 						// response code '200'
 						@Override
 						public void onSuccess(String response) {
-							SynchronizerAlarmManagerBroadcastReceiver.db.deleteQuestionnaire(questionnaire);
+							//SynchronizerAlarmManagerBroadcastReceiver.db.deleteQuestionnaire(questionnaire);
+							SynchronizerService.db.deleteQuestionnaire(questionnaire);
 							Log.i("Send rapport ", response);
 						}
 
@@ -630,7 +536,6 @@ public class Common {
 						}
 					}
 			);			
-			return true;
 		} catch (Exception e) {
 			Log.e("Exception Send Rapport", e.toString());
 			/*
@@ -639,7 +544,6 @@ public class Common {
 			 * , Toast.LENGTH_LONG).show();
 			 */
 		}
-		return false;
 	}
 
 	public static Location getLocation(Activity activity) {

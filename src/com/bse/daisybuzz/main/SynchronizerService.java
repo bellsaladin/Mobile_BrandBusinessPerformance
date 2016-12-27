@@ -11,37 +11,56 @@ import com.bse.daizybuzz.model.Rapport;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.PowerManager;
+import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
-public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver {	
-	
+public class SynchronizerService extends Service{
+	final public static String ONE_TIME = "onetime";
 	public static SqliteDatabaseHelper db;	
 	public static Localisation processedLocalisation;
 	public static Rapport processedRapport;
 	
-	
-	public SynchronizerAlarmManagerBroadcastReceiver(){
-		
-	}
-	
-	final public static String ONE_TIME = "onetime";
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		 if(MainActivity.getInstance() == null){
-        	 return;
-         }
-		 PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-         PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "YOUR TAG");
-         //Acquire the lock
-                 
-         wl.acquire();
-         if(db == null){
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        if(MainActivity.getInstance() == null) return;
+        
+        if(db == null){
         	db = new SqliteDatabaseHelper(MainActivity.getInstance());
-         }
+        }
+        //Log.d("Testing", "Service got created");
+        //Toast.makeText(this, "ServiceClass.onCreate()", Toast.LENGTH_LONG).show();
+    }
+
+
+	@Override
+	public IBinder onBind(Intent arg0) {
+		return null;
+	}
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId) {
+        //Toast.makeText(this, "ServiceClass.onStart()", Toast.LENGTH_LONG).show();
+    	super.onStart(intent, startId);
+    	if(MainActivity.getInstance() == null) return;
+    	if(db == null){
+        	try{
+    		db = new SqliteDatabaseHelper(MainActivity.getInstance());
+    		if(db.getReadableDatabase() == null) return;
+        	}catch (Exception e){
+        		return; // stop on start if we can't get an instance of "database"
+        	}
+        }
          
          int localisationsCount = db.getRecordsCount("localisation");
          int rapportsCount = db.getRecordsCount("rapport");
@@ -103,33 +122,33 @@ public class SynchronizerAlarmManagerBroadcastReceiver extends BroadcastReceiver
          		return;
       	    }
  
-         }		    
+         }		 
          
-         //Release the lock
-         wl.release();
-	}
-	public void createSynchronizationAlarmManager(Context context)
+        //Log.d("Testing", "Service got started");
+    }
+    
+    public void createSynchronizationAlarmManager(Context context)
     {
         AlarmManager am=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, SynchronizerAlarmManagerBroadcastReceiver.class);
+        Intent intent = new Intent(context, SynchronizerService.class);
         intent.putExtra(ONE_TIME, Boolean.FALSE);
-        PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, 0);
-        //After after 30 seconds
+        PendingIntent pi = PendingIntent.getService(context, 0, intent, 0);
         am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), Constants.SYNCHRONIZER_INTERVAL , pi); 
     }
 
     public void CancelAlarm(Context context)
     {
-        Intent intent = new Intent(context, SynchronizerAlarmManagerBroadcastReceiver.class);
+        Intent intent = new Intent(context, SynchronizerService.class);
         PendingIntent sender = PendingIntent.getBroadcast(context, 0, intent, 0);
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(sender);
     }
     public void setOnetimeTimer(Context context){
     	AlarmManager am=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(context, SynchronizerAlarmManagerBroadcastReceiver.class);
+        Intent intent = new Intent(context, SynchronizerService.class);
         intent.putExtra(ONE_TIME, Boolean.TRUE);
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, 0);
         am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pi);
     }
+
 }

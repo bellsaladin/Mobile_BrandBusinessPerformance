@@ -57,6 +57,8 @@ public class QuestionnaireDisponibilite {
 	Spinner _cb_segment;
 	Spinner _cb_poi;
 	
+	EditText _filterEditText;
+	
 	public static Questionnaire _questionnaire;
 	private static int _nbrLignesTraitees = 0;
 	private static float _tempsRemplissage = 0;
@@ -75,6 +77,7 @@ public class QuestionnaireDisponibilite {
 		createCategorieProduitsSpinner(this._targetActivity, containerLayout);
 		createSegmentSpinner(this._targetActivity, containerLayout);
 		createPoiSpinner(this._targetActivity, containerLayout);
+		createFilterEditBox(this._targetActivity, containerLayout);
 		/*columns = new String[4];
 		columns[0] = "Segment 1";
 		columns[1] = "Segment 2";
@@ -247,6 +250,13 @@ public class QuestionnaireDisponibilite {
 	}
 
 	private TableLayout fillTableLayout() {
+		_categoriesProduitsList = _db.getAllCategoriesOfProduits(); 
+		_poisList = _db.getAllPois();
+		_produitsList = _db.getAllProduits();
+		_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(_categoriesProduitsList.get(0));
+		_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
+		initQuantitiesArray();
+		
 		_editTextsArray = new ArrayList<EditText>();
 		_tableLayout.removeAllViews();
 		
@@ -282,31 +292,30 @@ public class QuestionnaireDisponibilite {
 			productQtyEditText.setGravity(Gravity.CENTER);
 			//_editTextsArray[i].setInputType(InputType.TYPE_CLASS_NUMBER);
 			productQtyEditText.setInputType(InputType.TYPE_NULL);
-			productQtyEditText.setWidth(100);
+			productQtyEditText.setWidth(140);
 			
 			final int produitIdx = i;
 			
 			int qty = _quantitiesArray[_cb_poi.getSelectedItemPosition()] [produitIdx];
 			productQtyEditText.setText(String.valueOf(qty));
-			TextWatcher editTextWatcher = new TextWatcher() {
-
-		          public void afterTextChanged(Editable editable) {
-		        	  if(editable.toString().isEmpty())
-		        		  return;
-		        	  int qty = Integer.valueOf(editable.toString());
-		        	  /*Categorie selectedCategorieProduits = _categoriesProduitsList.get(
-								_cb_categorie.getSelectedItemPosition() - 1);
-		        	  Poi selectedPoi = _poisList.get( _cb_poi.getSelectedItemPosition() );*/
-		        	  
-		        	  _quantitiesArray[_cb_poi.getSelectedItemPosition()]
-		        			  		 [produitIdx]
-		        			  		 = qty;
-		          }
-		          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-		          public void onTextChanged(CharSequence s, int start, int before, int count) {}
-		    };
-		    productQtyEditText.addTextChangedListener(editTextWatcher);
+			productQtyEditText.addTextChangedListener(new TextWatcher() {
+					          public void afterTextChanged(Editable editable) {
+					        	  if(editable.toString().isEmpty())
+					        		  return;
+					        	  int qty = Integer.valueOf(editable.toString());
+					        	  /*Categorie selectedCategorieProduits = _categoriesProduitsList.get(
+											_cb_categorie.getSelectedItemPosition() - 1);
+					        	  Poi selectedPoi = _poisList.get( _cb_poi.getSelectedItemPosition() );*/
+					        	  
+					        	  _quantitiesArray[_cb_poi.getSelectedItemPosition()]
+					        			  		 [produitIdx]
+					        			  		 = qty;
+					          }
+					          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+			
+					          public void onTextChanged(CharSequence s, int start, int before, int count) {}
+					    }
+			);
 		    
 		    final EditText finalEditText = productQtyEditText; 
 		    productQtyEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -335,7 +344,7 @@ public class QuestionnaireDisponibilite {
 	private void createCategorieProduitsSpinner(final Activity activity, LinearLayout containerLayout){
 		_cb_categorie = new Spinner(activity);
 	    List<String> dataArray = new ArrayList<String>();
-	    dataArray.add(ALL_CATEGORIES);
+	    //dataArray.add(ALL_CATEGORIES);
 	    for(Categorie categorie : _categoriesProduitsList){
 	    	if(categorie.getNom() != null)
 	    		dataArray.add(categorie.toString());
@@ -348,18 +357,17 @@ public class QuestionnaireDisponibilite {
 			@Override
 			public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int selectedItemIndex, long id) {
 				if(_cb_categorie.getItemAtPosition(selectedItemIndex).toString().equals(ALL_CATEGORIES)){
-					_cb_segment.setVisibility(View.GONE);
+					//_cb_segment.setVisibility(View.GONE);
 					//_produitsList.add(new Produit()); // FIXME : ajouter un element vide sinon la marque ne s'affiche pas
 					//_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(selectedCategorieProduits);
 					//_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
-					
 				    // get selected item
 			    	//_produitsList = _db.getAllProduits();
-			    	filterTableProduits(new String[]{});
+			    	//filterTableProduits(new String[]{});
 			    	
 			    }else{
-			    	_cb_segment.setVisibility(View.VISIBLE);
-			    	Categorie selectedCategorieProduits = _categoriesProduitsList.get(_cb_categorie.getSelectedItemPosition() - 1);
+			    	//_cb_segment.setVisibility(View.VISIBLE);
+			    	Categorie selectedCategorieProduits = _categoriesProduitsList.get(_cb_categorie.getSelectedItemPosition());
 			    	_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(selectedCategorieProduits);
 			    	fill_CB_Segment(_segmentsOfSelectedCategorieProduitsList);
 			    	// show only products related to the segments of the selected categorie
@@ -399,7 +407,7 @@ public class QuestionnaireDisponibilite {
 					return; // do nothing because this would inivisible
 				}
 				
-				Categorie selectedCategorieProduits = _categoriesProduitsList.get(_cb_categorie.getSelectedItemPosition() - 1);
+				Categorie selectedCategorieProduits = _categoriesProduitsList.get(_cb_categorie.getSelectedItemPosition());
 				_segmentsOfSelectedCategorieProduitsList = _db.getSegmentsOfCategorie(selectedCategorieProduits);
 				
 				if(_cb_segment.getItemAtPosition(selectedItemIndex).toString().equals(ALL_SEGMENTS)){
@@ -458,7 +466,7 @@ public class QuestionnaireDisponibilite {
 	    _cb_poi.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-				//QuestionnaireDisponibilite.this.fillTableLayout();
+				QuestionnaireDisponibilite.this.fillTableLayout();
 			}
 			@Override
 			public void onNothingSelected(AdapterView<?> parentView) {
@@ -467,7 +475,22 @@ public class QuestionnaireDisponibilite {
 		});
 	}
 	
-	private void filterTableProduits(String[] segmentsIds){
+	private void createFilterEditBox(Activity activity, LinearLayout containerLayout){
+		_filterEditText = new EditText(activity);
+		containerLayout.addView(_filterEditText);
+		_filterEditText .addTextChangedListener(new TextWatcher() {
+	          public void afterTextChanged(Editable editable) {
+	        	  if(!editable.toString().isEmpty()){
+	        		  filterTableProduits(null, editable.toString());
+	        	  }
+	          }
+	          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+	          public void onTextChanged(CharSequence s, int start, int before, int count) {}
+	       });
+	}
+	
+	private void filterTableProduits(String[] segmentsIds, String product_sku){
 		for(int i = 0, j = _tableLayout.getChildCount(); i < j; i++) {
 			Produit respectiveProduct = _produitsList.get(i);
 		    View view = _tableLayout.getChildAt(i);
@@ -476,18 +499,29 @@ public class QuestionnaireDisponibilite {
 		        // for instance...
 		        TableRow row = (TableRow) view;
 		        row.setVisibility(View.GONE);
-		        if(segmentsIds.length == 0){
-		        	row.setVisibility(View.VISIBLE);
-		        	continue;
-		        } 
-		        for(String segmentId : segmentsIds){
-		        	if(respectiveProduct.getCategorieId().equals(segmentId)){
+		        if(product_sku != null){
+		        	if(respectiveProduct.getSku().toLowerCase().contains(product_sku.toLowerCase())){
 		        		row.setVisibility(View.VISIBLE);
-		        		break;
-					}
+		        	}	
 				}
+		        if(segmentsIds != null){
+			        if(segmentsIds.length == 0){
+			        	row.setVisibility(View.VISIBLE);
+			        	continue;
+			        } 
+			        for(String segmentId : segmentsIds){
+			        	if(respectiveProduct.getCategorieId().equals(segmentId)){
+			        		row.setVisibility(View.VISIBLE);
+			        		break;
+						}
+					}
+		        }
 		    }
 		}
+	}
+	
+	private void filterTableProduits(String[] segmentsIds){
+		filterTableProduits(segmentsIds, null);
 	}
 	
 	private void initQuantitiesArray(){
