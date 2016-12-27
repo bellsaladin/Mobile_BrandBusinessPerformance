@@ -2,8 +2,10 @@ package com.bse.daisybuzz.main;
 
 import com.bse.daisybuzz.test.QuestionnaireDisponibilite;
 import com.bse.daisybuzz.test.QuestionnaireShelfShare;
+//import com.example.asynctask.MainActivity.AsyncTaskRunner;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.text.Html;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -19,6 +21,8 @@ public class QuestionnaireSummaryPopup {
 	static Button btnOpenPopup;
 	static PopupWindow popupWindow;
 	static View popupView;
+	static Button btnConfirm;
+	static Button btnCancel;
 	
 	public static void setup(Activity activity, Button btnOpenPopup) {
 		QuestionnaireSummaryPopup.activity = activity;
@@ -32,7 +36,7 @@ public class QuestionnaireSummaryPopup {
 		popupWindow = new PopupWindow(popupView,LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		
 
-		Button btnCancel = (Button) popupView
+		btnCancel = (Button) popupView
 				.findViewById(R.id.btn_cancel);
 		btnCancel.setOnClickListener(new Button.OnClickListener() {
 
@@ -42,19 +46,15 @@ public class QuestionnaireSummaryPopup {
 			}
 		});
 		
-		Button btnConfirm = (Button) popupView
+		btnConfirm = (Button) popupView
 				.findViewById(R.id.btn_confirm);
 		btnConfirm.setOnClickListener(new Button.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				
-	        	// Save the two 'Questionnaires'
-				QuestionnaireShelfShare.storeDataOnLocalStorage();
-				QuestionnaireDisponibilite.storeDataOnLocalStorage();
-				// remove rapport tab and go back to localisation
-				MainActivity.removeRapportTab();
-				popupWindow.dismiss();
+				if(btnConfirm.getText().equals("En cours...")) return;
+				AsyncTaskRunner runner = new AsyncTaskRunner();
+				runner.execute();
 			}
 		});
 		
@@ -76,21 +76,53 @@ public class QuestionnaireSummaryPopup {
 	}
 	
 	
-	// public QuestionnaireSummaryPopup(Button button)
+	
+	/**************************************************************************************/
+	/****************************     AsyncTaskRunner       *******************************/
+	/**************************************************************************************/
+	
+	static class AsyncTaskRunner extends AsyncTask<String, String, String> {
 
-	/*@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
+		private String resp;
 
-		// final Button btnOpenPopup = (Button)findViewById(R.id.openpopup);
-		btnOpenPopup.setOnClickListener(new Button.OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				
-
+		@Override
+		protected String doInBackground(String... params) {
+			try {
+				// Save the two 'Questionnaires'
+				QuestionnaireShelfShare.storeDataOnLocalStorage();
+				QuestionnaireDisponibilite.storeDataOnLocalStorage();
+				// remove rapport tab and go back to localisation
+			} catch (Exception e) {
+				e.printStackTrace();
+				resp = e.getMessage();
 			}
-		});
-	}*/
+			return resp;
+		}
+
+		
+		@Override
+		protected void onPostExecute(String result) {
+			// execution of result of Long time consuming operation
+			//finalResult.setText(result);
+			MainActivity.removeRapportTab();
+			popupWindow.dismiss();
+			btnConfirm.setText("Enregistrer");
+			btnCancel.setVisibility(View.VISIBLE);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// Things to be done before execution of long running operation. For
+			// example showing ProgessDialog
+			btnConfirm.setText("En cours...");
+			btnCancel.setVisibility(View.INVISIBLE);
+		}
+
+		@Override
+		protected void onProgressUpdate(String... text) {
+			//finalResult.setText(text[0]);
+			// Things to be done while execution of long running operation is in
+			// progress. For example updating ProgessDialog
+		}
+	}
 }

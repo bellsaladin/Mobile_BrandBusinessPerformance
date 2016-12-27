@@ -466,7 +466,36 @@ public class QuestionnaireDisponibilite {
 	    _cb_poi.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-				QuestionnaireDisponibilite.this.fillTableLayout();
+				//QuestionnaireDisponibilite.this.fillTableLayout();
+				for(int i = 0, j = _tableLayout.getChildCount(); i < j; i++) {
+					Produit respectiveProduct = _produitsList.get(i);
+				    View view = _tableLayout.getChildAt(i);
+				    if (view instanceof TableRow) {
+				        // then, you can remove the the row you want...
+				        // for instance...
+				        TableRow row = (TableRow) view;
+				        EditText productQtyEditText = (EditText) row.getChildAt(1);
+				        final int produitIdx = i;
+				        int qty = _quantitiesArray[_cb_poi.getSelectedItemPosition()] [produitIdx];
+						productQtyEditText.setText(String.valueOf(qty));
+						productQtyEditText.addTextChangedListener(new TextWatcher() {
+						          public void afterTextChanged(Editable editable) {
+						        	  if(editable.toString().isEmpty())
+						        		  return;
+						        	  int qty = Integer.valueOf(editable.toString());
+						        	  
+						        	  _quantitiesArray[_cb_poi.getSelectedItemPosition()]
+						        			  		 [produitIdx]
+						        			  		 = qty;
+						          }
+						          public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+				
+						          public void onTextChanged(CharSequence s, int start, int before, int count) {}
+						    }
+						);
+				    }
+				}
+				
 			}
 			@Override
 			public void onNothingSelected(AdapterView<?> parentView) {
@@ -477,6 +506,7 @@ public class QuestionnaireDisponibilite {
 	
 	private void createFilterEditBox(Activity activity, LinearLayout containerLayout){
 		_filterEditText = new EditText(activity);
+		_filterEditText.setHint("Recherche");
 		containerLayout.addView(_filterEditText);
 		_filterEditText .addTextChangedListener(new TextWatcher() {
 	          public void afterTextChanged(Editable editable) {

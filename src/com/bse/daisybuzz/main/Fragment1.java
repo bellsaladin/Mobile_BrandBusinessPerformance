@@ -1,13 +1,8 @@
 package com.bse.daisybuzz.main;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.bse.daisybuzz.helper.Common;
-import com.bse.daisybuzz.helper.Constants;
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
@@ -15,23 +10,12 @@ import com.bse.daisybuzz.helper.Utils;
 import com.bse.daizybuzz.model.Localisation;
 import com.bse.daizybuzz.model.Pdv;
 import com.bse.daizybuzz.model.Superviseur;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -39,16 +23,11 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.InflateException;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -57,7 +36,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -72,8 +50,6 @@ public class Fragment1 extends Fragment implements LocationListener {
 	LocationManager locationManager;
 	String provider;
 
-	GoogleMap mMap;
-
 	private TextView txt_GPSLocationGathering;
 	private ImageView imageView;
 	private Button btn_takePhoto, btn_save;
@@ -82,7 +58,6 @@ public class Fragment1 extends Fragment implements LocationListener {
 
 	ProgressDialog prgDialog;
 	String encodedString;
-	RequestParams params = new RequestParams();
 	String imgPath = null, imageFileName = null;
 	Bitmap bitmap;
 	private static int RESULT_LOAD_IMG = 1;
@@ -147,7 +122,9 @@ public class Fragment1 extends Fragment implements LocationListener {
 		btn_save.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				save();
+				if(btn_save.getText().equals("En cours...")) return;
+				SaveDataAsyncTaskRunner runner = new SaveDataAsyncTaskRunner();
+				runner.execute();
 			}
 		});
 		
@@ -414,238 +391,6 @@ public class Fragment1 extends Fragment implements LocationListener {
 		startActivityForResult(cameraIntent, CAMERA_REQUEST);
 	}
 
-	public void save() {
-		// save of Localisation data
-		/*if (imgPath == null || imgPath.isEmpty()) {
-			Toast.makeText(
-					Fragment1.this.getActivity().getApplicationContext(),
-					"Vous devez prendre une photo du magasin !",
-					Toast.LENGTH_LONG).show();
-			return;
-		}*/
-
-		// getting location first
-		Location location = Common.getLocation(this.getActivity());
-		if (location == null) {
-			Toast.makeText(
-					Fragment1.this.getActivity().getApplicationContext(),
-					"Erreur : Impossible de récupérer la dernière localisation (GPS)! Le cache de la dernière position a peut être été vider.",
-					Toast.LENGTH_LONG).show();
-			return;
-		}
-
-		// valdiation
-		/*if (superviseursList.size() == 0){
-			Toast.makeText(
-					Fragment1.this.getActivity().getApplicationContext(),
-					"Vous devez indiquer un superviseur.",
-					Toast.LENGTH_LONG).show();
-			return;
-		}*/
-		
-		if (pdvsList.size() == 0){
-			Toast.makeText(
-					Fragment1.this.getActivity().getApplicationContext(),
-					"Vous devez indiquer un point de vente.",
-					Toast.LENGTH_LONG).show();
-			return;
-		}
-
-		// ********* saving
-		/*Superviseur superviseur = superviseursList.get(spinner_superviseur
-				.getSelectedItemPosition());*/
-		Pdv pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());
-
-		Preferences preferences = new Preferences(this.getActivity());
-		// setting parameters for HttpRequest
-		String animateurId = preferences.getStringValue("ANIMATEUR_ID");
-		String superviseurId = "1";
-		String pdvId = String.valueOf(pdv.getId());
-		String longitude = String.valueOf(location.getLongitude());
-		String latitude = String.valueOf(location.getLatitude());
-		String licenceRemplacee = txt_licenceRemplacee.getText().toString();
-		String motif = txt_motif.getText().toString();
-		params.put("animateurId", animateurId);
-		params.put("superviseurId", superviseurId);
-		params.put("pdvId", pdvId);
-		params.put("longitude", longitude);
-		params.put("latitude", latitude);
-		params.put("licenceRemplacee", licenceRemplacee);
-		params.put("motif", motif);
-		// params.put("imageFileName", imageFileName);
-		params.put("imageFileName", imgPath);
-		Log.e("Debug", "" + imgPath);
-		Log.e("Debug", "" + imageRealPath);
-
-		localisation = new Localisation(animateurId, imgPath, superviseurId,
-				pdvId, longitude, latitude, licenceRemplacee, motif, Utils.now());
-
-		storeDataOnLocalStorage();
-	}
-
-	private void storeDataOnLocalStorage() {
-		long localisationId = db.createLocalisation(localisation);
-
-		Statics.localisationDone = true;
-		Statics.lastLocalisationId = (int) localisationId;
-		MainActivity.addRapportTab();
-
-		Toast.makeText(Fragment1.this.getActivity().getApplicationContext(),
-				"Localisation enregistrée sur la mémoire locale.",
-				Toast.LENGTH_SHORT).show();
-	}
-
-	// When Upload button is clicked
-	public void sendDataToServer() {
-		// When Image is selected from Gallery
-		if (imgPath != null && !imgPath.isEmpty()) {
-			// prgDialog.setMessage("Converting Image to Binary Data");
-			// prgDialog.show();
-			// Convert image to String using Base64
-			ansychronous_encodeImagetoStringThenSendDataToServer();
-			// When Image is not selected from Gallery
-		} else {
-			Toast.makeText(
-					Fragment1.this.getActivity().getApplicationContext(),
-					"Vous devez séléctionner une image avant de procéder à l'envoi !",
-					Toast.LENGTH_LONG).show();
-		}
-	}
-
-	// AsyncTask - To convert Image to String
-	public void ansychronous_encodeImagetoStringThenSendDataToServer() {
-		new AsyncTask<Void, Void, String>() {
-
-			protected void onPreExecute() {
-
-			};
-
-			@Override
-			protected String doInBackground(Void... params) {
-				BitmapFactory.Options options = null;
-				options = new BitmapFactory.Options();
-				options.inSampleSize = 4;
-				bitmap = BitmapFactory.decodeFile(imgPath, options);
-				ByteArrayOutputStream stream = new ByteArrayOutputStream();
-				// Must compress the Image to reduce image size to make upload
-				// easy
-				bitmap.compress(Bitmap.CompressFormat.JPEG, 1, stream);
-				byte[] byte_arr = stream.toByteArray();
-				// Encode Image to String
-				encodedString = Base64.encodeToString(byte_arr, 0);
-
-				bitmap.recycle();
-				bitmap = null;
-				return "";
-			}
-
-			@Override
-			protected void onPostExecute(String msg) {
-				prgDialog.setMessage("Calling Upload");
-				// Put converted Image string into Async Http Post param
-				params.put("image", encodedString);
-
-				// Trigger upload of data (data and image)
-				uplaodDataToServer();
-			}
-		}.execute(null, null, null);
-	}
-
-	public void uplaodDataToServer() {
-		storeDataOnLocalStorage();
-	}
-
-	// Make Http call to upload image/ data to Php server
-	public void makeHTTPCall() {
-		prgDialog.setMessage("Envoi des données au serveur...");
-		prgDialog.show();
-		AsyncHttpClient client = new AsyncHttpClient();
-		client.setTimeout(3000000); // 30 seconds
-		// Don't forget to change the IP address to your LAN address. Port no as
-		// well.
-		client.post(Constants.DEFAULT_WEBSERVICE_URL_ROOT + "/save_localisation.php", params,
-				new AsyncHttpResponseHandler() {
-					// When the response returned by REST has Http
-					// response code '200'
-					@Override
-					public void onSuccess(String response) {
-						// Hide Progress Dialog
-						prgDialog.hide();
-						// change static localisation flag to done
-						Statics.localisationDone = true;
-						Statics.lastLocalisationId = Integer.valueOf(response);
-						MainActivity.addRapportTab();
-
-						Toast.makeText(
-								Fragment1.this.getActivity()
-										.getApplicationContext(),
-								"Les informations de localisation on été enregistrées !",
-								Toast.LENGTH_LONG).show();
-					}
-
-					// When the response returned by REST has Http
-					// response code other than '200' such as '404',
-					// '500' or '403' etc
-					@Override
-					public void onFailure(int statusCode, Throwable error,
-							String content) {
-						// Hide Progress Dialog
-						prgDialog.hide();
-						// When Http response code is '404'
-						if (statusCode == 404) {
-							Toast.makeText(
-									Fragment1.this.getActivity()
-											.getApplicationContext(),
-									"Le webservice demandé n'est pas disponible !",
-									Toast.LENGTH_LONG).show();
-						}
-						// When Http response code is '500'
-						else if (statusCode == 500) {
-							Toast.makeText(
-									Fragment1.this.getActivity()
-											.getApplicationContext(),
-									"IL y a eu un problème au niveau du script !",
-									Toast.LENGTH_LONG).show();
-						}
-						// When Http response code other than 404, 500
-						else {
-							Toast.makeText(
-									Fragment1.this.getActivity()
-											.getApplicationContext(),
-									"Erreur : Un problème de connexion ou peut être que le serveur distant n'est pas fonctionnel"
-									/*
-									 * "Error Occured \n Most Common Error: \n1. Device not connected to Internet\n2. Web App is not deployed in App server\n3. App server is not running\n HTTP Status code : "
-									 * + statusCode
-									 */, Toast.LENGTH_LONG).show();
-							// storeDataOnLocalStorage();
-						}
-
-					}
-				});
-	}
-
-	/*
-	 * public void askUserIfWantToSaveToLocalStorage() {
-	 * DialogInterface.OnClickListener dialogClickListener = new
-	 * DialogInterface.OnClickListener() {
-	 * 
-	 * @Override public void onClick(DialogInterface dialog, int which) { switch
-	 * (which) { case DialogInterface.BUTTON_POSITIVE:
-	 * 
-	 * storeDataOnLocalStorage(); Toast.makeText(
-	 * Fragment1.this.getActivity().getApplicationContext(), "( "
-	 * +db.getRecordsCount("localisation") +
-	 * " Localisations stockées en local)", Toast.LENGTH_SHORT).show();
-	 * 
-	 * break; case DialogInterface.BUTTON_NEGATIVE: // No button clicked break;
-	 * } } };
-	 * 
-	 * AlertDialog.Builder builder = new AlertDialog.Builder(
-	 * this.getActivity()); builder.setMessage(
-	 * "Impossible de communiquer avec le serveur distant, la connexion est peut être très lente. Voulez vous enregistrer ces informations en local ?"
-	 * ) .setPositiveButton("Oui", dialogClickListener)
-	 * .setNegativeButton("Non", dialogClickListener).show(); }
-	 */
 
 	@Override
 	public void onLocationChanged(Location location) {
@@ -682,6 +427,103 @@ public class Fragment1 extends Fragment implements LocationListener {
 	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
+	}
+	
+	class SaveDataAsyncTaskRunner extends AsyncTask<String, String, String> {
+
+		private String resp;
+
+		@Override
+		protected String doInBackground(String... params) {
+			//publishProgress("Sleeping..."); // Calls onProgressUpdate()
+			try {
+				// getting location first
+				Location location = Common.getLocation(Fragment1.this.getActivity());
+				if (location == null) {
+					return "LOCATION_NOT_FOUND";
+				}
+				if (pdvsList.size() == 0){
+					return "NO_PDV_SELECTED";
+				}
+				// ********* saving
+				Pdv pdv = pdvsList.get(spinner_pdv.getSelectedItemPosition());
+
+				Preferences preferences = new Preferences(Fragment1.this.getActivity());
+				// setting parameters for HttpRequest
+				String animateurId = preferences.getStringValue("ANIMATEUR_ID");
+				String superviseurId = "1";
+				String pdvId = String.valueOf(pdv.getId());
+				String longitude = String.valueOf(location.getLongitude());
+				String latitude = String.valueOf(location.getLatitude());
+				String licenceRemplacee = txt_licenceRemplacee.getText().toString();
+				String motif = txt_motif.getText().toString();
+				RequestParams reqParams = new RequestParams();
+				reqParams.put("animateurId", animateurId);
+				reqParams.put("superviseurId", superviseurId);
+				reqParams.put("pdvId", pdvId);
+				reqParams.put("longitude", longitude);
+				reqParams.put("latitude", latitude);
+				reqParams.put("licenceRemplacee", licenceRemplacee);
+				reqParams.put("motif", motif);
+				// params.put("imageFileName", imageFileName);
+				reqParams.put("imageFileName", imgPath);
+				Log.e("Debug", "" + imgPath);
+				Log.e("Debug", "" + imageRealPath);
+
+				localisation = new Localisation(animateurId, imgPath, superviseurId,
+						pdvId, longitude, latitude, licenceRemplacee, motif, Utils.now());
+				
+				long localisationId = db.createLocalisation(localisation);
+				Statics.localisationDone = true;
+				Statics.lastLocalisationId = (int) localisationId;
+				return "DATA_SAVED";
+			} catch (Exception e) {
+				e.printStackTrace();
+				resp = e.getMessage();
+			}
+			return resp;
+		}
+
+		
+		@Override
+		protected void onPostExecute(String result) {
+			Fragment1.this.btn_save.setText("Enregistrer");
+			
+			if(result.equals("LOCATION_NOT_FOUND")){
+				Toast.makeText(
+						Fragment1.this.getActivity().getApplicationContext(),
+						"Erreur : Impossible de récupérer la dernière localisation (GPS)! Le cache de la dernière position a peut être été vider.",
+						Toast.LENGTH_LONG).show();
+				return;
+			}
+			if(result.equals("NO_PDV_SELECTED")){
+				Toast.makeText(
+						Fragment1.this.getActivity().getApplicationContext(),
+						"Vous devez indiquer un point de vente.",
+						Toast.LENGTH_LONG).show();
+				return;
+			}
+			if(result.equals("DATA_SAVED")){
+				MainActivity.addRapportTab();
+				Toast.makeText(Fragment1.this.getActivity().getApplicationContext(),
+						"Localisation enregistrée sur la mémoire locale.",
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// Things to be done before execution of long running operation. For
+			// example showing ProgessDialog
+			Fragment1.this.btn_save.setText("En cours...");
+		}
+
+		@Override
+		protected void onProgressUpdate(String... text) {
+			//finalResult.setText(text[0]);
+			// Things to be done while execution of long running operation is in
+			// progress. For example updating ProgessDialog
+		}
 	}
 
 }

@@ -19,6 +19,9 @@ import com.bse.daisybuzz.helper.Constants;
 import com.bse.daisybuzz.helper.Preferences;
 import com.bse.daisybuzz.helper.Statics;
 import com.bse.daisybuzz.helper.Utils;
+import com.bse.daisybuzz.main.QuestionnaireSummaryPopup.AsyncTaskRunner;
+import com.bse.daisybuzz.test.QuestionnaireDisponibilite;
+import com.bse.daisybuzz.test.QuestionnaireShelfShare;
 
 import android.support.v7.app.ActionBarActivity;
 import android.app.AlertDialog;
@@ -26,6 +29,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
@@ -43,7 +47,7 @@ public class LoginActivity extends ActionBarActivity {
 	private EditText editText_username = null;
 	private EditText editText_password = null;
 	// private TextView attempts;
-	private Button login;
+	private Button btnLogin;
 	// int counter = 3;
 	
 	
@@ -72,8 +76,17 @@ public class LoginActivity extends ActionBarActivity {
 		 * attempts = (TextView)findViewById(R.id.textView5);
 		 * attempts.setText(Integer.toString(counter));
 		 */
-		login = (Button) findViewById(R.id.button1);
-		
+		btnLogin = (Button) findViewById(R.id.button1);
+		btnLogin.setOnClickListener(new Button.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if(btnLogin.getText().equals("En cours...")) return;
+				LoginAsyncTaskRunner runner = new LoginAsyncTaskRunner();
+				String sleepTime = "1000";
+				runner.execute(sleepTime);
+			}
+		});
 		if (android.os.Build.VERSION.SDK_INT > 9) { 
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
 					.permitAll().build();
@@ -98,68 +111,6 @@ public class LoginActivity extends ActionBarActivity {
 		
 	}
 
-	public void login(View view) {		
-	
-		String inputUsername = editText_username.getText().toString();
-		String inputPassword = editText_password.getText().toString();
-		// fetch the Password form database for respective user name
-
-		Preferences preferences = new Preferences(this);
-			
-
-		if(Common.isNetworkAvailable(this)){
-			int authenticationResult = authenticateUser(inputUsername, inputPassword);
-			if (authenticationResult > 0) {
-				Toast.makeText(getApplicationContext(),
-						"Connexion en cours...", Toast.LENGTH_SHORT).show();
-				
-				Statics.sfoId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
-				
-				Intent intent = new Intent(this, MainActivity.class);
-				startActivity(intent);
-				finish();
-			} else if (authenticationResult == 0){
-				Toast.makeText(getApplicationContext(), "Compte invalide ! (Connexion via serveur)",
-						Toast.LENGTH_SHORT).show();
-			} else if (authenticationResult == -1){
-				Toast.makeText(
-						this.getApplicationContext(),
-						"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
-						Toast.LENGTH_LONG).show();
-			}
-		}else{
-			// try to connect using local data
-			String storedUsername = preferences.getStringValue("USERNAME");
-			String storedPassword = preferences.getStringValue("PASSWORD");	
-			
-			if(storedUsername.isEmpty()){
-				Toast.makeText(
-						this.getApplicationContext(),
-						"Pour pouvoir vous connecter à l'application sans internet il vous faut réaliser une connexion en vous connectant à internet !",
-						Toast.LENGTH_LONG).show();
-				return; 
-			}
-			
-			if (!storedUsername.isEmpty() && !storedPassword.isEmpty()) {
-				// check if the Stored username and password matches with Password entered by
-				// user
-				if (inputUsername.equals(storedUsername) && inputPassword.equals(storedPassword)) {				
-					Toast.makeText(getApplicationContext(),
-							"Connexion en cours...", Toast.LENGTH_SHORT).show();
-					
-					Statics.sfoId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
-					
-					Intent intent = new Intent(this, MainActivity.class);
-					startActivity(intent);
-					finish();
-				} else {
-					Toast.makeText(getApplicationContext(), "Compte invalide ! (Connexion locale)",
-							Toast.LENGTH_SHORT).show();
-				}
-			}
-		}
-
-	}
 
 	private int authenticateUser(String username, String password) {
 		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
@@ -210,41 +161,6 @@ public class LoginActivity extends ActionBarActivity {
 		}
 				
 	}
-	
-	
-	private void promptEmptyWebServiceUrlDialog() {
-		AlertDialog.Builder alert = new AlertDialog.Builder(this);
-
-		alert.setTitle("Première utilisation");
-		alert.setMessage("Vous devez lier l'application à un webservice : Ex : http://192.168.1.29/_testZone/webservice/");
-
-		// Set an EditText view to get user input
-		final EditText input = new EditText(this);
-		input.setText(Constants.DEFAULT_WEBSERVICE_URL_ROOT);
-		alert.setView(input);
-
-		alert.setPositiveButton("Continuer",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						String value = input.getText().toString();
-						Preferences preferences = new Preferences(
-								LoginActivity.this);
-						preferences.saveValue("PARAM_WEBSERVICE_ROOT_URL",
-								value);
-												
-					}
-				});
-
-		alert.setNegativeButton("Quitter l'application",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						// stop the appication on cancel
-						finish();
-					}
-				});
-
-		alert.show();
-	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -263,5 +179,119 @@ public class LoginActivity extends ActionBarActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	/**************************************************************************************/
+	/****************************     AsyncTaskRunner       *******************************/
+	/**************************************************************************************/
+	
+	class LoginAsyncTaskRunner extends AsyncTask<String, String, String> {
+		
+		private String resp;
+		private int authenticationResult;
+		private Preferences preferences;
+
+		@Override
+		protected String doInBackground(String... params) {
+			publishProgress("Sleeping..."); // Calls onProgressUpdate()
+			try {
+				String inputUsername = editText_username.getText().toString();
+				String inputPassword = editText_password.getText().toString();
+				// fetch the Password form database for respective user name
+
+				preferences = new Preferences(LoginActivity.this);
+					
+
+				if(Common.isNetworkAvailable(LoginActivity.this)){
+					authenticationResult = authenticateUser(inputUsername, inputPassword);
+					return String.valueOf(authenticationResult);
+				}else{
+					// try to connect using local data
+					String storedUsername = preferences.getStringValue("USERNAME");
+					String storedPassword = preferences.getStringValue("PASSWORD");	
+					
+					if(storedUsername.isEmpty()){
+						return "LOCAL_CONNECTION_FAILED__NEVER_CONNECTED_ONLINE"; 
+					}
+					
+					if (!storedUsername.isEmpty() && !storedPassword.isEmpty()) {
+						// check if the Stored username and password matches with Password entered by
+						// user
+						if (inputUsername.equals(storedUsername) && inputPassword.equals(storedPassword)) {				
+							return "LOCAL_CONNECTION_SUCCESS";
+						} else {
+							return "LOCAL_CONNECTION_INCORRECT_CREDENTIALS";
+						}
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				resp = e.getMessage();
+			}
+			return resp;
+		}
+
+		
+		@Override
+		protected void onPostExecute(String result) {
+			LoginActivity.this.btnLogin.setText("Connexion");
+			if(result.equals("LOCAL_CONNECTION_FAILED__NEVER_CONNECTED_ONLINE")){
+				Toast.makeText(
+						LoginActivity.this.getApplicationContext(),
+						"Pour pouvoir vous connecter à l'application sans internet il vous faut réaliser une connexion en vous connectant à internet !",
+						Toast.LENGTH_LONG).show();
+				return;
+			}
+			if(result.equals("LOCAL_CONNECTION_INCORRECT_CREDENTIALS")){
+				Toast.makeText(getApplicationContext(), "Compte invalide ! (Connexion locale)",
+						Toast.LENGTH_SHORT).show();
+				return;
+			}
+			if(result.equals("LOCAL_CONNECTION_SUCCESS")){
+				Toast.makeText(getApplicationContext(),
+						"Connexion en cours...", Toast.LENGTH_SHORT).show();
+				
+				Statics.sfoId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
+				
+				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+				startActivity(intent);
+				finish();
+				return;
+			}
+			// CONNECTED ONLINE result contains the SFO_ID
+			if (Integer.valueOf(result) >1) {
+				Toast.makeText(getApplicationContext(),
+						"Connexion en cours...", Toast.LENGTH_SHORT).show();
+				
+				Statics.sfoId = Integer.valueOf(preferences.getStringValue("ANIMATEUR_ID"));
+				
+				Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+				startActivity(intent);
+				finish();
+				return;
+			} else if (Integer.valueOf(result) == 0){
+				Toast.makeText(getApplicationContext(), "Compte invalide ! (Connexion via serveur)",
+						Toast.LENGTH_SHORT).show();
+			} else if (Integer.valueOf(result) == -1){
+				Toast.makeText(
+						LoginActivity.this.getApplicationContext(),
+						"Impossible de communiquer avec le serveur distant ! Réessayer plus tard ...",
+						Toast.LENGTH_LONG).show();
+			}
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// Things to be done before execution of long running operation. For
+			// example showing ProgessDialog
+			LoginActivity.this.btnLogin.setText("En cours...");
+		}
+
+		@Override
+		protected void onProgressUpdate(String... text) {
+			//finalResult.setText(text[0]);
+			// Things to be done while execution of long running operation is in
+			// progress. For example updating ProgessDialog
+		}
 	}
 }
