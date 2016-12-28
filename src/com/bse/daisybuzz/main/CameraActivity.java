@@ -2,10 +2,14 @@ package com.bse.daisybuzz.main;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -160,6 +164,16 @@ public class CameraActivity extends Activity {
 					camera.setParameters(parameters);
 					cameraConfigured = true;
 				}
+				
+				if (CameraActivity.this.getResources().getConfiguration().orientation !=
+		                Configuration.ORIENTATION_LANDSCAPE)
+		        {
+		            parameters.set("orientation", "portrait");
+		            // For Android Version 2.2 and above
+		            camera.setDisplayOrientation(90);
+		            // For Android Version 2.0 and above
+		            parameters.setRotation(90);
+		        }
 			}
 		}
 	}
@@ -173,7 +187,6 @@ public class CameraActivity extends Activity {
 
 	SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
 		public void surfaceCreated(SurfaceHolder holder) {
-			// no-op -- wait until surfaceChanged()
 		}
 
 		public void surfaceChanged(SurfaceHolder holder, int format, int width,
@@ -189,6 +202,7 @@ public class CameraActivity extends Activity {
 
 	Camera.PictureCallback photoCallback = new Camera.PictureCallback() {
 		public void onPictureTaken(byte[] data, Camera camera) {
+			camera.setDisplayOrientation(90);
 			new SavePhotoTask().execute(data);
 			camera.startPreview();
 			inPreview = true;
@@ -216,9 +230,13 @@ public class CameraActivity extends Activity {
 				BitmapFactory.Options options = new BitmapFactory.Options();
 				Fragment1.imageBitmap = BitmapFactory.decodeByteArray(jpeg[0], 0,
 						jpeg[0].length, options);
+				Matrix mtx = new Matrix();
+		          mtx.preRotate(90);
+
+		        // Rotating Bitmap & convert to ARGB_8888
+		        Fragment1.imageBitmap = Bitmap.createBitmap(Fragment1.imageBitmap, 0, 0, Fragment1.imageBitmap.getWidth(), Fragment1.imageBitmap.getHeight(), mtx, false);
+		        Fragment1.imageBitmap = Fragment1.imageBitmap.copy(Bitmap.Config.RGB_565, true);
 				
-				// bitmap.recycle();
-				// bitmap = null;
 			} catch (java.io.IOException e) {
 				Log.e("PictureDemo", "Exception in photoCallback", e);
 			}
@@ -229,6 +247,8 @@ public class CameraActivity extends Activity {
 		@Override
 		protected void onPostExecute(String result) {
 			Fragment1.imageView.setImageBitmap(Fragment1.imageBitmap);
+			//Fragment1.imageBitmap.recycle();
+			//Fragment1.imageBitmap = null;
 		}
 	}
 }

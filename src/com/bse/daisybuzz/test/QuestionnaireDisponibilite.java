@@ -2,6 +2,8 @@ package com.bse.daisybuzz.test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
 import com.bse.daisybuzz.helper.SqliteDatabaseHelper;
 import com.bse.daisybuzz.helper.Statics;
 import com.bse.daisybuzz.helper.Utils;
@@ -50,7 +52,6 @@ public class QuestionnaireDisponibilite {
 	
 	private static Activity _targetActivity;
 	private static int[][] _quantitiesArray;
-	private ArrayList<EditText> _editTextsArray;
 	private static SqliteDatabaseHelper _db;
 	
 	Spinner _cb_categorie;
@@ -65,8 +66,8 @@ public class QuestionnaireDisponibilite {
 	private static long _lastSysTimeMillis = 0; // used to help calculate _tempsRemplissage
 	
 	public void init(final Activity activity, LinearLayout containerLayout){
-		this._targetActivity = activity;
-		_db = new SqliteDatabaseHelper(this._targetActivity.getApplicationContext());
+		QuestionnaireDisponibilite._targetActivity = activity;
+		_db = new SqliteDatabaseHelper(QuestionnaireDisponibilite._targetActivity.getApplicationContext());
 		_categoriesProduitsList = _db.getAllCategoriesOfProduits(); 
 		_poisList = _db.getAllPois();
 		_produitsList = _db.getAllProduits();
@@ -74,10 +75,10 @@ public class QuestionnaireDisponibilite {
 		_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
 		initQuantitiesArray();
 		
-		createCategorieProduitsSpinner(this._targetActivity, containerLayout);
-		createSegmentSpinner(this._targetActivity, containerLayout);
-		createPoiSpinner(this._targetActivity, containerLayout);
-		createFilterEditBox(this._targetActivity, containerLayout);
+		createCategorieProduitsSpinner(QuestionnaireDisponibilite._targetActivity, containerLayout);
+		createSegmentSpinner(QuestionnaireDisponibilite._targetActivity, containerLayout);
+		createPoiSpinner(QuestionnaireDisponibilite._targetActivity, containerLayout);
+		createFilterEditBox(QuestionnaireDisponibilite._targetActivity, containerLayout);
 		/*columns = new String[4];
 		columns[0] = "Segment 1";
 		columns[1] = "Segment 2";
@@ -94,7 +95,7 @@ public class QuestionnaireDisponibilite {
 	    
 	    hsv.addView(linearLayout);
 
-		createTableLayout(this._targetActivity, linearLayout);
+		createTableLayout(QuestionnaireDisponibilite._targetActivity, linearLayout);
 	    
 		Button addProductReferenceButton = new Button(activity);
 		addProductReferenceButton.setText("AJOUTER REFERENCE");
@@ -214,7 +215,7 @@ public class QuestionnaireDisponibilite {
 	}
 
 	private void createTableLayout(Activity activity, LinearLayout containerLayout) {
-		_tableLayout = new TableLayout(this._targetActivity);
+		_tableLayout = new TableLayout(QuestionnaireDisponibilite._targetActivity);
 		_tableLayout = fillTableLayout();
 		_tableLayout.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		containerLayout.addView(_tableLayout);
@@ -252,11 +253,10 @@ public class QuestionnaireDisponibilite {
 		_segmentsOfSelectedCategorieProduitsList.add(new  Categorie()); // FIXME : ajouter un element vide sinon une colonne ne s'affiche pas
 		initQuantitiesArray();
 		
-		_editTextsArray = new ArrayList<EditText>();
 		_tableLayout.removeAllViews();
 		
 		//_produitsList = _db.getAllProduits();
-		List rows = _produitsList;
+		List<Produit> rows = _produitsList;
 		int rowCount = rows.size();
 		
 		// 1) Create a tableLayout and its params
@@ -270,16 +270,16 @@ public class QuestionnaireDisponibilite {
 
 		for (int i = 0; i < rowCount; i++) {
 			// 3) create tableRow
-			TableRow tableRow = new TableRow(this._targetActivity);
+			TableRow tableRow = new TableRow(QuestionnaireDisponibilite._targetActivity);
 			tableRow.setBackgroundColor(Color.parseColor("#eeeeee"));
 
-			TextView textView = new TextView(this._targetActivity);
+			TextView textView = new TextView(QuestionnaireDisponibilite._targetActivity);
 			textView.setTextSize(16);
 			textView.setText(rows.get(i).toString());
 			textView.setTextColor(Color.RED);
 			textView.setTypeface(null, Typeface.BOLD);
 			tableRow.addView(textView, tableRowParams);	
-			EditText productQtyEditText =	new EditText(this._targetActivity);	
+			EditText productQtyEditText =	new EditText(QuestionnaireDisponibilite._targetActivity);	
 			
 			// textView.setText(String.valueOf(j));
 			//_editTextsArray[i][j].setBackgroundColor(Color.WHITE);
@@ -323,7 +323,6 @@ public class QuestionnaireDisponibilite {
 		            }
 		        }
 		    });
-		    _editTextsArray.add(productQtyEditText);
 			//editTextsArray[i][j] = editText; // save editText to the array to make it easy to get back it's value when needed
 			
 			tableRow.addView(productQtyEditText, tableRowParams);			
@@ -443,7 +442,7 @@ public class QuestionnaireDisponibilite {
 	    		dataArray.add(categorie.toString());
 	    }
 	    
-	    ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(this._targetActivity, android.R.layout.simple_spinner_dropdown_item, dataArray);
+	    ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(QuestionnaireDisponibilite._targetActivity, android.R.layout.simple_spinner_dropdown_item, dataArray);
 	    _cb_segment.setAdapter(spinnerArrayAdapter);
 	}
 	
@@ -463,7 +462,6 @@ public class QuestionnaireDisponibilite {
 			public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
 				//QuestionnaireDisponibilite.this.fillTableLayout();
 				for(int i = 0, j = _tableLayout.getChildCount(); i < j; i++) {
-					Produit respectiveProduct = _produitsList.get(i);
 				    View view = _tableLayout.getChildAt(i);
 				    if (view instanceof TableRow) {
 				        // then, you can remove the the row you want...
